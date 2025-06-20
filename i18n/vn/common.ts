@@ -1,0 +1,30 @@
+const common = {
+  cancel: "Huỷ",
+  delete: "Xoá",
+  create: "Tạo",
+  accept: "Chấp thuận",
+  save: "Lưu",
+  invalidNameTitle: "Tên Không Hợp Lệ",
+  groupNameEmptyError: "Tên nhóm không được để trống.",
+  remove: "Xóa",
+  goBack: "Quay Lại",
+  skip: "Bỏ qua",
+  ok: "Đồng ý",
+  undo: "Quay lại",
+  optional: "Tuỳ chọn",
+  error: "Lỗi",
+  success: "Thành công",
+  today: "Hôm nay",
+  yesterday: "Hôm qua",
+  consonant: "Phụ âm",
+  vowel: "Nguyên âm",
+  letGo: "Đi nào!",
+  viewAll: "Toàn bộ",
+  energyModalTitle: "Hết Năng Lượng!",
+  energyModalMessage:
+    "Bạn đã hết năng lượng cho hôm nay. Vui lòng thử lại vào ngày mai.",
+  answer: "Câu trả lời",
+  you: "Bạn",
+};
+
+export default common;

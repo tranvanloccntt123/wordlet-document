@@ -1,0 +1,30 @@
+const common = {
+  cancel: "cancel",
+  delete: "delete",
+  create: "create",
+  accept: "accept",
+  save: "Save",
+  invalidNameTitle: "Invalid Name",
+  groupNameEmptyError: "Group name cannot be empty.",
+  remove: "Remove",
+  goBack: "Go Back",
+  skip: "Skip",
+  ok: "OK",
+  undo: "Undo",
+  optional: "Optional",
+  error: "Error",
+  success: "Success",
+  today: "Today",
+  yesterday: "Yesterday",
+  consonant: "Consonants",
+  vowel: "Vowel",
+  letGo: "Let Go!",
+  viewAll: "View All",
+  energyModalTitle: "Out of Energy!",
+  energyModalMessage:
+    "You have run out of energy for today. Please try again tomorrow.",
+  answer: "Answer",
+  you: "You",
+};
+
+export default common;

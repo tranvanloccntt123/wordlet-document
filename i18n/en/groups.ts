@@ -1,0 +1,38 @@
+const groups = {
+  title: "Groups",
+  createGroup: "Create Group",
+  joinGroup: "Join Group",
+  noGroups: "No groups yet!",
+  startManaging: "Start managing your groups or create a new one.",
+  groupName: "Group Name",
+  groupDescription: "Group Description (Optional)",
+  members: "Members",
+  leaveGroup: "Leave Group",
+  deleteGroup: "Delete Group",
+  confirmLeave: "Are you sure you want to leave this group?",
+  confirmDelete:
+    "Are you sure you want to delete this group? This action cannot be undone.",
+  searchGroups: "Search for groups...",
+  groupCreated: "Group created successfully!",
+  groupJoined: "Successfully joined group!",
+  groupLeft: "Successfully left group.",
+  groupDeleted: "Group deleted successfully.",
+  errorCreatingGroup: "Error creating group. Please try again.",
+  errorJoiningGroup: "Error joining group. Please try again.",
+  errorLeavingGroup: "Error leaving group. Please try again.",
+  errorDeletingGroup: "Error deleting group. Please try again.",
+  errorUpdatingGroup: "Error updating group. Please try again.",
+  enterGroupName: "Please enter a group name.",
+  wordCount_one: "{{count}} word",
+  wordCount_other: "{{count}} words",
+  editGroupTitle: "Edit Group Name",
+  editGroupPlaceholder: "Enter new group name",
+  removeWordTitle: "Remove Word",
+  confirmRemoveWordMessage:
+    'Are you sure you want to remove "{{wordName}}" from "{{groupName}}"?',
+  editContentForTitle: 'Edit Content for "{{wordName}}"',
+  limitReachedTitle: "Group Limit Reached",
+  limitReachedMessage: "You can only create up to {{limit}} groups.",
+};
+
+export default groups;

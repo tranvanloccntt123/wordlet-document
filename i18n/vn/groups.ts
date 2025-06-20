@@ -1,0 +1,38 @@
+const groups = {
+  title: "Nhóm",
+  createGroup: "Tạo Nhóm",
+  joinGroup: "Tham Gia Nhóm",
+  noGroups: "Chưa có nhóm nào!",
+  startManaging: "Bắt đầu quản lý nhóm của bạn hoặc tạo một nhóm mới.",
+  groupName: "Tên Nhóm",
+  groupDescription: "Mô Tả Nhóm (Không bắt buộc)",
+  members: "Thành viên",
+  leaveGroup: "Rời Nhóm",
+  deleteGroup: "Xóa Nhóm",
+  confirmLeave: "Bạn có chắc chắn muốn rời khỏi nhóm này không?",
+  confirmDelete:
+    "Bạn có chắc chắn muốn xóa nhóm này không? Hành động này không thể hoàn tác.",
+  searchGroups: "Tìm kiếm nhóm...",
+  groupCreated: "Tạo nhóm thành công!",
+  groupJoined: "Tham gia nhóm thành công!",
+  groupLeft: "Rời nhóm thành công.",
+  groupDeleted: "Xóa nhóm thành công.",
+  errorCreatingGroup: "Lỗi tạo nhóm. Vui lòng thử lại.",
+  errorJoiningGroup: "Lỗi tham gia nhóm. Vui lòng thử lại.",
+  errorLeavingGroup: "Lỗi rời nhóm. Vui lòng thử lại.",
+  errorDeletingGroup: "Xoá nhóm lỗi. Vui lòng thử lại.",
+  errorUpdatingGroup: "Cập nhật nhóm thất bại. Vui lòng thử lại.",
+  enterGroupName: "Vui lòng nhập tên nhóm.",
+  wordCount_one: "{{count}} từ",
+  wordCount_other: "{{count}} từ",
+  editGroupTitle: "Chỉnh Sửa Tên Nhóm",
+  editGroupPlaceholder: "Nhập tên nhóm mới",
+  removeWordTitle: "Xóa Từ",
+  confirmRemoveWordMessage:
+    'Bạn có chắc chắn muốn xóa từ "{{wordName}}" khỏi nhóm "{{groupName}}" không?',
+  editContentForTitle: 'Chỉnh Sửa Nội Dung cho "{{wordName}}"',
+  limitReachedTitle: "Đã Đạt Giới Hạn Nhóm",
+  limitReachedMessage: "Bạn chỉ có thể tạo tối đa {{limit}} nhóm.",
+};
+
+export default groups;

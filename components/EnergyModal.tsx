@@ -1,0 +1,100 @@
+import useEnergyStore from "@/store/energyStore";
+import useThemeStore from "@/store/themeStore";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { ScaledSheet, ms, s } from "react-native-size-matters";
+
+const EnergyModal: React.FC = () => {
+  const { isVisible, setIsVisible } = useEnergyStore();
+  const { colors } = useThemeStore();
+  const { t } = useTranslation();
+  const styles = createStyles(colors);
+
+  return (
+    <Modal
+      transparent={true}
+      animationType="fade"
+      visible={isVisible}
+      onRequestClose={() => setIsVisible(false)} // Handle Android back button
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <MaterialCommunityIcons
+            name="flash" // Bolt icon
+            size={s(100)}
+            color={colors.warning} // Using warning color for energy, adjust as needed
+          />
+          <Text style={styles.titleText}>{t("common.energyModalTitle")}</Text>
+          <Text style={styles.messageText}>
+            {t("common.energyModalMessage")}
+          </Text>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.primary }]}
+            onPress={() => setIsVisible(false)}
+          >
+            <Text style={[styles.buttonText, { color: colors.card }]}>
+              {t("common.ok")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+const createStyles = (
+  colors: any // Define a proper type for colors if available
+) =>
+  ScaledSheet.create({
+    overlay: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.6)",
+    },
+    container: {
+      width: "85%",
+      maxWidth: s(320),
+      padding: ms(20),
+      backgroundColor: colors.card,
+      borderRadius: s(12),
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    icon: {
+      marginBottom: ms(15),
+    },
+    titleText: {
+      fontSize: ms(20),
+      fontWeight: "bold",
+      color: colors.textPrimary,
+      textAlign: "center",
+      marginBottom: ms(10),
+    },
+    messageText: {
+      fontSize: ms(16),
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginBottom: ms(25),
+      lineHeight: ms(22),
+    },
+    button: {
+      paddingVertical: ms(12),
+      paddingHorizontal: ms(30),
+      borderRadius: s(8),
+      alignItems: "center",
+      width: "100%",
+    },
+    buttonText: {
+      fontSize: ms(16),
+      fontWeight: "bold",
+    },
+  });
+
+export default EnergyModal;

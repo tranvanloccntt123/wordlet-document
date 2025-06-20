@@ -1,0 +1,60 @@
+import { setQueryData } from "@/hooks/useQuery";
+import { getGroupKey, getOwnerGroup } from "@/utils/string";
+import {
+  createGroup,
+  deleteGroup,
+  fetchOwnerGroup,
+  updateGroup,
+} from "./supabase";
+
+export const updateGroupInfo = async (
+  groupId: number,
+  updater: Group | Updater<Group | undefined>
+) => {
+  const newData = setQueryData(getGroupKey(groupId), updater);
+  if (newData) {
+    await updateGroup(newData);
+  }
+};
+
+export const syncOwnerGroup = async () => {
+  const { error, data } = await fetchOwnerGroup();
+  if (!error && !!data) {
+    data.map((group) => setQueryData(getGroupKey(group.id), group));
+    setQueryData(
+      getOwnerGroup(),
+      data.map((v) => v.id)
+    );
+  }
+};
+
+export const createGroupInfo = async (name?: string) => {
+  try {
+    const { data, error } = await createGroup(name);
+    if (!error && data?.data?.[0]) {
+      setQueryData<Group>(getGroupKey(data.data[0].id as number), data.data[0]);
+      setQueryData<number[]>(getOwnerGroup(), (oldData) => {
+        if (!oldData) {
+          return [data.data[0].id];
+        }
+        return [...oldData, data.data[0].id];
+      });
+      return data.data[0].id;
+    }
+    throw "Failed to create group";
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const deleteGroupInfo = async (groupId: number) => {
+  try {
+    await deleteGroup(groupId);
+    setQueryData<number[]>(getOwnerGroup(), (oldData) => {
+      if (!oldData) {
+        return oldData;
+      }
+      return oldData.filter((id) => id !== groupId);
+    });
+  } catch (e) {}
+};
