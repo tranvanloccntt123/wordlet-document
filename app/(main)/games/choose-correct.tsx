@@ -64,14 +64,18 @@ const ChooseCorrect = () => {
   const handleAnswerPress = async (answer: string) => {
     if (!currentWordDetail) return; // Should not happen if logic is correct
     const correctAnswer = currentWordDetail.word;
+    let delay = 500;
     if (answer === correctAnswer) {
       submitAnswer(answer, 1);
-      await playWord(currentWordDetail.word, currentWordDetail.source); // Speak the correct word
+      await playWord(currentWordDetail.word, currentWordDetail.source, 0.7); // Speak the correct word
     } else {
       await playerLoss.seekTo(0);
       await playerLoss.play();
+      delay = 1200;
     }
-    next();
+    setTimeout(() => {
+      next();
+    }, delay);
   };
 
   const progress = t("games.progressText", {
