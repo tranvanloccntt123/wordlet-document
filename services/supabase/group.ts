@@ -1,7 +1,7 @@
 import {
-    SUPABASE_FUNCTION,
-    SUPABASE_SCHEMA,
-    SUPABASE_TABLE,
+  SUPABASE_FUNCTION,
+  SUPABASE_SCHEMA,
+  SUPABASE_TABLE,
 } from "@/constants/Supabase";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import i18next from "i18next";
@@ -110,6 +110,7 @@ export const fetchGroups = async (
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
       .select("id, name, created_at, words, is_boosted, user_id")
+      .eq("is_publish", true)
       .order("is_boosted", { ascending: false })
       .order("created_at", { ascending: false }) // Fetch newest first
       .limit(limit);
