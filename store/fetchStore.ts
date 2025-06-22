@@ -7,6 +7,7 @@ interface QueriesData<T = any> {
   data: T;
   isError: boolean;
   error: any;
+  lastFetch: Date | null;
 }
 
 type FetchStore = {
@@ -27,6 +28,7 @@ export const fetchStore = create<FetchStore, any>(
           data: null,
           isError: false,
           error: null,
+          lastFetch: null,
         };
       });
       try {
@@ -35,6 +37,7 @@ export const fetchStore = create<FetchStore, any>(
           state.fetchData[key].isLoading = false;
           state.fetchData[key].data = res;
           state.fetchData[key].isRefreshing = false;
+          state.fetchData[key].lastFetch = new Date();
         });
         return res;
       } catch (e) {
@@ -43,6 +46,7 @@ export const fetchStore = create<FetchStore, any>(
           state.fetchData[key].isError = true;
           state.fetchData[key].error = e;
           state.fetchData[key].isRefreshing = false;
+          state.fetchData[key].lastFetch = null;
         });
         throw e;
       }
@@ -56,6 +60,7 @@ export const fetchStore = create<FetchStore, any>(
             isError: oldData?.isError || false,
             error: oldData?.error || null,
             isRefreshing: oldData?.isRefreshing || false,
+            lastFetch: new Date(),
             data: data,
           };
         });

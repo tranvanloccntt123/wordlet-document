@@ -56,7 +56,7 @@ const SpeakAndCompareScreen = () => {
 
   const handleNextWord = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-    await stopListening();
+    await stopListening(true);
     setError("");
     setSpokenText("");
     submitAnswer(similarity, 1);

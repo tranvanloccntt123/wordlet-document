@@ -22,7 +22,7 @@ const useSpeakAndCompare = () => {
 
   const playerCorrect = useAudioPlayer(AppAudio.CORRECT);
 
-  const transcript = React.useRef<string>("");
+  const transcripts = React.useRef<string[]>([]);
 
   const currentWord = React.useRef<string>("");
 
@@ -51,69 +51,83 @@ const useSpeakAndCompare = () => {
     setIsListening(false);
   });
 
-  const calculateScore = async () => {
-    // console.log("TRANSCRIPT: ",transcript.current, "- CURRENT WORD", currentWord.current)
-    if (transcript.current) {
-      setIsCalculating(true);
-      setSpokenText(transcript.current);
-      const listword = currentWord.current.split(" ");
-      let sim = 0;
-      if (
-        currentWord.current.toLowerCase() === transcript.current.toLowerCase()
-      ) {
-        sim = 100;
-      } else {
-        //Current word cached
-        let _currentWordStore: WordStore[] | null =
-          getQueryData(getSearchKey(currentWord.current)) || null;
+  const calculateScorePerTranscript = async (transcript: string) => {
+    const listword = currentWord.current.split(" ");
+    let sim = 0;
+    if (currentWord.current.toLowerCase() === transcript.toLowerCase()) {
+      sim = 100;
+    } else {
+      //Current word cached
+      let _currentWordStore: WordStore[] | null =
+        getQueryData(getSearchKey(currentWord.current)) || null;
 
-        if (_currentWordStore === null) {
-          const res = (
-            await wordSupabase
-              .schema("public")
-              .from("fts_words")
-              .select("*")
-              .in(
-                "word",
-                listword.map((w) => w.trim()).filter((w) => !!w.length)
-              )
-          ).data;
-          setQueryData(getSearchKey(currentWord.current), res || []);
-          _currentWordStore = res || [];
-        }
-        //Transcript cached
-        let _transcriptWordStore: WordStore[] | null =
-          getQueryData(getSearchKey(transcript.current)) || null;
-
-        if (_transcriptWordStore === null) {
-          const res = (
-            await wordSupabase
-              .schema("public")
-              .from("fts_words")
-              .select("*")
-              .in(
-                "word",
-                transcript.current
-                  .split(" ")
-                  .map((w) => w.trim())
-                  .filter((w) => !!w.length)
-              )
-          ).data;
-          setQueryData(getSearchKey(transcript.current), res || []);
-          _transcriptWordStore = res || [];
-        }
-
-        for (const word of listword) {
-          const wordSim = await calculateSimilarityPercentage(
-            word,
-            transcript.current,
-            _currentWordStore || [],
-            _transcriptWordStore || []
-          );
-          sim += wordSim;
-        }
-        sim = sim / (listword.length || 1);
+      if (_currentWordStore === null) {
+        const res = (
+          await wordSupabase
+            .schema("public")
+            .from("fts_words")
+            .select("*")
+            .in(
+              "word",
+              listword.map((w) => w.trim()).filter((w) => !!w.length)
+            )
+        ).data;
+        setQueryData(getSearchKey(currentWord.current), res || []);
+        _currentWordStore = res || [];
       }
+      //Transcript cached
+      let _transcriptWordStore: WordStore[] | null =
+        getQueryData(getSearchKey(transcript)) || null;
+
+      if (_transcriptWordStore === null) {
+        const res = (
+          await wordSupabase
+            .schema("public")
+            .from("fts_words")
+            .select("*")
+            .in(
+              "word",
+              transcript
+                .split(" ")
+                .map((w) => w.trim())
+                .filter((w) => !!w.length)
+            )
+        ).data;
+        setQueryData(getSearchKey(transcript), res || []);
+        _transcriptWordStore = res || [];
+      }
+
+      for (const word of listword) {
+        const wordSim = await calculateSimilarityPercentage(
+          word,
+          transcript,
+          _currentWordStore || [],
+          _transcriptWordStore || []
+        );
+        sim += wordSim;
+      }
+      sim = sim / (listword.length || 1);
+    }
+    return sim;
+  };
+
+  const calculateScore = async () => {
+    if (transcripts.current) {
+      setIsCalculating(true);
+      // setSpokenText(transcript.current);
+      const simCalculate: Record<string, number> = {};
+
+      for (const transcript of transcripts.current) {
+        simCalculate[transcript] = await calculateScorePerTranscript(
+          transcript
+        );
+      }
+
+      const sim = Math.max(0, ...Object.values(simCalculate));
+
+      setSpokenText(
+        Object.keys(simCalculate).find((k) => simCalculate[k] === sim) || ""
+      );
       // Helper function to play sound and trigger haptics
       const playSoundAndHaptics = async (
         player: ReturnType<typeof useAudioPlayer>, // More specific type if available
@@ -150,11 +164,10 @@ const useSpeakAndCompare = () => {
   };
 
   useSpeechRecognitionEvent("result", async (event) => {
-    if (event.results && event.results.length > 0 && event.results[0]) {
-      const bestAlternativeItem = event.results[0]; // Correctly access the first alternative
-      transcript.current = bestAlternativeItem?.transcript || "";
+    if (event.results && event.results.length > 0) {
+      transcripts.current = event.results.map((v) => v.transcript) || [];
       if (event.isFinal)
-        if (transcript.current) {
+        if (transcripts.current) {
           await calculateScore();
         } else {
           setSpokenText("");

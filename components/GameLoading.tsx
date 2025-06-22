@@ -56,7 +56,9 @@ const GameLoading: React.FC<{
       router.replace({
         pathname: "/(main)/game-over",
         params: {
-          score: scores.reduce((old, current) => old + current, 0).toString(),
+          score: Math.round(
+            scores.reduce((old, current) => old + current, 0)
+          ).toString(),
           totalAnswerCorrect: scores
             .reduce((old, current) => (current > 0 ? old + 1 : old), 0)
             .toString(),

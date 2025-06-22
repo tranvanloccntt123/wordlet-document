@@ -1,29 +1,50 @@
 import useFetchStore, { fetchStore } from "@/store/fetchStore";
 import React from "react";
 
+/**
+ * @name useQuery
+ * @param key string
+ * @param disableCache boolean
+ * @param queryFn Promise function
+ * @param gcTime ms
+ */
 const useQuery = <T = any>({
   key,
   queryFn,
   disableCache,
+  gcTime = 70000,
 }: {
   key: string;
   queryFn: () => Promise<T>;
   disableCache?: boolean;
+  gcTime?: number;
 }) => {
   const fetch = useFetchStore((state) => state.fetch);
-  const { data, isError, isLoading, isRefreshing, error } = useFetchStore(
-    (state) =>
-      state.fetchData[key] || {
-        isLoading: true,
-        isRefreshing: false,
-        data: null,
-        isError: false,
-        error: null,
-      }
-  );
+  const { data, isError, isLoading, isRefreshing, error, lastFetch } =
+    useFetchStore(
+      (state) =>
+        state.fetchData[key] || {
+          isLoading: true,
+          isRefreshing: false,
+          data: null,
+          isError: false,
+          error: null,
+          lastFetch: null,
+        }
+    );
+
+  const fetchData = async () => {
+    if (
+      !data ||
+      disableCache ||
+      (lastFetch !== null && Date.now() - lastFetch.getTime() > gcTime)
+    ) {
+      fetch(key, queryFn);
+    }
+  };
 
   React.useEffect(() => {
-    if (!disableCache && !data) fetch(key, queryFn);
+    fetchData();
   }, []);
 
   return {
@@ -32,7 +53,7 @@ const useQuery = <T = any>({
     isError,
     isRefreshing,
     error,
-    refetch: async () => await fetch(key, queryFn),
+    refetch: fetchData,
   };
 };
 

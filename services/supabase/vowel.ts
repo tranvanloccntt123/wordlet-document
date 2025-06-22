@@ -51,7 +51,7 @@ export const updateVowelPercent = async (char: string, percent: number) => {
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.VOWEL_PERCENT)
     .update({ percent })
-    .eq("id", user?.id)
+    .eq("user_id", user?.id)
     .eq("char", char)
     .select()
     .single();
