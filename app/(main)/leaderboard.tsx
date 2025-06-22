@@ -1,7 +1,7 @@
 import CommonHeader from "@/components/CommonHeader";
 import {
-  fetchLeaderboardRanks,
-  fetchUserPlayerRank,
+    fetchLeaderboardRanks,
+    getUserPlayerRank,
 } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
 import React, { useEffect, useState } from "react";
@@ -35,7 +35,7 @@ const LeaderboardScreen = () => {
         if (ranksData) setLeaderboardData(ranksData);
 
         const { data: userRankData, error: userRankError } =
-          await fetchUserPlayerRank();
+          await getUserPlayerRank();
         if (userRankError && userRankError.code !== "PGRST116") {
           // PGRST116: single row not found
           throw userRankError;

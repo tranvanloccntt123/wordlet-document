@@ -1,8 +1,8 @@
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { registerForPushNotificationsAsync } from "@/services/notification";
-import { fetchOwnerGroup } from "@/services/supabase";
+import { getOwnerGroup } from "@/services/supabase";
 import useNotificationStore from "@/store/notificationStore";
-import { getGroupKey, getOwnerGroup } from "@/utils/string";
+import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import analytics from "@react-native-firebase/analytics"; // Recommended for FIAM
 import inAppMessaging from "@react-native-firebase/in-app-messaging"; // FIAM module
 import messaging from "@react-native-firebase/messaging";
@@ -32,9 +32,9 @@ async function setupFIAM() {
 
 const NotificationSetup: React.FC = () => {
   const { data: groups } = useQuery<number[]>({
-    key: getOwnerGroup(),
+    key: getOwnerGroupKey(),
     async queryFn() {
-      const { error, data } = await fetchOwnerGroup();
+      const { error, data } = await getOwnerGroup();
       if (!error && !!data) {
         data.map((group) => setQueryData(getGroupKey(group.id), group));
         return data.map((v) => v.id);

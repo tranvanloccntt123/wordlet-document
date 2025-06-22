@@ -1,4 +1,4 @@
-import { fetchUserPlayerRank } from "@/services/supabase";
+import { getUserPlayerRank } from "@/services/supabase";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -39,7 +39,7 @@ const useInfoStore = create<InfoState>()(
         state.isLoading = true;
       });
       try {
-        const { data } = await fetchUserPlayerRank();
+        const { data } = await getUserPlayerRank();
         if (!!data) {
           set((state) => {
             state.info = data;

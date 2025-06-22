@@ -1,9 +1,9 @@
 import { setQueryData } from "@/hooks/useQuery";
-import { getGroupKey, getOwnerGroup } from "@/utils/string";
+import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import {
   createGroup,
   deleteGroup,
-  fetchOwnerGroup,
+  getOwnerGroup,
   updateGroup,
 } from "./supabase";
 
@@ -18,11 +18,11 @@ export const updateGroupInfo = async (
 };
 
 export const syncOwnerGroup = async () => {
-  const { error, data } = await fetchOwnerGroup();
+  const { error, data } = await getOwnerGroup();
   if (!error && !!data) {
     data.map((group) => setQueryData(getGroupKey(group.id), group));
     setQueryData(
-      getOwnerGroup(),
+      getOwnerGroupKey(),
       data.map((v) => v.id)
     );
   }
@@ -33,7 +33,7 @@ export const createGroupInfo = async (name?: string) => {
     const { data, error } = await createGroup(name);
     if (!error && data?.data?.[0]) {
       setQueryData<Group>(getGroupKey(data.data[0].id as number), data.data[0]);
-      setQueryData<number[]>(getOwnerGroup(), (oldData) => {
+      setQueryData<number[]>(getOwnerGroupKey(), (oldData) => {
         if (!oldData) {
           return [data.data[0].id];
         }
@@ -50,7 +50,7 @@ export const createGroupInfo = async (name?: string) => {
 export const deleteGroupInfo = async (groupId: number) => {
   try {
     await deleteGroup(groupId);
-    setQueryData<number[]>(getOwnerGroup(), (oldData) => {
+    setQueryData<number[]>(getOwnerGroupKey(), (oldData) => {
       if (!oldData) {
         return oldData;
       }

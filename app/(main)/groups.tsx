@@ -7,9 +7,9 @@ import {
   deleteGroupInfo,
   updateGroupInfo,
 } from "@/services/groupServices";
-import { fetchGroupDetail, fetchOwnerGroup } from "@/services/supabase";
+import { fetchGroupDetail, getOwnerGroup } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore"; // Import theme store
-import { getGroupKey, getOwnerGroup } from "@/utils/string";
+import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -124,9 +124,9 @@ const GroupItem: React.FC<{
 
 const GroupManagementScreen = () => {
   const { data: groups } = useQuery<number[]>({
-    key: getOwnerGroup(),
+    key: getOwnerGroupKey(),
     async queryFn() {
-      const { error, data } = await fetchOwnerGroup();
+      const { error, data } = await getOwnerGroup();
       if (!error && !!data) {
         data.map((group) => setQueryData(getGroupKey(group.id), group));
         return data.map((v) => v.id);
@@ -141,7 +141,7 @@ const GroupManagementScreen = () => {
     null
   );
 
-  const atGroupLimit = (groups?.length || GROUP_LIMIT) >= GROUP_LIMIT;
+  const atGroupLimit = (groups?.length || 0) >= GROUP_LIMIT;
 
   const addGroup = async () => {
     if (atGroupLimit) {

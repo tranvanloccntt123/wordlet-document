@@ -1,7 +1,7 @@
 import messaging from "@react-native-firebase/messaging";
 import * as Notifications from "expo-notifications";
 import { Alert, Platform } from "react-native";
-import { fetchUpdateFCMToken } from "./supabase";
+import { updateFCMToken } from "./supabase";
 
 export const registerForPushNotificationsAsync = async () => {
   if (Platform.OS === "android") {
@@ -31,7 +31,7 @@ export const registerForPushNotificationsAsync = async () => {
 
   await messaging().registerDeviceForRemoteMessages();
   const token = await messaging().getToken();
-  fetchUpdateFCMToken(token);
+  updateFCMToken(token);
   // You can get the Expo Push Token here if you plan to send push notifications from a server
   // const token = (await Notifications.getExpoPushTokenAsync()).data;
   // console.log("Expo Push Token:", token);

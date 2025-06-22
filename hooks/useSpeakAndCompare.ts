@@ -7,7 +7,7 @@ import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   InteractionManager,
@@ -22,7 +22,9 @@ const useSpeakAndCompare = () => {
 
   const playerCorrect = useAudioPlayer(AppAudio.CORRECT);
 
-  const [currentWord, setCurrentWord] = useState<string>("");
+  const transcript = React.useRef<string>("");
+
+  const currentWord = React.useRef<string>("");
 
   const [error, setError] = useState<string>("");
 
@@ -49,108 +51,111 @@ const useSpeakAndCompare = () => {
     setIsListening(false);
   });
 
+  const calculateScore = async () => {
+    // console.log("TRANSCRIPT: ",transcript.current, "- CURRENT WORD", currentWord.current)
+    if (transcript.current) {
+      setIsCalculating(true);
+      setSpokenText(transcript.current);
+      const listword = currentWord.current.split(" ");
+      let sim = 0;
+      if (
+        currentWord.current.toLowerCase() === transcript.current.toLowerCase()
+      ) {
+        sim = 100;
+      } else {
+        //Current word cached
+        let _currentWordStore: WordStore[] | null =
+          getQueryData(getSearchKey(currentWord.current)) || null;
+
+        if (_currentWordStore === null) {
+          const res = (
+            await wordSupabase
+              .schema("public")
+              .from("fts_words")
+              .select("*")
+              .in(
+                "word",
+                listword.map((w) => w.trim()).filter((w) => !!w.length)
+              )
+          ).data;
+          setQueryData(getSearchKey(currentWord.current), res || []);
+          _currentWordStore = res || [];
+        }
+        //Transcript cached
+        let _transcriptWordStore: WordStore[] | null =
+          getQueryData(getSearchKey(transcript.current)) || null;
+
+        if (_transcriptWordStore === null) {
+          const res = (
+            await wordSupabase
+              .schema("public")
+              .from("fts_words")
+              .select("*")
+              .in(
+                "word",
+                transcript.current
+                  .split(" ")
+                  .map((w) => w.trim())
+                  .filter((w) => !!w.length)
+              )
+          ).data;
+          setQueryData(getSearchKey(transcript.current), res || []);
+          _transcriptWordStore = res || [];
+        }
+
+        for (const word of listword) {
+          const wordSim = await calculateSimilarityPercentage(
+            word,
+            transcript.current,
+            _currentWordStore || [],
+            _transcriptWordStore || []
+          );
+          sim += wordSim;
+        }
+        sim = sim / (listword.length || 1);
+      }
+      // Helper function to play sound and trigger haptics
+      const playSoundAndHaptics = async (
+        player: ReturnType<typeof useAudioPlayer>, // More specific type if available
+        hapticType: Haptics.NotificationFeedbackType
+      ) => {
+        try {
+          await player.seekTo(0);
+          await player.play();
+          Haptics.notificationAsync(hapticType);
+        } catch (e) {
+          console.error("Error playing sound or triggering haptics:", e);
+        }
+      };
+
+      ExpoSpeechRecognitionModule.stop();
+
+      // Ensure player operations and haptics run on the main thread
+      InteractionManager.runAfterInteractions(() => {
+        if (sim > 65) {
+          playSoundAndHaptics(
+            playerCorrect,
+            Haptics.NotificationFeedbackType.Success
+          );
+        } else {
+          playSoundAndHaptics(
+            playerLoss,
+            Haptics.NotificationFeedbackType.Error
+          );
+        }
+      });
+      setSimilarity(sim);
+      setIsCalculating(false);
+    }
+  };
+
   useSpeechRecognitionEvent("result", async (event) => {
     if (event.results && event.results.length > 0 && event.results[0]) {
       const bestAlternativeItem = event.results[0]; // Correctly access the first alternative
+      transcript.current = bestAlternativeItem?.transcript || "";
       if (event.isFinal)
-        if (bestAlternativeItem && bestAlternativeItem.transcript) {
-          setIsCalculating(true);
-          setSpokenText(bestAlternativeItem.transcript);
-          const listword = currentWord.split(" ");
-          let sim = 0;
-          if (
-            currentWord.toLowerCase() ===
-            bestAlternativeItem.transcript.toLowerCase()
-          ) {
-            sim = 100;
-          } else {
-            //Current word cached
-            let _currentWordStore: WordStore[] | null =
-              getQueryData(getSearchKey(currentWord)) || null;
-
-            if (_currentWordStore === null) {
-              const res = (
-                await wordSupabase
-                  .schema("public")
-                  .from("fts_words")
-                  .select("*")
-                  .in(
-                    "word",
-                    listword.map((w) => w.trim()).filter((w) => !!w.length)
-                  )
-              ).data;
-              setQueryData(getSearchKey(currentWord), res || []);
-              _currentWordStore = res || [];
-            }
-            //Transcript cached
-            let _transcriptWordStore: WordStore[] | null =
-              getQueryData(getSearchKey(bestAlternativeItem.transcript)) ||
-              null;
-
-            if (_transcriptWordStore === null) {
-              const res = (
-                await wordSupabase
-                  .schema("public")
-                  .from("fts_words")
-                  .select("*")
-                  .in(
-                    "word",
-                    bestAlternativeItem.transcript
-                      .split(" ")
-                      .map((w) => w.trim())
-                      .filter((w) => !!w.length)
-                  )
-              ).data;
-              setQueryData(
-                getSearchKey(bestAlternativeItem.transcript),
-                res || []
-              );
-              _transcriptWordStore = res || [];
-            }
-
-            for (const word of listword) {
-              const wordSim = await calculateSimilarityPercentage(
-                word,
-                bestAlternativeItem.transcript,
-                _currentWordStore || [],
-                _transcriptWordStore || []
-              );
-              sim += wordSim;
-            }
-            sim = sim / (listword.length || 1);
-          }
-          // Helper function to play sound and trigger haptics
-          const playSoundAndHaptics = async (
-            player: ReturnType<typeof useAudioPlayer>, // More specific type if available
-            hapticType: Haptics.NotificationFeedbackType
-          ) => {
-            try {
-              await player.seekTo(0);
-              await player.play();
-              Haptics.notificationAsync(hapticType);
-            } catch (e) {
-              console.error("Error playing sound or triggering haptics:", e);
-            }
-          };
-
-          ExpoSpeechRecognitionModule.stop();
-
-          // Ensure player operations and haptics run on the main thread
-          InteractionManager.runAfterInteractions(() => {
-            if (sim > 65) {
-              playSoundAndHaptics(
-                playerCorrect,
-                Haptics.NotificationFeedbackType.Success
-              );
-            } else {
-              playSoundAndHaptics(
-                playerLoss,
-                Haptics.NotificationFeedbackType.Error
-              );
-            }
-          });
-          setSimilarity(sim);
-          setIsCalculating(false);
+        if (transcript.current) {
+          await calculateScore();
         } else {
           setSpokenText("");
         }
@@ -192,8 +197,8 @@ const useSpeakAndCompare = () => {
 
   const startListening = async (word: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-    if (word !== currentWord) {
-      setCurrentWord(word);
+    if (word !== currentWord.current) {
+      currentWord.current = word;
     }
     const hasPermission = await requestMicrophonePermission();
     if (!hasPermission) {
@@ -221,9 +226,10 @@ const useSpeakAndCompare = () => {
     });
   };
 
-  const stopListening = async () => {
+  const stopListening = async (isSkip: boolean = false) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
     ExpoSpeechRecognitionModule.stop();
+    if (!isSkip) await calculateScore();
     setIsListening(false);
   };
 

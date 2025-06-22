@@ -5,7 +5,8 @@ import { immer } from "zustand/middleware/immer";
 interface EnergyState {
   energy: number;
   isLoading: boolean;
-  fetchEnergy: () => Promise<any>;
+  setEnergy: (energy: number) => void;
+  fetchEnergy: (isRefresh?: boolean) => Promise<any>;
   isVisible: boolean;
   setIsVisible: (_: boolean) => void;
 }
@@ -14,11 +15,19 @@ export const energyStore = create<EnergyState>()(
   immer((set, get) => ({
     energy: 0,
     isLoading: false,
-    async fetchEnergy() {
+    setEnergy(energy) {
+      set((state) => {
+        state.energy = energy;
+      });
+    },
+    async fetchEnergy(isRefresh = false) {
       set((state) => {
         state.isLoading = true;
       });
       try {
+        if (isRefresh) {
+          supabase.clearEnergyFetching();
+        }
         const { data, error } = await supabase.getEnergy();
         if (!error) {
           set((state) => {

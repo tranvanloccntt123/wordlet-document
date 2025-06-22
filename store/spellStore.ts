@@ -1,5 +1,5 @@
 import {
-  fetchVowelPercent,
+  getVowelPercent,
   insertVowelPercent,
   updateVowelPercent,
 } from "@/services/supabase";
@@ -37,7 +37,7 @@ const useSpellStore = create<SpellState>()(
       },
       fetchCurrentSpellStore: async () => {
         try {
-          const res = await fetchVowelPercent();
+          const res = await getVowelPercent();
           if (res.error) {
             throw "Failed to fetch vowel percent";
           }

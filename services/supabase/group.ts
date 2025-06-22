@@ -1,0 +1,123 @@
+import {
+    SUPABASE_FUNCTION,
+    SUPABASE_SCHEMA,
+    SUPABASE_TABLE,
+} from "@/constants/Supabase";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import i18next from "i18next";
+import { getUsers, supabase } from "./client";
+
+let ownerGroupFetching: any = null;
+
+export const clearOwnerGroupFetching = () => {
+  ownerGroupFetching = null;
+};
+
+export const createGroup = async (name?: string) => {
+  try {
+    const user = await getUsers();
+    const response = await supabase!.functions.invoke(
+      SUPABASE_FUNCTION.CREATE_GROUP,
+      {
+        body: { user_id: user?.id, words: [], name },
+      }
+    );
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const deleteGroup = async (groupId: number) => {
+  try {
+    const response = await supabase!.functions.invoke(
+      SUPABASE_FUNCTION.DELETE_GROUP,
+      {
+        body: { userId: groupId },
+      }
+    );
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+const fetchOwnerGroup = async () => {
+  const user = await getUsers();
+  const response = await supabase!
+    .schema(SUPABASE_SCHEMA)
+    .from(SUPABASE_TABLE.GROUP)
+    .select("*")
+    .eq("user_id", user?.id)
+    .eq("is_deleted", false);
+  return response;
+};
+
+export const getOwnerGroup = async () => {
+  try {
+    if (!ownerGroupFetching) {
+      ownerGroupFetching = fetchOwnerGroup();
+    }
+    const response: PostgrestSingleResponse<Group[]> = await ownerGroupFetching;
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const fetchGroupDetail = async (groupId: number) => {
+  try {
+    const response: PostgrestSingleResponse<Group> = await supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .select("*")
+      .eq("id", groupId)
+      .single();
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const updateGroup = async (group: Group) => {
+  try {
+    const { data, error } = await supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .update({ name: group.name, words: group.words, user_id: group.user_id })
+      .eq("id", group.id)
+      .select()
+      .single();
+    if (error) {
+      console.log(error);
+      throw i18next.t("groups.errorUpdatingGroup");
+    }
+    return data;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const fetchGroups = async (
+  limit: number = 10,
+  lastCreatedAt?: string // Pass the 'created_at' of the last fetched item
+) => {
+  try {
+    let query = supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .select("id, name, created_at, words, is_boosted, user_id")
+      .order("is_boosted", { ascending: false })
+      .order("created_at", { ascending: false }) // Fetch newest first
+      .limit(limit);
+    if (lastCreatedAt) {
+      query = query.lt("created_at", lastCreatedAt); // Fetch records older than the lastCreatedAt
+    }
+    return query;
+  } catch (e) {
+    throw e;
+  }
+};

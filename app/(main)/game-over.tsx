@@ -38,7 +38,7 @@ const GameOverScreen: React.FC<object> = () => {
     historyId?: string;
     isMyGroup?: string;
   }>();
-  const { fetchEnergy } = useEnergyStore();
+  const { setEnergy } = useEnergyStore();
   const score = params.score ? parseInt(params.score, 10) : 0;
   const totalAnswerCorrect = params.totalAnswerCorrect
     ? parseInt(params.totalAnswerCorrect, 10)
@@ -96,7 +96,9 @@ const GameOverScreen: React.FC<object> = () => {
           ? gameOver.victory
           : gameOver.awesomeJob,
     }).then((r) => {
-      fetchEnergy();
+      if (r.data?.data?.[0]) {
+        setEnergy(r.data.data[0].energy);
+      }
     });
   }, []);
 

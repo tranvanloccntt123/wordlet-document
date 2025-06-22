@@ -3,7 +3,7 @@ import { fetchWordsByKeywordList } from "@/services/searchDb";
 import {
   createNewGame,
   fetchGroupDetail,
-  fetchUser,
+  getUsers
 } from "@/services/supabase";
 import { shuffleArray } from "@/utils/array";
 import { User } from "@supabase/supabase-js";
@@ -201,7 +201,7 @@ const useGameStore = create<GameState>()(
     },
     async fetchUser() {
       try {
-        const r = await fetchUser();
+        const r = await getUsers();
         set((state) => {
           state.user = r;
         });
