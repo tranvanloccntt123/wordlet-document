@@ -6,6 +6,7 @@ import useGameStore from "@/store/gameStore";
 import useInfoStore from "@/store/infoStore";
 import { Stack } from "expo-router";
 import React from "react";
+import { Host } from "react-native-portalize";
 
 const MainLayout = () => {
   const { fetchUser } = useGameStore();
@@ -17,20 +18,22 @@ const MainLayout = () => {
   }, []);
 
   return (
-    <NotificationWrapper>
-      <StatusBar />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="game-over"
-          options={{
-            presentation: "transparentModal",
-            animation: "fade",
-          }}
-        />
-        <Stack.Screen name="leaderboard" />
-      </Stack>
-      <EnergyModal />
-    </NotificationWrapper>
+    <Host>
+      <NotificationWrapper>
+        <StatusBar />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="game-over"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+            }}
+          />
+          <Stack.Screen name="leaderboard" />
+        </Stack>
+        <EnergyModal />
+      </NotificationWrapper>
+    </Host>
   );
 };
 

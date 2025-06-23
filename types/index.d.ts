@@ -15,6 +15,7 @@ interface Group {
   is_deleted?: boolean;
   is_boosted: boolean;
   created_at: string;
+  is_publish?: boolean;
 }
 
 /**

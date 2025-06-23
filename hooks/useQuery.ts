@@ -15,29 +15,31 @@ const useQuery = <T = any>({
   gcTime = 70000,
 }: {
   key: string;
-  queryFn: () => Promise<T>;
+  queryFn?: () => Promise<T>;
   disableCache?: boolean;
   gcTime?: number;
 }) => {
   const fetch = useFetchStore((state) => state.fetch);
   const { data, isError, isLoading, isRefreshing, error, lastFetch } =
-    useFetchStore(
-      (state) =>
-        state.fetchData[key] || {
-          isLoading: true,
-          isRefreshing: false,
-          data: null,
-          isError: false,
-          error: null,
-          lastFetch: null,
-        }
+    useFetchStore((state) =>
+      state.fetchData[key]
+        ? state.fetchData[key]
+        : {
+            isLoading: true,
+            isRefreshing: false,
+            data: null,
+            isError: false,
+            error: null,
+            lastFetch: null,
+          }
     );
 
   const fetchData = async () => {
     if (
-      !data ||
-      disableCache ||
-      (lastFetch !== null && Date.now() - lastFetch.getTime() > gcTime)
+      (!data ||
+        disableCache ||
+        (lastFetch !== null && Date.now() - lastFetch.getTime() > gcTime)) &&
+      !!queryFn
     ) {
       fetch(key, queryFn);
     }

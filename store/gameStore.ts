@@ -1,11 +1,9 @@
 import { getIPA } from "@/constants/Spell";
+import { getQueryData } from "@/hooks/useQuery";
 import { fetchWordsByKeywordList } from "@/services/searchDb";
-import {
-  createNewGame,
-  fetchGroupDetail,
-  getUsers
-} from "@/services/supabase";
+import { createNewGame, fetchGroupDetail, getUsers } from "@/services/supabase";
 import { shuffleArray } from "@/utils/array";
+import { getGroupKey } from "@/utils/string";
 import { User } from "@supabase/supabase-js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -83,34 +81,43 @@ const useGameStore = create<GameState>()(
       });
       if (groupId) {
         try {
-          const { data, error } = await fetchGroupDetail(groupId);
-          if (error || !data) {
-            set((state) => {
-              state.isLoadError = true;
-              state.isLoading = false;
-            });
-            return;
+          const storeData = await getQueryData<Group>(getGroupKey(groupId));
+          let groupData: Group | null = null;
+          if (!storeData) {
+            const { data, error } = await fetchGroupDetail(groupId);
+            if (error || !data) {
+              set((state) => {
+                state.isLoadError = true;
+                state.isLoading = false;
+              });
+              return;
+            }
+            groupData = data;
+          } else {
+            groupData = storeData;
           }
-          const { data: gameData, error: gameError } = await createNewGame(
-            groupId
-          );
-          if (gameError || !gameData.data.length) {
-            set((state) => {
-              state.isLoadError = true;
-              state.isLoading = false;
-            });
-            return;
-          }
-          set((state) => {
-            state.group = data;
-            state.history = gameData.data[0];
-            state.shuffledWords = shuffleArray([...data.words]);
-            state.scores = Array.from(
-              { length: data.words.length },
-              (_, i) => 0
+          if (groupData) {
+            const { data: gameData, error: gameError } = await createNewGame(
+              groupId
             );
-            state.isLoading = false;
-          });
+            if (gameError || !gameData.data.length) {
+              set((state) => {
+                state.isLoadError = true;
+                state.isLoading = false;
+              });
+              return;
+            }
+            set((state) => {
+              state.group = groupData;
+              state.history = gameData.data[0];
+              state.shuffledWords = shuffleArray([...groupData.words]);
+              state.scores = Array.from(
+                { length: groupData.words.length },
+                (_, i) => 0
+              );
+              state.isLoading = false;
+            });
+          }
         } catch (e) {
           set((state) => {
             state.isLoadError = true;

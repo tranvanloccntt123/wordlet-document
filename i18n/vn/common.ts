@@ -25,6 +25,8 @@ const common = {
     "Bạn đã hết năng lượng cho hôm nay. Vui lòng thử lại vào ngày mai.",
   answer: "Câu trả lời",
   you: "Bạn",
+  publish: "Xuất bản",
+  revert: "Thu hồi",
 };
 
 export default common;

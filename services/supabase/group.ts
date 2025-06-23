@@ -101,6 +101,44 @@ export const updateGroup = async (group: Group) => {
   }
 };
 
+export const publishGroup = async (groupId: number) => {
+  try {
+    const { data, error } = await supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .update({ is_publish: true })
+      .eq("id", groupId)
+      .select()
+      .single();
+    if (error) {
+      console.log(error);
+      throw i18next.t("groups.errorUpdatingGroup");
+    }
+    return data;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const publishRevertGroup = async (groupId: number) => {
+  try {
+    const { data, error } = await supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .update({ is_publish: false })
+      .eq("id", groupId)
+      .select()
+      .single();
+    if (error) {
+      console.log(error);
+      throw i18next.t("groups.errorUpdatingGroup");
+    }
+    return data;
+  } catch (e) {
+    throw e;
+  }
+};
+
 export const fetchGroups = async (
   limit: number = 10,
   lastCreatedAt?: string // Pass the 'created_at' of the last fetched item
@@ -109,7 +147,7 @@ export const fetchGroups = async (
     let query = supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
-      .select("id, name, created_at, words, is_boosted, user_id")
+      .select("id, name, created_at, words, is_boosted, user_id, is_publish")
       .eq("is_publish", true)
       .order("is_boosted", { ascending: false })
       .order("created_at", { ascending: false }) // Fetch newest first

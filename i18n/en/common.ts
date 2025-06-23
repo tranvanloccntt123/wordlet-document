@@ -25,6 +25,8 @@ const common = {
     "You have run out of energy for today. Please try again tomorrow.",
   answer: "Answer",
   you: "You",
+  publish: "Publish",
+  revert: "Revert",
 };
 
 export default common;

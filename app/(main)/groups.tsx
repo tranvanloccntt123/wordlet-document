@@ -7,7 +7,7 @@ import {
   deleteGroupInfo,
   updateGroupInfo,
 } from "@/services/groupServices";
-import { fetchGroupDetail, getOwnerGroup } from "@/services/supabase";
+import { getOwnerGroup } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore"; // Import theme store
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -35,17 +35,6 @@ const GroupItem: React.FC<{
 
   const { data: item } = useQuery({
     key: getGroupKey(groupId),
-    async queryFn() {
-      try {
-        const res = await fetchGroupDetail(groupId);
-        if (res.error) {
-          throw "Failed to fetch group";
-        }
-        return res.data;
-      } catch (e) {
-        throw e;
-      }
-    },
   });
 
   const colors = useThemeStore((state) => state.colors); // Use theme colors

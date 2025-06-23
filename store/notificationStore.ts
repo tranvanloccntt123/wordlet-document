@@ -160,10 +160,10 @@ export const notificationStore = create<
                       state.dailyNotifications = { ...dailyNotifications };
                     });
                   } catch (error) {
-                    console.warn(
-                      `Failed to schedule notification for word "${wordObj.word}":`,
-                      error
-                    );
+                    // console.warn(
+                    //   `Failed to schedule notification for word "${wordObj.word}":`,
+                    //   error
+                    // );
                   }
                 }
               }

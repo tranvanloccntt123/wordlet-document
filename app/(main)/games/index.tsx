@@ -3,7 +3,7 @@ import IntroLoading from "@/components/IntroLoading";
 import { SEARCH_LIMIT } from "@/constants";
 import Colors from "@/constants/Colors";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import { fetchGroupDetail, fetchGroups } from "@/services/supabase";
+import { fetchGroups } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore"; // Import your theme store
 import { getGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons"; // For icons
@@ -20,23 +20,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, s } from "react-native-size-matters"; // Import ScaledSheet and scaling units
 
-// Define an interface for the group items that includes is_boosted
-interface GameGroup extends Omit<Group, "user_id"> {}
-
 const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
   const { data: item } = useQuery({
     key: getGroupKey(id),
-    async queryFn() {
-      try {
-        const res = await fetchGroupDetail(id);
-        if (!res || res?.error) {
-          throw "Failed to fetch group";
-        }
-        return res.data;
-      } catch (e) {
-        throw e;
-      }
-    },
   });
   const colors = useThemeStore((state) => state.colors);
   const styles = createStyles(colors); // Create styles with theme colors

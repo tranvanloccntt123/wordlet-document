@@ -12,7 +12,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import React, { Suspense } from "react";
 import { I18nextProvider } from "react-i18next";
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log("Message handled in the background!", remoteMessage);
@@ -40,11 +40,13 @@ export default function RootLayout() {
             supabase.init();
           }}
         >
-          <AuthWrapper>
-            <I18nextProvider i18n={i18next}>
-              <Stack screenOptions={{ headerShown: false }} />
-            </I18nextProvider>
-          </AuthWrapper>
+          <GestureHandlerRootView>
+            <AuthWrapper>
+              <I18nextProvider i18n={i18next}>
+                <Stack screenOptions={{ headerShown: false }} />
+              </I18nextProvider>
+            </AuthWrapper>
+          </GestureHandlerRootView>
         </RemoteConfigWrapper>
       </SQLiteProvider>
     </Suspense>

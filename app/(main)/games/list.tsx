@@ -1,8 +1,12 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
 import ListWordInOrder from "@/components/ListWordInOrder";
-import useQuery from "@/hooks/useQuery";
-import { fetchGroupDetail } from "@/services/supabase";
+import useQuery, { setQueryData } from "@/hooks/useQuery";
+import {
+  fetchGroupDetail,
+  publishGroup,
+  publishRevertGroup,
+} from "@/services/supabase";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import { energyCheck } from "@/utils/energy";
@@ -12,12 +16,14 @@ import { router, useLocalSearchParams } from "expo-router"; // Import router
 import React from "react"; // Import useEffect, useState
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Modalize } from "react-native-modalize";
+import { Portal } from "react-native-portalize";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
 
 export default function SelectGameScreen() {
   const colors = useThemeStore((state) => state.colors);
-  const info = useInfoStore(state => state.info);
+  const info = useInfoStore((state) => state.info);
   const params = useLocalSearchParams<{ groupId: string; groupName: string }>();
   const { groupId, groupName } = params;
   const { isLoading, data: group } = useQuery({
@@ -35,6 +41,11 @@ export default function SelectGameScreen() {
     },
   });
   const { t } = useTranslation(); // Initialize useTranslation
+  const modalizeRef = React.useRef<Modalize>(null);
+
+  const onOpenMenu = () => {
+    modalizeRef.current?.open();
+  };
 
   // Define GAME_CATEGORIES using translations
   const GAME_CATEGORIES = [
@@ -125,7 +136,18 @@ export default function SelectGameScreen() {
       <SafeAreaView
         style={[styles.safeArea, { backgroundColor: colors.background }]}
       >
-        <CommonHeader title={groupName || ""} />
+        <CommonHeader
+          title={groupName || ""}
+          rightActionElement={
+            <TouchableOpacity onPress={onOpenMenu} style={styles.headerButton}>
+              <MaterialIcons
+                name="more-vert"
+                size={s(24)}
+                color={colors.textPrimary}
+              />
+            </TouchableOpacity>
+          }
+        />
         <FlatList
           data={GAME_CATEGORIES}
           keyExtractor={(item) => item.id}
@@ -287,6 +309,74 @@ export default function SelectGameScreen() {
           }}
           contentContainerStyle={styles.listContentContainer}
         />
+        <Portal>
+          <Modalize ref={modalizeRef} adjustToContentHeight>
+            <View
+              style={[
+                styles.modalContent,
+                { backgroundColor: colors.background },
+              ]}
+            >
+              {info?.user_id === group?.user_id && (
+                <TouchableOpacity
+                  style={[
+                    styles.modalItem,
+                    { borderBottomColor: colors.border, borderBottomWidth: 1 },
+                  ]}
+                  onPress={async () => {
+                    try {
+                      if (group.is_publish) {
+                        await publishRevertGroup(group.id);
+                        setQueryData<Group>(getGroupKey(group.id), (oldData) =>
+                          !oldData ? oldData : { ...oldData, is_publish: false }
+                        );
+                      } else {
+                        await publishGroup(group.id);
+                        setQueryData<Group>(getGroupKey(group.id), (oldData) =>
+                          !oldData ? oldData : { ...oldData, is_publish: true }
+                        );
+                      }
+                    } catch (e) {}
+                    // Handle Publish
+                    modalizeRef.current?.close();
+                  }}
+                >
+                  <MaterialIcons
+                    name={group.is_publish ? "unpublished" : "publish"}
+                    size={s(22)}
+                    color={colors.textPrimary}
+                  />
+                  <Text
+                    style={[
+                      styles.modalItemText,
+                      { color: colors.textPrimary },
+                    ]}
+                  >
+                    {group.is_publish
+                      ? t("common.revert")
+                      : t("common.publish")}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  // Handle Report
+                  modalizeRef.current?.close();
+                }}
+              >
+                <MaterialIcons
+                  name="report"
+                  size={s(22)}
+                  color={colors.error}
+                />
+                <Text style={[styles.modalItemText, { color: colors.error }]}>
+                  Report Group
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Modalize>
+        </Portal>
       </SafeAreaView>
     </AppLoading>
   );
@@ -295,6 +385,9 @@ export default function SelectGameScreen() {
 const styles = ScaledSheet.create({
   safeArea: {
     flex: 1,
+  },
+  headerButton: {
+    padding: "5@s",
   },
   listContentContainer: {
     paddingTop: "10@ms",
@@ -362,5 +455,19 @@ const styles = ScaledSheet.create({
     fontSize: "14@s",
     fontWeight: "bold",
     marginLeft: "8@s",
+  },
+  modalContent: {
+    padding: "15@ms",
+    paddingBottom: "30@ms", // For safe area
+  },
+  modalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: "15@ms",
+  },
+  modalItemText: {
+    fontSize: "16@s",
+    marginLeft: "15@ms",
+    fontWeight: "600",
   },
 });
