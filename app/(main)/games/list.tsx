@@ -1,25 +1,51 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
+import CountdownModal from "@/components/CountdownModal";
+import GroupExpandMenu from "@/components/GroupExpandMenu";
 import ListWordInOrder from "@/components/ListWordInOrder";
-import useQuery, { setQueryData } from "@/hooks/useQuery";
-import {
-  fetchGroupDetail,
-  publishGroup,
-  publishRevertGroup,
-} from "@/services/supabase";
+import { TIME_LIMIT_MS } from "@/constants";
+import useQuery from "@/hooks/useQuery";
+import { fetchGroupDetail } from "@/services/supabase";
+import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import { energyCheck } from "@/utils/energy";
 import { getGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { router, useLocalSearchParams } from "expo-router"; // Import router
 import React from "react"; // Import useEffect, useState
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { Modalize } from "react-native-modalize";
-import { Portal } from "react-native-portalize";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
+
+const LimitCountDownModal: React.FC<object> = () => {
+  const { lastUpdate, visibleCountDownModal, setVisibleCountDownModal } =
+    useGroupPublishStore((state) => state);
+  return (
+    <CountdownModal
+      visible={!!lastUpdate && visibleCountDownModal}
+      seconds={Math.round(
+        (TIME_LIMIT_MS -
+          (new Date().getTime() - (lastUpdate?.getTime() || 0))) /
+          1000
+      )}
+      onFinish={function (): void {
+        // throw new Error("Function not implemented.");
+        setVisibleCountDownModal(false);
+      }}
+      onClose={function (): void {
+        // throw new Error("Function not implemented.");
+        setVisibleCountDownModal(false);
+      }}
+      maxSeconds={60}
+    />
+  );
+};
 
 export default function SelectGameScreen() {
   const colors = useThemeStore((state) => state.colors);
@@ -40,11 +66,13 @@ export default function SelectGameScreen() {
       }
     },
   });
+
   const { t } = useTranslation(); // Initialize useTranslation
-  const modalizeRef = React.useRef<Modalize>(null);
+  const bottomSheetRef = React.useRef<BottomSheet>(null);
 
   const onOpenMenu = () => {
-    modalizeRef.current?.open();
+    bottomSheetRef.current?.expand();
+    // modalizeRef.current?.open();
   };
 
   // Define GAME_CATEGORIES using translations
@@ -309,74 +337,24 @@ export default function SelectGameScreen() {
           }}
           contentContainerStyle={styles.listContentContainer}
         />
-        <Portal>
-          <Modalize ref={modalizeRef} adjustToContentHeight>
-            <View
-              style={[
-                styles.modalContent,
-                { backgroundColor: colors.background },
-              ]}
-            >
-              {info?.user_id === group?.user_id && (
-                <TouchableOpacity
-                  style={[
-                    styles.modalItem,
-                    { borderBottomColor: colors.border, borderBottomWidth: 1 },
-                  ]}
-                  onPress={async () => {
-                    try {
-                      if (group.is_publish) {
-                        await publishRevertGroup(group.id);
-                        setQueryData<Group>(getGroupKey(group.id), (oldData) =>
-                          !oldData ? oldData : { ...oldData, is_publish: false }
-                        );
-                      } else {
-                        await publishGroup(group.id);
-                        setQueryData<Group>(getGroupKey(group.id), (oldData) =>
-                          !oldData ? oldData : { ...oldData, is_publish: true }
-                        );
-                      }
-                    } catch (e) {}
-                    // Handle Publish
-                    modalizeRef.current?.close();
-                  }}
-                >
-                  <MaterialIcons
-                    name={group.is_publish ? "unpublished" : "publish"}
-                    size={s(22)}
-                    color={colors.textPrimary}
-                  />
-                  <Text
-                    style={[
-                      styles.modalItemText,
-                      { color: colors.textPrimary },
-                    ]}
-                  >
-                    {group.is_publish
-                      ? t("common.revert")
-                      : t("common.publish")}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={styles.modalItem}
-                onPress={() => {
-                  // Handle Report
-                  modalizeRef.current?.close();
-                }}
-              >
-                <MaterialIcons
-                  name="report"
-                  size={s(22)}
-                  color={colors.error}
-                />
-                <Text style={[styles.modalItemText, { color: colors.error }]}>
-                  Report Group
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Modalize>
-        </Portal>
+        <BottomSheet
+          index={-1}
+          ref={bottomSheetRef}
+          snapPoints={["25%"]}
+          enableDynamicSizing={true}
+          backdropComponent={BottomSheetBackdrop}
+          backgroundStyle={{
+            backgroundColor: colors.card,
+          }}
+        >
+          <BottomSheetView style={{ paddingHorizontal: s(20) }}>
+            <GroupExpandMenu
+              group={group}
+              onClose={() => bottomSheetRef.current?.close()}
+            />
+          </BottomSheetView>
+        </BottomSheet>
+        <LimitCountDownModal />
       </SafeAreaView>
     </AppLoading>
   );

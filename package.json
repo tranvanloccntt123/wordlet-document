@@ -74,7 +74,8 @@
     "react-native-youtube-iframe": "^2.3.0",
     "react-native-zip-archive": "^7.0.1",
     "rive-react-native": "^9.3.0",
-    "zustand": "^5.0.4"
+    "zustand": "^5.0.4",
+    "@gorhom/bottom-sheet": "^5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

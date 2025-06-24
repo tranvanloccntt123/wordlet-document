@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Wordlet",
+    "name": "Wordlet Dev",
     "slug": "english-directory",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -26,7 +26,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.tei.englishdirectory",
+      "package": "com.tei.englishdirectory.dev",
       "googleServicesFile": "./assets/firebase/google-services.json"
     },
     "web": {

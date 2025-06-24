@@ -20,7 +20,7 @@ export const PRO_DIC_EV = [
     source: "manual",
     short_name_vi: "manual",
     short_name_en: "manual",
-  }
+  },
 ];
 
 export const PRO_DIC_VE = [
@@ -44,3 +44,5 @@ export const PRO_DIC_VE = [
 export const MAX_SCORE_PER_QUESTION = 500;
 
 export const SEARCH_LIMIT = 10;
+
+export const TIME_LIMIT_MS = 60000;

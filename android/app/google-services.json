@@ -15,23 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "2622477593-92ldet86riia9pre4i2308vh8uaqr9a7.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.tei.englishdirectory",
-            "certificate_hash": "30d6d3ba1b443e50af602861bfbcc3f471dfa35a"
-          }
-        },
-        {
-          "client_id": "2622477593-uf17icir2rde262jpqivr1bb2m45c81r.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.tei.englishdirectory",
-            "certificate_hash": "8dbe880faa66d10ba7dbc107ff1a71ec539e6e69"
-          }
-        },
-        {
-          "client_id": "2622477593-v84a1utgl4aln0jjnq8bt71tfqiksdck.apps.googleusercontent.com",
+          "client_id": "2622477593-j0j4skanjgpn8fcu6lqr7kv63mvsf9s6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -60,15 +44,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "2622477593-iud43n2oub74h4lt9vro26uu8ukfog53.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.tei.englishdirectory.dev",
-            "certificate_hash": "f7a3657fde37b853627de1162685e58a9aeab360"
-          }
-        },
-        {
-          "client_id": "2622477593-v84a1utgl4aln0jjnq8bt71tfqiksdck.apps.googleusercontent.com",
+          "client_id": "2622477593-j0j4skanjgpn8fcu6lqr7kv63mvsf9s6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

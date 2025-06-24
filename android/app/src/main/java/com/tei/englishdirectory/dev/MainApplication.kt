@@ -1,4 +1,4 @@
-package com.tei.englishdirectory
+package com.tei.englishdirectory.dev
 
 import android.app.Application
 import android.content.res.Configuration

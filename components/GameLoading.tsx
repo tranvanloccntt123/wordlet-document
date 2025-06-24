@@ -1,11 +1,23 @@
 import useGameStore from "@/store/gameStore";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Text, View } from "react-native";
-import { ScaledSheet } from "react-native-size-matters";
+import {
+  ActivityIndicator,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { s, ScaledSheet } from "react-native-size-matters";
+import Rive from "rive-react-native";
 
 const GameLoading: React.FC<{
   children?: React.ReactNode;
@@ -28,7 +40,7 @@ const GameLoading: React.FC<{
   } = useGameStore();
   const { colors } = useThemeStore();
   const { t } = useTranslation(); // Initialize useTranslation
-
+  const [challangeVisible, setChallangeVisible] = React.useState(false);
   useEffect(() => {
     return () => {
       reset();
@@ -77,18 +89,14 @@ const GameLoading: React.FC<{
       // Alert after starting and ensuring user and group data is available
       const isMyGroup = group.user_id === user.id;
       if (isMyGroup) {
-        Alert.alert(
-          t("games.myGroupGameAlertTitle"),
-          t("games.myGroupGameAlertMessage"),
-          [{ text: t("common.ok") }]
-        );
+        // Alert.alert(
+        //   t("games.myGroupGameAlertTitle"),
+        //   t("games.myGroupGameAlertMessage"),
+        //   [{ text: t("common.ok") }]
+        // );
       } else {
         // Alert for other's group games (competitive mode)
-        Alert.alert(
-          t("games.othersGroupGameAlertTitle"),
-          t("games.othersGroupGameAlertMessage"),
-          [{ text: t("common.ok") }]
-        );
+        setChallangeVisible(true);
       }
     }
   }, [isLoading, history, user, group, t]); // Added user, group, and t to dependency array
@@ -108,7 +116,49 @@ const GameLoading: React.FC<{
       </View>
     );
   }
-  return !!children ? children : <></>;
+  return !!children ? (
+    <View style={{ flex: 1 }}>
+      {children}
+      <Modal visible={challangeVisible} transparent={true} animationType="fade">
+        <View style={[styles.alertModalContainer]}>
+          <View style={styles.alertContentContainer}>
+            <Rive
+              resourceName={"winner"}
+              style={{ width: s(200), height: s(200), alignSelf: "center" }}
+            />
+            <Text style={[styles.alertTitle]}>
+              {t("games.othersGroupGameAlertTitle")}
+            </Text>
+            <Text style={[styles.alertDescription]}>
+              {t("games.othersGroupGameAlertMessage")}
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                styles.primaryButton,
+                {
+                  backgroundColor: colors.warning,
+                },
+              ]}
+              onPress={() => setChallangeVisible(false)}
+            >
+              <Text
+                style={[
+                  styles.actionButtonText,
+                  styles.primaryButtonText,
+                  { color: "black" },
+                ]}
+              >
+                {t("common.letGo")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  ) : (
+    <></>
+  );
 };
 
 export default GameLoading;
@@ -141,4 +191,67 @@ const styles = ScaledSheet.create({
     marginTop: "20@s",
   },
   buttonText: { fontSize: "16@s", fontWeight: "bold" },
+  alertModalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alertContentContainer: {
+    backgroundColor: "white",
+    borderRadius: "16@s",
+    padding: "20@s",
+    width: "300@s",
+    gap: "8@s",
+  },
+  alertTitle: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack,
+      fontSizeKey: FontSizeKeys.subheading,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  alertDescription: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoRegular,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    gap: "20@ms",
+    marginBottom: "20@ms",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionButton: {
+    paddingVertical: "10@ms",
+    paddingHorizontal: "20@ms",
+    borderRadius: "8@s",
+    minWidth: "100@s",
+    alignItems: "center",
+  },
+  primaryButton: {
+    // backgroundColor: colors.warning,
+  },
+  skipButton: {
+    // backgroundColor: colors.shadow,
+  },
+  // Use the getAppFontStyle utility for font styling
+  actionButtonText: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack, // Choose the base font family
+      fontSizeKey: FontSizeKeys.heading, // Choose the size key
+    }),
+  },
+  primaryButtonText: {
+    // color: colors.card,
+  },
+  skipButtonText: {
+    // color: colors.textSecondary,
+  },
 });

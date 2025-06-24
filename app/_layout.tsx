@@ -13,6 +13,9 @@ import { SQLiteProvider } from "expo-sqlite";
 import React, { Suspense } from "react";
 import { I18nextProvider } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { Host } from "react-native-portalize";
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log("Message handled in the background!", remoteMessage);
@@ -41,11 +44,15 @@ export default function RootLayout() {
           }}
         >
           <GestureHandlerRootView>
-            <AuthWrapper>
-              <I18nextProvider i18n={i18next}>
-                <Stack screenOptions={{ headerShown: false }} />
-              </I18nextProvider>
-            </AuthWrapper>
+            <BottomSheetModalProvider>
+              <Host>
+                <AuthWrapper>
+                  <I18nextProvider i18n={i18next}>
+                    <Stack screenOptions={{ headerShown: false }} />
+                  </I18nextProvider>
+                </AuthWrapper>
+              </Host>
+            </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </RemoteConfigWrapper>
       </SQLiteProvider>
