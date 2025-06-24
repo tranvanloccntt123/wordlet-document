@@ -15,7 +15,7 @@ import {
   RefreshControl,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native"; // Import necessary components
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, s } from "react-native-size-matters"; // Import ScaledSheet and scaling units
@@ -90,7 +90,6 @@ export default function Games() {
   const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const canLoadMore = React.useRef<boolean>(true);
   const currentOffset = React.useRef("");
-
   const colors = useThemeStore((state) => state.colors); // Get theme colors
   const { t } = useTranslation(); // Specify namespaces
 

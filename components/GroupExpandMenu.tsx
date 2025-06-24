@@ -4,6 +4,11 @@ import { publishGroup, publishRevertGroup } from "@/services/supabase";
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
+import {
+    FontFamilies,
+    FontSizeKeys,
+    getAppFontStyle,
+} from "@/styles/fontStyles";
 import { getGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -25,11 +30,12 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
     <View>
       {info?.user_id === group?.user_id && (
         <TouchableOpacity
-          style={[styles.modalItem]}
+          style={styles.button}
           onPress={async () => {
             if (
               !lastUpdate ||
-              (lastUpdate && new Date().getTime() - lastUpdate.getTime() > TIME_LIMIT_MS)
+              (lastUpdate &&
+                new Date().getTime() - lastUpdate.getTime() > TIME_LIMIT_MS)
             ) {
               try {
                 if (group.is_publish) {
@@ -52,13 +58,18 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
             onClose();
           }}
         >
-          <MaterialIcons
-            name={group.is_publish ? "unpublished" : "publish"}
-            size={s(22)}
-            color={colors.textPrimary}
-          />
-          <Text style={[styles.modalItemText, { color: colors.textPrimary }]}>
-            {group.is_publish ? t("common.revert") : t("common.publish")}
+          <View style={[styles.modalItem]}>
+            <MaterialIcons
+              name={group.is_publish ? "unpublished" : "publish"}
+              size={s(22)}
+              color={colors.textPrimary}
+            />
+            <Text style={[styles.modalItemText, { color: colors.textPrimary }]}>
+              {group.is_publish ? t("common.revert") : t("common.publish")}
+            </Text>
+          </View>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
+            {t("groups.publishDescription")}
           </Text>
         </TouchableOpacity>
       )}
@@ -88,12 +99,23 @@ const styles = ScaledSheet.create({
   modalItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: "15@ms",
+  },
+  button: {
+    gap: "8@s",
+    paddingVertical: "16@s",
   },
   modalItemText: {
-    fontSize: "16@s",
     marginLeft: "15@ms",
-    fontWeight: "600",
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBold,
+      fontSizeKey: FontSizeKeys.body,
+    }),
+  },
+  description: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoRegular,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
   },
 });
 

@@ -9,6 +9,11 @@ import { fetchGroupDetail } from "@/services/supabase";
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
 import { energyCheck } from "@/utils/energy";
 import { getGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -19,9 +24,10 @@ import BottomSheet, {
 import { router, useLocalSearchParams } from "expo-router"; // Import router
 import React from "react"; // Import useEffect, useState
 import { useTranslation } from "react-i18next"; // Import useTranslation
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
+import Rive from "rive-react-native";
 
 const LimitCountDownModal: React.FC<object> = () => {
   const { lastUpdate, visibleCountDownModal, setVisibleCountDownModal } =
@@ -52,6 +58,7 @@ export default function SelectGameScreen() {
   const info = useInfoStore((state) => state.info);
   const params = useLocalSearchParams<{ groupId: string; groupName: string }>();
   const { groupId, groupName } = params;
+  const [challangeVisible, setChallangeVisible] = React.useState(false);
   const { isLoading, data: group } = useQuery({
     key: getGroupKey(Number(groupId || "0")),
     async queryFn() {
@@ -158,6 +165,14 @@ export default function SelectGameScreen() {
       params: { groupId: group?.id, groupName: group?.name },
     });
   };
+
+  React.useEffect(() => {
+    if (!isLoading && !!info && !!group && info.user_id !== group.user_id) {
+      setTimeout(() => {
+        setChallangeVisible(true);
+      }, 100);
+    }
+  }, [isLoading, info, group]);
 
   return (
     <AppLoading isLoading={isLoading}>
@@ -340,7 +355,7 @@ export default function SelectGameScreen() {
         <BottomSheet
           index={-1}
           ref={bottomSheetRef}
-          snapPoints={["25%"]}
+          snapPoints={["18%"]}
           enableDynamicSizing={true}
           backdropComponent={BottomSheetBackdrop}
           backgroundStyle={{
@@ -355,6 +370,46 @@ export default function SelectGameScreen() {
           </BottomSheetView>
         </BottomSheet>
         <LimitCountDownModal />
+        <Modal
+          visible={challangeVisible}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={[styles.alertModalContainer]}>
+            <View style={styles.alertContentContainer}>
+              <Rive
+                resourceName={"winner"}
+                style={{ width: s(200), height: s(200), alignSelf: "center" }}
+              />
+              <Text style={[styles.alertTitle]}>
+                {t("games.othersGroupGameAlertTitle")}
+              </Text>
+              <Text style={[styles.alertDescription]}>
+                {t("games.othersGroupGameAlertMessage")}
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  styles.primaryButton,
+                  {
+                    backgroundColor: colors.warning,
+                  },
+                ]}
+                onPress={() => setChallangeVisible(false)}
+              >
+                <Text
+                  style={[
+                    styles.actionButtonText,
+                    styles.primaryButtonText,
+                    { color: "black" },
+                  ]}
+                >
+                  {t("common.letGo")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </AppLoading>
   );
@@ -447,5 +502,69 @@ const styles = ScaledSheet.create({
     fontSize: "16@s",
     marginLeft: "15@ms",
     fontWeight: "600",
+  },
+
+  alertModalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alertContentContainer: {
+    backgroundColor: "white",
+    borderRadius: "16@s",
+    padding: "20@s",
+    width: "300@s",
+    gap: "8@s",
+  },
+  alertTitle: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack,
+      fontSizeKey: FontSizeKeys.subheading,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  alertDescription: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoRegular,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    gap: "20@ms",
+    marginBottom: "20@ms",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionButton: {
+    paddingVertical: "10@ms",
+    paddingHorizontal: "20@ms",
+    borderRadius: "8@s",
+    minWidth: "100@s",
+    alignItems: "center",
+  },
+  primaryButton: {
+    // backgroundColor: colors.warning,
+  },
+  skipButton: {
+    // backgroundColor: colors.shadow,
+  },
+  // Use the getAppFontStyle utility for font styling
+  actionButtonText: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack, // Choose the base font family
+      fontSizeKey: FontSizeKeys.heading, // Choose the size key
+    }),
+  },
+  primaryButtonText: {
+    // color: colors.card,
+  },
+  skipButtonText: {
+    // color: colors.textSecondary,
   },
 });

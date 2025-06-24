@@ -33,6 +33,7 @@ const groups = {
   editContentForTitle: 'Edit Content for "{{wordName}}"',
   limitReachedTitle: "Group Limit Reached",
   limitReachedMessage: "You can only create up to {{limit}} groups.",
+  publishDescription: "Publish to share this group with everyone.",
 };
 
 export default groups;

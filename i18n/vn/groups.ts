@@ -33,6 +33,7 @@ const groups = {
   editContentForTitle: 'Chỉnh Sửa Nội Dung cho "{{wordName}}"',
   limitReachedTitle: "Đã Đạt Giới Hạn Nhóm",
   limitReachedMessage: "Bạn chỉ có thể tạo tối đa {{limit}} nhóm.",
+  publishDescription: "Xuất bản để chia sẻ nhóm này đến với mọi người.",
 };
 
 export default groups;
