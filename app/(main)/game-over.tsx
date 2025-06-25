@@ -1,6 +1,5 @@
 import AppAudio from "@/assets/audio";
 import gameOver from "@/i18n/en/gameOver";
-import { addHistoryRecord } from "@/services/historyDb";
 import { decreaseEnergy } from "@/services/supabase";
 import useEnergyStore from "@/store/energyStore";
 import useInfoStore from "@/store/infoStore";
@@ -19,6 +18,8 @@ import Svg, {
   Path as SvgPath,
 } from "react-native-svg";
 
+import { getQueryData } from "@/hooks/useQuery";
+import { getFormattedDate, getGroupKey } from "@/utils/string";
 import { useAudioPlayer } from "expo-audio";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -37,6 +38,7 @@ const GameOverScreen: React.FC<object> = () => {
     gameType?: string;
     historyId?: string;
     isMyGroup?: string;
+    groupId?: string;
   }>();
   const { setEnergy } = useEnergyStore();
   const score = params.score ? parseInt(params.score, 10) : 0;
@@ -64,7 +66,6 @@ const GameOverScreen: React.FC<object> = () => {
   const { addGameResult } = useInfoStore();
 
   // Centering transform: scale to fit 200x200 canvas and center the 256x256 viewBox
-  const scale = 1;
   const translateX = verticalScale(2); // Center horizontally
   const translateY = verticalScale(2); // Center vertically
 
@@ -193,14 +194,18 @@ const GameOverScreen: React.FC<object> = () => {
         {/* Play Again Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() =>
-            addHistoryRecord({
-              score:
-                params.isMyGroup === "1"
-                  ? 0
-                  : parseInt(params.score || "0", 10),
-              created_at: new Date().toISOString(),
-              message: `${
+          onPress={() => {
+            let group: Group | null | undefined = null;
+            if (params?.groupId) {
+              group =
+                getQueryData(getGroupKey(Number(params.groupId || "0"))) ||
+                undefined;
+            }
+            const history: GameHistory = {
+              id: Number(params?.historyId || "0"),
+              score: parseInt(params.score || "0"),
+              created_at: getFormattedDate(new Date()),
+              message:
                 percent < 10
                   ? gameOver.oneMoreShot
                   : percent < 20
@@ -215,14 +220,15 @@ const GameOverScreen: React.FC<object> = () => {
                   ? gameOver.superstar
                   : percent < 80
                   ? gameOver.victory
-                  : gameOver.awesomeJob
-              }`,
-            })
-              .then((res) => {
-                if (res && res.id) addGameResult(res);
-              })
-              .finally(() => router.back())
-          }
+                  : gameOver.awesomeJob,
+              group: group as Group,
+              group_id: params.groupId
+                ? Number(params.groupId || "0")
+                : undefined,
+            };
+            addGameResult(history);
+            router.back();
+          }}
         >
           <Text style={styles.buttonText}>
             {t("games.gameOverBackToGames")}

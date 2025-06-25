@@ -17,7 +17,7 @@ const useLanguageStore = create<LanguageStore, any>(
   devtools(
     persist(
       immer((set, get) => ({
-        language: "en", // Default language
+        language: "vn", // Default language
         setLanguage: (language) => {
           set((state) => {
             state.language = language;

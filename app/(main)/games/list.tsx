@@ -355,7 +355,7 @@ export default function SelectGameScreen() {
         <BottomSheet
           index={-1}
           ref={bottomSheetRef}
-          snapPoints={["18%"]}
+          snapPoints={["30%"]}
           enableDynamicSizing={true}
           backdropComponent={BottomSheetBackdrop}
           backgroundStyle={{

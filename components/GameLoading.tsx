@@ -4,11 +4,7 @@ import useThemeStore from "@/store/themeStore";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ActivityIndicator,
-  Text,
-  View
-} from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 
 const GameLoading: React.FC<{
@@ -69,6 +65,7 @@ const GameLoading: React.FC<{
           historyId: history.id,
           gameType: gameType,
           isMyGroup: group?.user_id === user?.id || !!ipaChar ? "1" : "0",
+          groupId: group?.id?.toString(),
         },
       });
     }

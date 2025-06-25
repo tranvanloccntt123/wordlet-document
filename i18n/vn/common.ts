@@ -27,6 +27,8 @@ const common = {
   you: "Bạn",
   publish: "Xuất bản",
   revert: "Thu hồi",
+  feedback: "Phản hồi",
+  share: "Chia sẻ",
 };
 
 export default common;

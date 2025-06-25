@@ -29,7 +29,7 @@ const getDeviceLanguage = (): string => {
       return deviceLanguageCode;
     }
   }
-  return "en"; // Default to English
+  return "vn"; // Default to Vietnamese
 };
 
 i18next
@@ -37,7 +37,7 @@ i18next
   .init({
     resources,
     lng: getDeviceLanguage(), // Detect device language
-    fallbackLng: "en", // Fallback language
+    fallbackLng: "vn", // Fallback language
     interpolation: {
       escapeValue: false, // React already safes from XSS
     },

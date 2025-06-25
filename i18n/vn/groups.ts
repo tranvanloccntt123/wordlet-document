@@ -34,6 +34,8 @@ const groups = {
   limitReachedTitle: "Đã Đạt Giới Hạn Nhóm",
   limitReachedMessage: "Bạn chỉ có thể tạo tối đa {{limit}} nhóm.",
   publishDescription: "Xuất bản để chia sẻ nhóm này đến với mọi người.",
+  publishDescription2:
+    "🍿 Top 100 nhóm có nhiều người dùng hoàn thành, sẽ được nhận thưởng từ hệ thống.",
 };
 
 export default groups;

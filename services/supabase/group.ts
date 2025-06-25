@@ -34,7 +34,7 @@ export const deleteGroup = async (groupId: number) => {
     const response = await supabase!.functions.invoke(
       SUPABASE_FUNCTION.DELETE_GROUP,
       {
-        body: { userId: groupId },
+        body: { groupId: groupId },
       }
     );
     return response;

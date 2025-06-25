@@ -34,6 +34,7 @@ const groups = {
   limitReachedTitle: "Group Limit Reached",
   limitReachedMessage: "You can only create up to {{limit}} groups.",
   publishDescription: "Publish to share this group with everyone.",
+  publishDescription2: "🍿 Top 100 groups with the most completed users will receive rewards from the system."
 };
 
 export default groups;

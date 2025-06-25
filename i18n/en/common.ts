@@ -27,6 +27,8 @@ const common = {
   you: "You",
   publish: "Publish",
   revert: "Revert",
+  feedback: "Feedback",
+  share: "Share",
 };
 
 export default common;

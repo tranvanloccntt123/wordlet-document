@@ -87,7 +87,7 @@ const GroupItem: React.FC<{
             {item?.name}
           </Text>
           <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
-            {(item.words?.length || 0) > 1
+            {(item?.words?.length || 0) > 1
               ? t("groups.wordCount_other", {
                   count: item.words.length,
                 })
@@ -141,7 +141,9 @@ const GroupManagementScreen = () => {
       return;
     }
     setIsLoading(true); // Keep loading indicator for the createGroup async operation
-    await createGroupInfo(); // This will internally check the limit again if you modify createGroup store logic
+    try {
+      await createGroupInfo(); // This will internally check the limit again if you modify createGroup store logic
+    } catch (e) {}
     setIsLoading(false); // Stop loading indicator
   };
 

@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next"; // Import useTranslation
 import {
   Alert, // Import Alert
   Keyboard,
+  Linking,
   ScrollView, // Import Platform
   Text,
   TextInput,
@@ -300,6 +301,24 @@ const SettingsScreen = () => {
                 ]}
               >
                 {currentLanguageDisplay}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Feedback Setting */}
+            <TouchableOpacity
+              style={[styles.settingItem, { backgroundColor: colors.card }]}
+              onPress={() => {
+                Linking.openURL("https://discord.gg/w2uwFQHV");
+              }}
+            >
+              <MaterialIcons
+                name="feedback" // Icon for language
+                size={s(22)}
+                color={colors.primary}
+                style={styles.icon}
+              />
+              <Text style={[styles.settingText, { color: colors.textPrimary }]}>
+                {t("common.feedback")}
               </Text>
             </TouchableOpacity>
 
