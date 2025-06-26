@@ -15,7 +15,7 @@ import {
   RefreshControl,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native"; // Import necessary components
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, s } from "react-native-size-matters"; // Import ScaledSheet and scaling units
@@ -64,7 +64,7 @@ const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
             )}
           </View>
           <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
-            {item.words.length > 1
+            {item?.words?.length > 1
               ? t("groups.wordCount_other", {
                   count: item.words.length,
                 })

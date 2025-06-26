@@ -109,3 +109,11 @@ type VowelPercent = {
 };
 
 type Updater<T = any> = (data?: T) => T;
+
+type ParseHTMLElement = {
+  type: string;
+  tag: string;
+  attributes: Record<string, string>;
+  children: ParseHTMLElement[];
+  content?: string;
+};

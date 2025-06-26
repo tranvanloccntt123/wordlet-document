@@ -3,6 +3,7 @@ import InitialEmptySearch from "@/components/InitialEmptySearch"; // Corrected i
 import SearchResultItem from "@/components/SearchResultItem"; // Import the new item component
 import { SEARCH_LIMIT } from "@/constants";
 import useDebounce from "@/hooks/useDebounce";
+import { setQueryData } from "@/hooks/useQuery";
 import { fetchSearchResults } from "@/services/searchDb";
 import useThemeStore from "@/store/themeStore";
 import { commonStyles } from "@/styles/commonStyles"; // Import common styles
@@ -11,6 +12,7 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles"; // Import font styles
+import { getWordKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -45,6 +47,7 @@ const SearchScreen = () => {
   const debounce = useDebounce({ time: 500 });
 
   const handleNavigateToDetail = (item: WordStore) => {
+    setQueryData(getWordKey(item.word), item);
     // Navigate to the detail screen, passing the word itself as a parameter.
     // Ensure the word is URL-encoded in case it contains special characters.
     router.push(
@@ -70,7 +73,6 @@ const SearchScreen = () => {
 
     debounce(async () => {
       setIsLoading(true); // Start full-screen loading for new search
-
       const specificSourceResults = await fetchSearchResults(
         trimmedSearchTerm,
         0,

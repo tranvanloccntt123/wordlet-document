@@ -1,12 +1,14 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
 import ParseContent from "@/components/ParseContent";
+import useQuery from "@/hooks/useQuery";
 import { wordSupabase } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
+import { getWordKey } from "@/utils/string";
 import { playWord } from "@/utils/voice";
 import { MaterialIcons } from "@expo/vector-icons"; // Or your preferred icon library
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react"; // Added useCallback
+import React, { useCallback } from "react"; // Added useCallback
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native"; // Added Alert
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters"; // Import s for scaling
@@ -68,28 +70,10 @@ const cardStyles = ScaledSheet.create({
 const WordDetailScreen = () => {
   const params = useLocalSearchParams<{ word?: string; source?: string }>();
   const { word: wordToSearch, source: wordSource } = params;
-  const [wordDetails, setWordDetails] = useState<WordStore | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { colors } = useThemeStore();
-
-  useEffect(() => {
-    if (!wordToSearch) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchWordDetails = async () => {
-      setIsLoading(true);
+  const { data: wordDetails, isLoading } = useQuery<WordStore>({
+    key: getWordKey(wordToSearch || ""),
+    async queryFn() {
       try {
-        // Ensure your database name is correct
-
-        // Assuming fts_words has columns 'word' and 'content'
-        // Adjust column names if they are different in your WordStore and fts_words table
-        // For FTS tables, you might typically use MATCH, but if 'word' is a direct column
-        // and you want an exact match, '=' can be used.
-        // If 'word' in fts_words is the FTS indexed content, you might do:
-        // const result = await db.getFirstAsync<WordStore>('SELECT word, content, parsedword, source FROM fts_words WHERE fts_words MATCH ? LIMIT 1', wordToSearch);
-        // For this example, I'll assume a direct column match on 'word'.
         const { data: result } = await wordSupabase
           .schema("public")
           .from("fts_words")
@@ -97,19 +81,14 @@ const WordDetailScreen = () => {
           .eq("word", wordToSearch)
           .eq("source", wordSource)
           .single();
-
-        if (result) {
-          setWordDetails(result);
-        }
-      } catch (e: any) {
-        console.error("Failed to fetch word details:", e);
-      } finally {
-        setIsLoading(false);
+        if (result) return result;
+        throw "Failed to fetch word details";
+      } catch (e) {
+        throw e;
       }
-    };
-
-    fetchWordDetails();
-  }, [wordToSearch, wordSource]);
+    },
+  });
+  const { colors } = useThemeStore();
 
   const handleOpenModal = useCallback(() => {
     if (wordDetails) {

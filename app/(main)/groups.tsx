@@ -89,10 +89,10 @@ const GroupItem: React.FC<{
           <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
             {(item?.words?.length || 0) > 1
               ? t("groups.wordCount_other", {
-                  count: item.words.length,
+                  count: item?.words?.length || 0,
                 })
               : t("groups.wordCount_one", {
-                  count: item.words.length,
+                  count: item?.words?.length || 0,
                 })}
           </Text>
         </View>
