@@ -4,7 +4,8 @@ import { wordSupabase } from "./supabase"; // Import wordSupabase
 export const fetchSearchResults = async (
   keyword: string,
   page: number,
-  source: string | null // null for all sources, or specific source name
+  source: string | null, // null for all sources, or specific source name
+  signal?: AbortController | null
 ): Promise<WordStore[]> => {
   if (!keyword.trim()) {
     return [];
@@ -12,29 +13,35 @@ export const fetchSearchResults = async (
   try {
     const offset = page * SEARCH_LIMIT;
 
-    // Ensure the SQL function 'search_fts_words_advanced' (as defined in the accompanying notes)
-    // exists in your Supabase database.
-    // This function handles the keyword matching (ILIKE), source filtering,
-    // custom ordering (exact matches first), and pagination.
-    const { data, error } = await wordSupabase.rpc(
-      "search_fts_words_advanced",
-      {
-        p_keyword: keyword, // The RPC function will handle lowercasing and wildcard for ILIKE
-        p_source: source, // Pass null if no source filter is needed
-        p_limit: SEARCH_LIMIT,
-        p_offset: offset,
-      }
-    );
+    let allQuery = wordSupabase
+      .from("fts_words")
+      .select("*")
+      .like("word", `%${keyword.toLowerCase()}%`)
+      .neq("word", keyword.toLowerCase())
+      .range(offset, offset + SEARCH_LIMIT);
 
-    if (error) {
-      console.error("Error searching words with Supabase RPC:", error);
-      return [];
+    if (source) {
+      allQuery = allQuery.eq("source", source);
+    }
+    if (signal) {
+      allQuery = allQuery.abortSignal(signal.signal);
+    }
+    const { data: allData } = await allQuery;
+
+    if (offset === 0 && !!allData?.length) {
+      let absoluteQuery = wordSupabase
+        .from("fts_words")
+        .select("*")
+        .eq("word", keyword.toLowerCase());
+      let absoluteWord = await absoluteQuery.single();
+      if (!absoluteWord.error) {
+        return [absoluteWord.data as WordStore, ...(allData as WordStore[])];
+      }
     }
 
-    return data || []; // Ensure an array is always returned
-  } catch (error) {
-    console.error("Error searching words:", error);
-    return []; // Return empty on error to allow fallback or indicate failure
+    return allData as WordStore[];
+  } catch {
+    return [];
   }
 };
 

@@ -27,8 +27,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters"; // Import s for scaling
 
-const SPECIFIC_SOURCE_DB = "extra_mtb_ev.db";
-
 const SearchScreen = () => {
   const router = useRouter();
   const { colors } = useThemeStore();
@@ -40,9 +38,6 @@ const SearchScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // For pagination loading
   const [hasMoreData, setHasMoreData] = useState(true);
-  const [activeSearchSource, setActiveSearchSource] = useState<string | null>(
-    null
-  ); // To track if specific or all sources are active
 
   const debounce = useDebounce({ time: 500 });
 
@@ -62,7 +57,6 @@ const SearchScreen = () => {
     setSuggestions([]); // Clear previous suggestions immediately
     setCurrentPage(0);
     setHasMoreData(true); // Optimistically assume more data for a new term
-    setActiveSearchSource(null); // Reset active source
 
     if (trimmedSearchTerm === "") {
       setIsLoading(false); // Not loading if term is empty
@@ -71,46 +65,35 @@ const SearchScreen = () => {
       return;
     }
 
-    debounce(async () => {
+    debounce(async (abortController) => {
       setIsLoading(true); // Start full-screen loading for new search
       const specificSourceResults = await fetchSearchResults(
         trimmedSearchTerm,
         0,
-        SPECIFIC_SOURCE_DB
+        null,
+        abortController
       );
-
-      if (specificSourceResults.length > 0) {
-        setSuggestions(specificSourceResults);
-        setHasMoreData(specificSourceResults.length === SEARCH_LIMIT);
-        setActiveSearchSource(SPECIFIC_SOURCE_DB);
-      } else {
-        // If specific source yields no results, search all sources
-        const allSourceResults = await fetchSearchResults(
-          trimmedSearchTerm,
-          0,
-          null // Search all sources
-        );
-        setSuggestions(allSourceResults);
-        setHasMoreData(allSourceResults.length === SEARCH_LIMIT);
-        setActiveSearchSource(null); // Indicates all sources were searched
-      }
+      setSuggestions(specificSourceResults);
+      setHasMoreData(specificSourceResults.length >= SEARCH_LIMIT);
       setIsLoading(false); // End full-screen loading
     });
   }, [searchTerm]);
 
   const handleLoadMore = async () => {
     const trimmedSearchTerm = searchTerm.trim();
-    if (isLoadingMore || isLoading || !hasMoreData || trimmedSearchTerm === "")
+    if (
+      isLoadingMore ||
+      isLoading ||
+      !hasMoreData ||
+      trimmedSearchTerm === "" ||
+      suggestions.length === 0
+    )
       return;
 
     setIsLoadingMore(true);
     const nextPage = currentPage + 1;
 
-    const results = await fetchSearchResults(
-      trimmedSearchTerm,
-      nextPage,
-      activeSearchSource // Use the determined active source for pagination
-    );
+    const results = await fetchSearchResults(trimmedSearchTerm, nextPage, null);
 
     if (results.length > 0) {
       setSuggestions((prevSuggestions) => [...prevSuggestions, ...results]);

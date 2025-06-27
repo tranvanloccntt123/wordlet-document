@@ -22,19 +22,11 @@ import { parse } from "node-html-parser";
 export const fetchLabanWord = async (word: string): Promise<WordStore> => {
   const res = await axios.get(`${BASE_URL}${word}`);
   const root = parse(res.data as string);
-  const type = root
-    .querySelector(".entry-body")
-    ?.querySelector(".posgram")?.textContent;
-  const ipa = root
-    .querySelector(".entry-body")
-    ?.querySelector(".us")
-    ?.querySelector(".ipa")
-    ?.textContent?.replaceAll(".", "");
-  const content: string = `0#${word}\n${ipa ? `1#[${ipa}]\n` : ``}${
-    type ? `3#${type}\n` : ""
-  }`;
+
+  const contentContainer = root.querySelector("#content_selectable");
+
   const _word = {
-    content,
+    content: "",
     id: Math.floor(Math.random() * 100) + 1000000,
     source: "cambridge",
     word,
