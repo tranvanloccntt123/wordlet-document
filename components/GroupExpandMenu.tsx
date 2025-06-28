@@ -73,6 +73,11 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
               </Text>
             </View>
           </TouchableOpacity>
+          {(group?.words?.length || 0) < 10 && (
+            <Text style={[styles.description, { color: colors.accent }]}>
+              *{t("groups.publishLimit")}
+            </Text>
+          )}
           <Text style={[styles.description, { color: colors.textSecondary }]}>
             {t("groups.publishDescription")}
           </Text>

@@ -1,3 +1,4 @@
+import AppAudio from "@/assets/audio";
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
 import CountdownModal from "@/components/CountdownModal";
@@ -21,6 +22,7 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { useAudioPlayer } from "expo-audio";
 import { router, useLocalSearchParams } from "expo-router"; // Import router
 import React from "react"; // Import useEffect, useState
 import { useTranslation } from "react-i18next"; // Import useTranslation
@@ -57,8 +59,9 @@ export default function SelectGameScreen() {
   const colors = useThemeStore((state) => state.colors);
   const info = useInfoStore((state) => state.info);
   const params = useLocalSearchParams<{ groupId: string; groupName: string }>();
+  const playerVictory = useAudioPlayer(AppAudio.VICTORY);
   const { groupId, groupName } = params;
-  const [challangeVisible, setChallangeVisible] = React.useState(false);
+  const [challengeVisible, setChallengeVisible] = React.useState(false);
   const { isLoading, data: group } = useQuery({
     key: getGroupKey(Number(groupId || "0")),
     async queryFn() {
@@ -73,6 +76,13 @@ export default function SelectGameScreen() {
       }
     },
   });
+
+  React.useEffect(() => {
+    if (challengeVisible) {
+      playerVictory.seekTo(0);
+      playerVictory.play();
+    }
+  }, [challengeVisible]);
 
   const { t } = useTranslation(); // Initialize useTranslation
   const bottomSheetRef = React.useRef<BottomSheet>(null);
@@ -169,7 +179,7 @@ export default function SelectGameScreen() {
   React.useEffect(() => {
     if (!isLoading && !!info && !!group && info.user_id !== group.user_id) {
       setTimeout(() => {
-        setChallangeVisible(true);
+        setChallengeVisible(true);
       }, 100);
     }
   }, [isLoading, info, group]);
@@ -371,7 +381,7 @@ export default function SelectGameScreen() {
         </BottomSheet>
         <LimitCountDownModal />
         <Modal
-          visible={challangeVisible}
+          visible={challengeVisible}
           transparent={true}
           animationType="fade"
         >
@@ -395,7 +405,7 @@ export default function SelectGameScreen() {
                     backgroundColor: colors.warning,
                   },
                 ]}
-                onPress={() => setChallangeVisible(false)}
+                onPress={() => setChallengeVisible(false)}
               >
                 <Text
                   style={[
