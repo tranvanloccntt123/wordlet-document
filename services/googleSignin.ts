@@ -35,7 +35,7 @@ export const signInWithGoogle =
       // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      supabase.signInWithGoogle(idToken);
+      await supabase.signInWithGoogle(idToken);
 
       // Sign-in the user with the credential
       const userCredential = await auth().signInWithCredential(

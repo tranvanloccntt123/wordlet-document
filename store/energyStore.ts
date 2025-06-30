@@ -34,6 +34,10 @@ export const energyStore = create<EnergyState>()(
             state.energy = data.energy;
             state.isLoading = false;
           });
+        } else {
+          set((state) => {
+            state.isLoading = false;
+          });
         }
       } catch (e) {
         set((state) => {

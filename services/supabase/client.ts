@@ -41,6 +41,6 @@ export const fetchUser = async () => {
   return user;
 };
 
-export const signInWithGoogle = (token: string) => {
-  supabase!.auth.signInWithIdToken({ token: token, provider: "google" });
+export const signInWithGoogle = async (token: string) => {
+  await supabase!.auth.signInWithIdToken({ token: token, provider: "google" });
 };
