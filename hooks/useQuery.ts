@@ -6,13 +6,13 @@ import React from "react";
  * @param key string
  * @param disableCache boolean
  * @param queryFn Promise function
- * @param gcTime ms
+ * @param gcTime ms - default 5 minutes
  */
 const useQuery = <T = any>({
   key,
   queryFn,
   disableCache,
-  gcTime = 5000,
+  gcTime = 300000,
 }: {
   key: string;
   queryFn?: () => Promise<T>;

@@ -6,6 +6,7 @@ import GameProgressBar from "@/components/GameProgressBart";
 import ParseContent from "@/components/ParseContent";
 import WordSuggestionModal from "@/components/WordSuggestionModal"; // Import the new modal
 import Colors from "@/constants/Colors";
+import * as Mixpanel from "@/services/mixpanel";
 import { decreaseSuggest } from "@/services/supabase";
 import useEnergyStore from "@/store/energyStore";
 import useGameStore from "@/store/gameStore";
@@ -145,10 +146,11 @@ const ChooseCorrectFromVoice = () => {
 
     next();
   };
-
+  
   const handleSuggestPress = () => {
     if (suggest === 0) {
       //SHOW ADS
+      Mixpanel.showAds({ suggest: true });
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

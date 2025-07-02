@@ -1,5 +1,6 @@
 import { getIPA } from "@/constants/Spell";
 import { getQueryData } from "@/hooks/useQuery";
+import * as Mixpanel from "@/services/mixpanel";
 import { fetchWordsByKeywordList } from "@/services/searchDb";
 import { createNewGame, fetchGroupDetail, getUsers } from "@/services/supabase";
 import { shuffleArray } from "@/utils/array";
@@ -209,6 +210,9 @@ const useGameStore = create<GameState>()(
     async fetchUser() {
       try {
         const r = await getUsers();
+        if (r) {
+          Mixpanel.login(r.id);
+        }
         set((state) => {
           state.user = r;
         });

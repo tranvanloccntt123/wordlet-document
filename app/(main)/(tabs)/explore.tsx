@@ -14,6 +14,7 @@ import * as FileSystem from "expo-file-system"; // Import FileSystem
 import { useRouter } from "expo-router"; // Corrected: useRouter should be imported from expo-router
 // import * as Sharing from "expo-sharing"; // Import Sharing
 import AppLoading from "@/components/AppLoading";
+import * as Mixpanel from "@/services/mixpanel";
 import * as supabase from "@/services/supabase";
 import { deleteAccount } from "@/services/supabase";
 import useNotificationStore from "@/store/notificationStore";
@@ -114,6 +115,7 @@ const SettingsScreen = () => {
               await supabase.signOut();
               await signOutGoogle();
               reset();
+              Mixpanel.logout();
               setIsLoading(false);
             } catch (e) {
               setIsLoading(false);

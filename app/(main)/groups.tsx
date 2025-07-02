@@ -29,7 +29,9 @@ import { ScaledSheet, ms, s } from "react-native-size-matters";
 const GroupItem: React.FC<{
   groupId: number;
   onOpenEdit: (item: Group) => void;
-}> = ({ groupId, onOpenEdit }) => {
+  onDeleteStart: () => void;
+  onDeleteFinish: () => void;
+}> = ({ groupId, onOpenEdit, onDeleteFinish, onDeleteStart }) => {
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
 
   const { data: item } = useQuery({
@@ -49,7 +51,12 @@ const GroupItem: React.FC<{
         },
         {
           text: t("common.delete"),
-          onPress: () => deleteGroupInfo(group.id),
+          onPress: () => {
+            onDeleteStart?.();
+            deleteGroupInfo(group.id).then((r) => {
+              onDeleteFinish?.();
+            });
+          },
           style: "destructive",
         },
       ]
@@ -111,7 +118,7 @@ const GroupItem: React.FC<{
 };
 
 const GroupManagementScreen = () => {
-  const { data: groups } = useQuery<number[]>({
+  const { data: groups, isLoading: isFetchGroupLoading } = useQuery<number[]>({
     key: getOwnerGroupKey(),
     async queryFn() {
       const { error, data } = await getOwnerGroup();
@@ -130,6 +137,8 @@ const GroupManagementScreen = () => {
   );
 
   const atGroupLimit = (groups?.length || 0) >= GROUP_LIMIT;
+
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const addGroup = async () => {
     if (atGroupLimit) {
@@ -167,10 +176,8 @@ const GroupManagementScreen = () => {
     );
   };
 
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
   return (
-    <AppLoading isLoading={isLoading}>
+    <AppLoading isLoading={isFetchGroupLoading || isLoading}>
       <View style={styles.container}>
         <SafeAreaView
           style={[styles.container, { backgroundColor: colors.background }]}
@@ -215,6 +222,12 @@ const GroupManagementScreen = () => {
                 groupId={item}
                 onOpenEdit={(item) => {
                   openEditModal(item);
+                }}
+                onDeleteStart={() => {
+                  setIsLoading(true);
+                }}
+                onDeleteFinish={() => {
+                  setIsLoading(false);
                 }}
               />
             )}
