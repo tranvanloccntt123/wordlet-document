@@ -60,10 +60,10 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
     setOriginalContentStructure(structure);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingWord) {
       // Call the store action to update the word
-      updateGroupInfo(group.id, (oldData) => {
+      await updateGroupInfo(group.id, (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
@@ -140,7 +140,7 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
         },
         {
           text: t("common.remove"),
-          onPress: () => {
+          onPress: async () => {
             if (index === group.words.length - 1 && index > 0) {
               //move previous
               flatlistRef.current?.scrollToIndex({
@@ -148,7 +148,7 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
                 index: index - 1,
               });
             }
-            updateGroupInfo(group.id, (oldData) => {
+            await updateGroupInfo(group.id, (oldData) => {
               if (!oldData) return oldData;
               return {
                 ...oldData,

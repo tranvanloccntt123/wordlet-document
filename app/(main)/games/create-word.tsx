@@ -46,7 +46,7 @@ export default function CreateWordScreen() {
   const [wordType, setWordType] = useState<string>(WORD_TYPES[0].value);
   const [content, setContent] = useState("");
 
-  const handleSaveWord = () => {
+  const handleSaveWord = async () => {
     if (!groupId) {
       Alert.alert(t("common.error"), t("games.errorNoGroupSelected"));
       return;
@@ -69,7 +69,7 @@ export default function CreateWordScreen() {
       source: "manual",
     };
 
-    updateGroupInfo(parseInt(groupId || "0"), (oldData) => {
+    await updateGroupInfo(parseInt(groupId || "0"), (oldData) => {
       if (!oldData) return oldData;
       return {
         ...oldData,

@@ -1,6 +1,7 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader"; // Import the new CommonHeader
 import EditGroupModal from "@/components/EditGroupModal"; // Import the moved component
+import { GROUP_LIMIT } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import {
   createGroupInfo,
@@ -24,8 +25,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
-
-const GROUP_LIMIT = 4; // Define the group limit
 
 const GroupItem: React.FC<{
   groupId: number;
@@ -157,8 +156,8 @@ const GroupManagementScreen = () => {
     setCurrentEditingGroup(null);
   };
 
-  const handleSaveGroupName = (groupId: number, newName: string) => {
-    updateGroupInfo(groupId, (oldData) =>
+  const handleSaveGroupName = async (groupId: number, newName: string) => {
+    await updateGroupInfo(groupId, (oldData) =>
       !oldData
         ? oldData
         : {

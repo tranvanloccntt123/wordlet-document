@@ -6,13 +6,20 @@ import GameProgressBar from "@/components/GameProgressBart";
 import ParseContent from "@/components/ParseContent";
 import WordSuggestionModal from "@/components/WordSuggestionModal"; // Import the new modal
 import Colors from "@/constants/Colors";
+import { decreaseSuggest } from "@/services/supabase";
+import useEnergyStore from "@/store/energyStore";
 import useGameStore from "@/store/gameStore";
 import useThemeStore from "@/store/themeStore";
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
 import { playWord } from "@/utils/voice"; // Import playWord utility
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -45,14 +52,13 @@ const VOICE_SPEED_LEVELS: {
 
 const ChooseCorrectFromVoice = () => {
   const playerCorrect = useAudioPlayer(AppAudio.CORRECT);
-
-  const router = useRouter();
   const { colors } = useThemeStore();
   const params = useLocalSearchParams<{ groupId?: string }>();
   const groupId = params.groupId;
   const { t } = useTranslation();
   const { shuffledWords, currentIndex, submitAnswer, next } = useGameStore();
-
+  const suggest = useEnergyStore((state) => state.suggest);
+  const setSuggest = useEnergyStore((state) => state.setSuggest);
   const [userInput, setUserInput] = useState<string>("");
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [isSuggestModalVisible, setIsSuggestModalVisible] = useState(false);
@@ -141,9 +147,18 @@ const ChooseCorrectFromVoice = () => {
   };
 
   const handleSuggestPress = () => {
+    if (suggest === 0) {
+      //SHOW ADS
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (currentWord && isCorrect === null) {
       // Only allow suggestion if answer not submitted
+      decreaseSuggest().then((response) => {
+        if (response?.data?.data?.[0]) {
+          setSuggest(response?.data?.data?.[0].suggest || 0);
+        }
+      });
       setIsSuggestModalVisible(true);
     }
   };
@@ -264,40 +279,59 @@ const ChooseCorrectFromVoice = () => {
                   spellCheck={false}
                 />
 
-                <TouchableOpacity
-                  onPress={handleSuggestPress}
-                  style={[
-                    styles.suggestButton,
-                    {
-                      borderColor:
-                        isCorrect !== null
-                          ? colors.textDisabled
-                          : colors.primary,
-                    },
-                  ]}
-                  disabled={isCorrect !== null || !currentWord}
-                >
-                  <MaterialIcons
-                    name="lightbulb-outline"
-                    size={s(18)}
-                    color={
-                      isCorrect !== null ? colors.textDisabled : colors.primary
-                    }
-                  />
-                  <Text
+                <View>
+                  <TouchableOpacity
+                    onPress={handleSuggestPress}
                     style={[
-                      styles.suggestButtonText,
+                      styles.suggestButton,
                       {
-                        color:
+                        borderColor:
                           isCorrect !== null
                             ? colors.textDisabled
                             : colors.primary,
                       },
                     ]}
+                    disabled={isCorrect !== null || !currentWord}
                   >
-                    {t("games.suggestButton")}
-                  </Text>
-                </TouchableOpacity>
+                    <MaterialIcons
+                      name="lightbulb-outline"
+                      size={s(18)}
+                      color={
+                        isCorrect !== null
+                          ? colors.textDisabled
+                          : colors.primary
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.suggestButtonText,
+                        {
+                          color:
+                            isCorrect !== null
+                              ? colors.textDisabled
+                              : colors.primary,
+                        },
+                      ]}
+                    >
+                      {t("games.suggestButton")}
+                    </Text>
+                    <View
+                      style={[
+                        styles.suggestNumberContainer,
+                        { backgroundColor: colors.primary },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.suggestNumberText,
+                          { color: colors.card },
+                        ]}
+                      >
+                        {suggest || "AD"}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
                 {isCorrect !== null && currentWord && (
                   <View style={styles.feedbackContainer}>
                     <MaterialIcons
@@ -467,15 +501,29 @@ const styles = ScaledSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: "8@vs",
-    paddingHorizontal: "15@s",
-    borderRadius: "20@s",
+    paddingHorizontal: "10@s",
+    borderRadius: "30@s",
     borderWidth: 1,
     marginBottom: "20@ms", // Space before submit button or feedback
+    gap: "8@s",
   },
   suggestButtonText: {
     fontSize: "14@s",
     fontWeight: "600",
     marginLeft: "8@s",
+  },
+  suggestNumberContainer: {
+    width: "30@s",
+    height: "30@s",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: "30@s",
+  },
+  suggestNumberText: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoRegular,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
   },
 });
 

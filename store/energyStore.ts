@@ -4,8 +4,10 @@ import { immer } from "zustand/middleware/immer";
 
 interface EnergyState {
   energy: number;
+  suggest: number;
   isLoading: boolean;
   setEnergy: (energy: number) => void;
+  setSuggest: (suggest: number) => void;
   fetchEnergy: (isRefresh?: boolean) => Promise<any>;
   isVisible: boolean;
   setIsVisible: (_: boolean) => void;
@@ -14,7 +16,13 @@ interface EnergyState {
 export const energyStore = create<EnergyState>()(
   immer((set, get) => ({
     energy: 0,
+    suggest: 0,
     isLoading: false,
+    setSuggest(suggest) {
+      set((state) => {
+        state.suggest = suggest;
+      });
+    },
     setEnergy(energy) {
       set((state) => {
         state.energy = energy;
@@ -32,6 +40,7 @@ export const energyStore = create<EnergyState>()(
         if (!error) {
           set((state) => {
             state.energy = data.energy;
+            state.suggest = data.suggest;
             state.isLoading = false;
           });
         } else {

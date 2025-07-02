@@ -23,5 +23,6 @@ export const SUPABASE_FUNCTION = {
   DELETE_GROUP: "delete_group",
   NEW_GAME: "new-game",
   DECREASE_ENERGY: "decrease_energy",
+  DECREASE_SUGGEST: "decrease_suggest",
   DELETE_USER: "delete-user",
 };

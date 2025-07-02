@@ -51,4 +51,5 @@ export const updateFCMToken = async (token: string) => {
     fcmFetching = fetchUpdateFCMToken(token);
   }
   await fcmFetching;
+  clearFCMFetching();
 };

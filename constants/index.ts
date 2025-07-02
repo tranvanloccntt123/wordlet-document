@@ -46,3 +46,5 @@ export const MAX_SCORE_PER_QUESTION = 500;
 export const SEARCH_LIMIT = 10;
 
 export const TIME_LIMIT_MS = 60000;
+
+export const GROUP_LIMIT = 4; // Define the group limit

@@ -12,7 +12,7 @@ const useQuery = <T = any>({
   key,
   queryFn,
   disableCache,
-  gcTime = 70000,
+  gcTime = 5000,
 }: {
   key: string;
   queryFn?: () => Promise<T>;

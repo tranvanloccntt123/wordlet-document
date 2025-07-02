@@ -1,9 +1,11 @@
+import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
-import FullScreenLoadingModal from "@/components/FullScreenLoadingModal";
+import { GROUP_LIMIT } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { createGroupInfo, updateGroupInfo } from "@/services/groupServices";
 import { fetchGroupDetail, getOwnerGroup } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
+import { delay } from "@/utils";
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -136,7 +138,12 @@ const AddGroupScreen = () => {
 
   const styles = createStyles(colors);
 
+  const atGroupLimit = (groups?.length || 0) >= GROUP_LIMIT;
+
   const handleCreateGroupAndAddWord = async () => {
+    if (atGroupLimit) {
+      return;
+    }
     // Logic for creating a NEW group
     const trimmedGroupName = groupName.trim();
     if (!trimmedGroupName) {
@@ -172,7 +179,7 @@ const AddGroupScreen = () => {
         }
         newContent += selectedDefinitionText;
         const modifiedWord: WordStore = { ...wordToAdd, content: newContent };
-        updateGroupInfo(newGroupId, (oldData) =>
+        await updateGroupInfo(newGroupId, (oldData) =>
           oldData
             ? { ...oldData, words: [...oldData.words, modifiedWord] }
             : oldData
@@ -185,11 +192,13 @@ const AddGroupScreen = () => {
         );
       }
     } catch (e) {}
-    router.back(); // Navigate back after the operation (success or failure alert)
+    await delay(500);
     setIsSubmitting(false);
+    await delay(200);
+    router.back(); // Navigate back after adding
   };
 
-  const handleAddToExistingGroup = (groupId: number) => {
+  const handleAddToExistingGroup = async (groupId: number) => {
     // Logic for adding to an EXISTING group
     if (!wordToAdd) {
       Alert.alert(
@@ -215,146 +224,152 @@ const AddGroupScreen = () => {
     }
     newContent += selectedDefinitionText;
     const modifiedWord: WordStore = { ...wordToAdd, content: newContent };
-    updateGroupInfo(groupId, (oldData) =>
+    await updateGroupInfo(groupId, (oldData) =>
       oldData
         ? { ...oldData, words: [...oldData.words, modifiedWord] }
         : oldData
     );
-    router.back(); // Navigate back after adding
+    await delay(500);
     setIsSubmitting(false);
+    await delay(200);
+    router.back(); // Navigate back after adding
   };
 
   return (
-    <View style={styles.safeArea}>
-      {/* Use a top-level View for background color */}
-      <SafeAreaView style={styles.safeAreaContent}>
-        <CommonHeader title={"Add To A Group"} />
-        {/* Wrap the ScrollView with KeyboardAvoidingView */}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS, 'height' or 'null' for Android
-          style={styles.keyboardAvoidingView}
-          // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Adjust offset if needed
-        >
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.container}
-            keyboardShouldPersistTaps="handled" // Helps with dismissing keyboard when tapping outside inputs
+    <AppLoading isLoading={isSubmitting}>
+      <View style={styles.safeArea}>
+        {/* Use a top-level View for background color */}
+        <SafeAreaView style={styles.safeAreaContent}>
+          <CommonHeader title={"Add To A Group"} />
+          {/* Wrap the ScrollView with KeyboardAvoidingView */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS, 'height' or 'null' for Android
+            style={styles.keyboardAvoidingView}
+            // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Adjust offset if needed
           >
-            {wordToAdd && selectableDefinitions.length > 0 && (
-              <View style={styles.definitionsContainer}>
-                <Text style={styles.definitionsTitle}>
-                  Select a meaning for "{wordToAdd.word}":
-                </Text>
-                {selectableDefinitions.map((def) => (
-                  <TouchableOpacity
-                    key={def.id}
-                    style={[
-                      styles.definitionItem,
-                      selectedDefinitionText === def.text &&
-                        styles.definitionItemSelected,
-                    ]}
-                    onPress={() => {
-                      setSelectedDefinitionText(def.text);
-                      // Scroll to the form container after selecting a definition
-                      if (
-                        scrollViewRef.current &&
-                        formContainerY.current !== 0
-                      ) {
-                        scrollViewRef.current.scrollTo({
-                          y: formContainerY.current,
-                          animated: true,
-                        });
-                      }
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.definitionText,
-                        selectedDefinitionText === def.text &&
-                          styles.definitionTextSelected,
-                      ]}
-                    >
-                      {def.text.substring(2).trim()}{" "}
-                      {/* Remove 5# prefix for display */}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-            {wordToAdd && selectableDefinitions.length === 0 && (
-              <View style={styles.definitionsContainer}>
-                <Text style={styles.errorText}>
-                  This word ("{wordToAdd.word}") does not have any selectable
-                  definitions (5# lines) in its content. It cannot be added to a
-                  group.
-                </Text>
-              </View>
-            )}
-            {/* Use onLayout to get the Y position of the form container */}
-            <View
-              style={styles.formContainer}
-              onLayout={(event) => {
-                formContainerY.current = event.nativeEvent.layout.y;
-              }}
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.container}
+              keyboardShouldPersistTaps="handled" // Helps with dismissing keyboard when tapping outside inputs
             >
-              <Text style={styles.label}>Group Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., My Favorite Words"
-                placeholderTextColor={colors.textSecondary}
-                value={groupName}
-                onChangeText={setGroupName}
-                // autoFocus={true} // Consider removing if definition selection is primary first step
-              />
-              {!!wordToAdd && !!selectedDefinitionText && (
-                <Text style={styles.infoText}>
-                  This new group will include the word: "{wordToAdd.word}"
-                </Text>
+              {wordToAdd && selectableDefinitions.length > 0 && (
+                <View style={styles.definitionsContainer}>
+                  <Text style={styles.definitionsTitle}>
+                    Select a meaning for "{wordToAdd.word}":
+                  </Text>
+                  {selectableDefinitions.map((def) => (
+                    <TouchableOpacity
+                      key={def.id}
+                      style={[
+                        styles.definitionItem,
+                        selectedDefinitionText === def.text &&
+                          styles.definitionItemSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedDefinitionText(def.text);
+                        // Scroll to the form container after selecting a definition
+                        if (
+                          scrollViewRef.current &&
+                          formContainerY.current !== 0
+                        ) {
+                          scrollViewRef.current.scrollTo({
+                            y: formContainerY.current,
+                            animated: true,
+                          });
+                        }
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.definitionText,
+                          selectedDefinitionText === def.text &&
+                            styles.definitionTextSelected,
+                        ]}
+                      >
+                        {def.text.substring(2).trim()}{" "}
+                        {/* Remove 5# prefix for display */}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               )}
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  (isSubmitting ||
-                    !wordToAdd ||
-                    !selectedDefinitionText ||
-                    !canAddWord) &&
-                    styles.buttonDisabled,
-                ]}
-                onPress={handleCreateGroupAndAddWord}
-                disabled={
-                  isSubmitting ||
-                  !wordToAdd ||
-                  !selectedDefinitionText ||
-                  !canAddWord
-                }
+              {wordToAdd && selectableDefinitions.length === 0 && (
+                <View style={styles.definitionsContainer}>
+                  <Text style={styles.errorText}>
+                    This word ("{wordToAdd.word}") does not have any selectable
+                    definitions (5# lines) in its content. It cannot be added to
+                    a group.
+                  </Text>
+                </View>
+              )}
+              {/* Use onLayout to get the Y position of the form container */}
+              <View
+                style={styles.formContainer}
+                onLayout={(event) => {
+                  formContainerY.current = event.nativeEvent.layout.y;
+                }}
               >
-                <Text style={styles.buttonText}>
-                  {isSubmitting ? "Processing..." : "Create Group & Add Word"}
-                </Text>
-              </TouchableOpacity>
-              {(groups?.length || 0) > 0 && (
-                <Text style={styles.orText}>OR select an existing group</Text>
-              )}
-              {(groups?.length || 0) > 0 &&
-                groups.map((group) => (
-                  <GroupItem
-                    key={group}
-                    onAddWordToGroup={() => handleAddToExistingGroup(group)}
-                    disabled={
+                <Text style={styles.label}>Group Name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., My Favorite Words"
+                  placeholderTextColor={colors.textSecondary}
+                  value={groupName}
+                  editable={!atGroupLimit}
+                  onChangeText={setGroupName}
+                  // autoFocus={true} // Consider removing if definition selection is primary first step
+                />
+                {!!wordToAdd && !!selectedDefinitionText && (
+                  <Text style={styles.infoText}>
+                    This new group will include the word: "{wordToAdd.word}"
+                  </Text>
+                )}
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    (atGroupLimit ||
                       isSubmitting ||
                       !wordToAdd ||
                       !selectedDefinitionText ||
-                      !canAddWord
-                    } // Disable while submitting or if no definition selected
-                    groupId={group}
-                  />
-                ))}
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-      <FullScreenLoadingModal visible={isSubmitting} />
-    </View>
+                      !canAddWord) &&
+                      styles.buttonDisabled,
+                  ]}
+                  onPress={handleCreateGroupAndAddWord}
+                  disabled={
+                    atGroupLimit ||
+                    isSubmitting ||
+                    !wordToAdd ||
+                    !selectedDefinitionText ||
+                    !canAddWord
+                  }
+                >
+                  <Text style={styles.buttonText}>
+                    {isSubmitting ? "Processing..." : "Create Group & Add Word"}
+                  </Text>
+                </TouchableOpacity>
+                {(groups?.length || 0) > 0 && (
+                  <Text style={styles.orText}>OR select an existing group</Text>
+                )}
+                {(groups?.length || 0) > 0 &&
+                  groups.map((group) => (
+                    <GroupItem
+                      key={group}
+                      onAddWordToGroup={() => handleAddToExistingGroup(group)}
+                      disabled={
+                        isSubmitting ||
+                        !wordToAdd ||
+                        !selectedDefinitionText ||
+                        !canAddWord
+                      } // Disable while submitting or if no definition selected
+                      groupId={group}
+                    />
+                  ))}
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </View>
+    </AppLoading>
   );
 };
 

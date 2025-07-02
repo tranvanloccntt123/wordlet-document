@@ -1,7 +1,7 @@
 import {
-    SUPABASE_FUNCTION,
-    SUPABASE_SCHEMA,
-    SUPABASE_TABLE,
+  SUPABASE_FUNCTION,
+  SUPABASE_SCHEMA,
+  SUPABASE_TABLE,
 } from "@/constants/Supabase";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { getUsers, supabase } from "./client";
@@ -31,7 +31,7 @@ export const getEnergy = async () => {
     }
 
     const response = await energyFetching;
-
+    clearEnergyFetching();
     return response;
   } catch (e) {
     throw e;
@@ -52,6 +52,13 @@ export const decreaseEnergy = async ({
     {
       body: { historyId, score, message },
     }
+  );
+  return response;
+};
+
+export const decreaseSuggest = async () => {
+  const response = await supabase!.functions.invoke(
+    SUPABASE_FUNCTION.DECREASE_SUGGEST
   );
   return response;
 };

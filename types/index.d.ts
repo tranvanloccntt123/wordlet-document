@@ -83,6 +83,7 @@ type Energy = {
   updated_at: string;
   user_id: string;
   energy: number;
+  suggestion: number;
 };
 
 type GameType =

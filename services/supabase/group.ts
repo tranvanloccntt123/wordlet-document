@@ -60,7 +60,7 @@ export const getOwnerGroup = async () => {
       ownerGroupFetching = fetchOwnerGroup();
     }
     const response: PostgrestSingleResponse<Group[]> = await ownerGroupFetching;
-
+    clearOwnerGroupFetching();
     return response;
   } catch (e) {
     throw e;

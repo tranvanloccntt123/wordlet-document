@@ -26,7 +26,7 @@ export const getVowelPercent = async () => {
 
     const response: PostgrestSingleResponse<VowelPercent[]> =
       await vowelFetching;
-
+    clearVowelFetching();
     return response;
   } catch (e) {
     throw e;

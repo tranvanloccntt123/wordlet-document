@@ -43,5 +43,6 @@ export const getUserPlayerRank = async (): Promise<
     playerRankFetching = fetchUserPlayerRank();
   }
   const respone = await playerRankFetching;
+  clearPlayerRankFetching();
   return respone;
 };
