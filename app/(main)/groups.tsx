@@ -9,6 +9,7 @@ import {
   updateGroupInfo,
 } from "@/services/groupServices";
 import { getOwnerGroup } from "@/services/supabase";
+import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore"; // Import theme store
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -129,6 +130,7 @@ const GroupManagementScreen = () => {
       return [];
     },
   });
+  const userInfo = useInfoStore((state) => state.info);
   const { colors } = useThemeStore(); // Use theme colors
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -136,7 +138,8 @@ const GroupManagementScreen = () => {
     null
   );
 
-  const atGroupLimit = (groups?.length || 0) >= GROUP_LIMIT;
+  const atGroupLimit =
+    !userInfo?.is_premium && (groups?.length || 0) >= GROUP_LIMIT;
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 

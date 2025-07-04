@@ -142,3 +142,7 @@ export const getGroupKey = (groupId: number): string => `GROUP_${groupId}`;
 export const getSearchKey = (key: string): string => `SEARCH_${key}`;
 
 export const getWordKey = (key: string): string => `WORD_${key}`;
+
+export const getCurrentRankKey = (): string => `CURRENT_RANK`;
+
+export const getTop100PlayersKey = (): string => `TOP_100_PLAYERS`;

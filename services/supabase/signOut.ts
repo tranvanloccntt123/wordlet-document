@@ -3,7 +3,7 @@ import { clearUserFetching, getUsers, supabase } from "./client";
 import { clearEnergyFetching } from "./energy";
 import { clearOwnerGroupFetching } from "./group";
 import { clearPlayerRankFetching } from "./leaderBoard";
-import { clearFCMFetching } from "./user";
+import { clearFCMFetching, clearUserInfoFetching } from "./user";
 import { clearVowelFetching } from "./vowel";
 
 export const deleteAccount = async () => {
@@ -30,4 +30,5 @@ export const signOut = () =>
     clearEnergyFetching();
     clearFCMFetching();
     clearPlayerRankFetching();
+    clearUserInfoFetching();
   });

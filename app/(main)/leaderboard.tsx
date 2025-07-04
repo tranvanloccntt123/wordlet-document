@@ -1,85 +1,38 @@
 import CommonHeader from "@/components/CommonHeader";
-import {
-    fetchLeaderboardRanks,
-    getUserPlayerRank,
-} from "@/services/supabase";
+import useQuery from "@/hooks/useQuery";
+import { fetchLeaderboardRanks, getUserPlayerRank } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
-import React, { useEffect, useState } from "react";
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
+import { getCurrentRankKey, getTop100PlayersKey } from "@/utils/string";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
 
-const PAGE_SIZE = 10;
-
 const LeaderboardScreen = () => {
   const { colors } = useThemeStore();
   const { t } = useTranslation();
 
-  const [leaderboardData, setLeaderboardData] = useState<PlayerRank[]>([]);
-  const [currentUserRank, setCurrentUserRank] = useState<PlayerRank | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [hasMoreData, setHasMoreData] = useState(true);
+  const { data: currentUserRank, isLoading: isCurrentRankLoading } = useQuery({
+    key: getCurrentRankKey(),
+    async queryFn() {
+      const { data: userRankData } = await getUserPlayerRank();
+      return userRankData;
+    },
+  });
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      try {
-        const { data: ranksData, error: ranksError } =
-          await fetchLeaderboardRanks(PAGE_SIZE, 0);
-        if (ranksError) throw ranksError;
-        if (ranksData) setLeaderboardData(ranksData);
-
-        const { data: userRankData, error: userRankError } =
-          await getUserPlayerRank();
-        if (userRankError && userRankError.code !== "PGRST116") {
-          // PGRST116: single row not found
-          throw userRankError;
-        }
-        if (userRankData) setCurrentUserRank(userRankData);
-      } catch (error) {
-        console.error("Failed to fetch leaderboard data:", error);
-        // Handle error display if needed
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
-
-  const handleLoadMore = async () => {
-    if (isLoadingMore || !hasMoreData) {
-      return;
-    }
-
-    setIsLoadingMore(true);
-    const nextPage = currentPage + 1;
-    const offset = nextPage * PAGE_SIZE;
-
-    try {
-      const { data: ranksData, error: ranksError } =
-        await fetchLeaderboardRanks(PAGE_SIZE, offset);
-
-      if (ranksError) throw ranksError;
-
-      if (ranksData && ranksData.length > 0) {
-        setLeaderboardData((prevData) => [...prevData, ...ranksData]);
-        setCurrentPage(nextPage);
-        setHasMoreData(ranksData.length === PAGE_SIZE);
-      } else {
-        setHasMoreData(false);
-      }
-    } catch (error) {
-      console.error("Failed to fetch more leaderboard data:", error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
+  const { data: top100Players, isLoading: isTop100PlayersLoading } = useQuery({
+    key: getTop100PlayersKey(),
+    async queryFn() {
+      const { data } = await fetchLeaderboardRanks(100, 0);
+      return data || [];
+    },
+  });
 
   const renderItem = ({ item }: { item: PlayerRank }) => (
     <View style={[styles.leaderboardItem, { backgroundColor: colors.card }]}>
@@ -102,7 +55,7 @@ const LeaderboardScreen = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <CommonHeader title={t("leaderboard.title", "Leaderboard")} />
-      {isLoading ? (
+      {isTop100PlayersLoading ? (
         <ActivityIndicator
           size="large"
           color={colors.primary}
@@ -110,28 +63,29 @@ const LeaderboardScreen = () => {
         />
       ) : (
         <FlatList
-          data={leaderboardData}
+          data={top100Players}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={[
             styles.contentContainer,
             currentUserRank ? { paddingBottom: s(70) } : {}, // Add padding if current user rank is shown
           ]}
-          onEndReached={handleLoadMore}
+          ListHeaderComponent={
+            <View style={styles.listHeaderContainer}>
+              <Text style={[styles.top100Text, { color: colors.textPrimary }]}>
+                {t("leaderboard.top100")}
+              </Text>
+            </View>
+          }
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
               {t("leaderboard.empty", "Leaderboard is empty.")}
             </Text>
           }
-          ListFooterComponent={
-            isLoadingMore ? (
-              <ActivityIndicator size="small" color={colors.primary} style={styles.footerLoader} />
-            ) : null
-          }
         />
       )}
-      {currentUserRank && !isLoading && (
+      {currentUserRank && !isCurrentRankLoading && (
         <View
           style={[
             styles.currentUserRankContainer,
@@ -232,7 +186,18 @@ const styles = ScaledSheet.create({
   },
   footerLoader: {
     marginVertical: "20@ms",
-  }
+  },
+  top100Text: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack,
+      fontSizeKey: FontSizeKeys.title,
+    }),
+  },
+  listHeaderContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: "35@s",
+  },
 });
 
 export default LeaderboardScreen;

@@ -1,9 +1,9 @@
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
-  FontFamilies,
-  FontSizeKeys,
-  getAppFontStyle,
+    FontFamilies,
+    FontSizeKeys,
+    getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -29,7 +29,7 @@ const formatScore = (score: number): string => {
 const HomePlay = () => {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
-  const { info, isLoading } = useInfoStore();
+  const { playerRank: info, isLoading } = useInfoStore();
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity

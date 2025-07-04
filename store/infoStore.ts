@@ -1,4 +1,4 @@
-import { getUserPlayerRank } from "@/services/supabase";
+import { getUserInfo } from "@/services/supabase";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -15,8 +15,8 @@ export interface GameSpecificData {
 }
 
 interface InfoState {
+  info: UserInfo | null;
   history: GameHistory[];
-  info: PlayerRank | null;
   isLoading: boolean;
   addGameResult: (result: GameHistory) => void;
   fetchCurrentInfo: () => Promise<void>;
@@ -39,14 +39,14 @@ const useInfoStore = create<InfoState>()(
         state.isLoading = true;
       });
       try {
-        const { data } = await getUserPlayerRank();
-        if (!!data) {
+        const { data: userInfo } = await getUserInfo();
+        if (!!userInfo) {
           set((state) => {
-            state.info = data;
-            state.isLoading = false;
+            state.info = userInfo;
           });
         }
       } catch (e) {
+      } finally {
         set((state) => {
           state.isLoading = false;
         });

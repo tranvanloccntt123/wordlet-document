@@ -102,6 +102,15 @@ type PlayerRank = {
   avatar: string;
 };
 
+type UserInfo = {
+  id: number;
+  user_id: string;
+  total_score: number;
+  name: string;
+  avatar: string;
+  is_premium: boolean;
+};
+
 type VowelPercent = {
   user_id: string;
   char: string;

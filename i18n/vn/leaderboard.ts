@@ -5,5 +5,6 @@ const leaderboard = {
   player: "Người Chơi",
   score: "Điểm",
   pointsSuffix: "Đ", // Điểm
+  top100: "Top 100 người chơi!",
 };
 export default leaderboard;

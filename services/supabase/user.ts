@@ -4,8 +4,14 @@ import { getUsers, supabase } from "./client";
 
 let fcmFetching: any = null;
 
+let userFetching: any = null;
+
 export const clearFCMFetching = () => {
   fcmFetching = null;
+};
+
+export const clearUserInfoFetching = () => {
+  userFetching = null;
 };
 
 export const fetchUserGameHistory = async (
@@ -52,4 +58,24 @@ export const updateFCMToken = async (token: string) => {
   }
   await fcmFetching;
   clearFCMFetching();
+};
+
+export const fetchUserInfo = async () => {
+  const user = await getUsers();
+  const response = await supabase!
+    .schema(SUPABASE_SCHEMA)
+    .from(SUPABASE_TABLE.INFO)
+    .select("*")
+    .eq("user_id", user?.id)
+    .single();
+  return response;
+};
+
+export const getUserInfo = async () => {
+  if (!userFetching) {
+    userFetching = fetchUserInfo();
+  }
+  const response = await userFetching;
+  clearUserInfoFetching();
+  return response;
 };
