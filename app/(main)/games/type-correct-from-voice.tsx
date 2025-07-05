@@ -4,11 +4,8 @@ import GameButtons from "@/components/GameButtons";
 import GameLoading from "@/components/GameLoading";
 import GameProgressBar from "@/components/GameProgressBart";
 import ParseContent from "@/components/ParseContent";
-import WordSuggestionModal from "@/components/WordSuggestionModal"; // Import the new modal
+import SuggestButton from "@/components/SuggestButton";
 import Colors from "@/constants/Colors";
-import * as Mixpanel from "@/services/mixpanel";
-import { decreaseSuggest } from "@/services/supabase";
-import useEnergyStore from "@/store/energyStore";
 import useGameStore from "@/store/gameStore";
 import useThemeStore from "@/store/themeStore";
 import {
@@ -58,8 +55,6 @@ const ChooseCorrectFromVoice = () => {
   const groupId = params.groupId;
   const { t } = useTranslation();
   const { shuffledWords, currentIndex, submitAnswer, next } = useGameStore();
-  const suggest = useEnergyStore((state) => state.suggest);
-  const setSuggest = useEnergyStore((state) => state.setSuggest);
   const [userInput, setUserInput] = useState<string>("");
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [isSuggestModalVisible, setIsSuggestModalVisible] = useState(false);
@@ -85,7 +80,6 @@ const ChooseCorrectFromVoice = () => {
       setUserInput("");
       setIsCorrect(null);
       setShowAnswer(false);
-      setIsSuggestModalVisible(false); // Close suggestion modal if open for previous word
       // Automatically play sound for the new word
       playWord(currentWord.word, currentWord.source, playbackRate);
     }
@@ -145,24 +139,6 @@ const ChooseCorrectFromVoice = () => {
     // setIsCorrect(false); // Mark as incorrect for display purposes if showing answer
 
     next();
-  };
-  
-  const handleSuggestPress = () => {
-    if (suggest === 0) {
-      //SHOW ADS
-      Mixpanel.showAds({ suggest: true });
-      return;
-    }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (currentWord && isCorrect === null) {
-      // Only allow suggestion if answer not submitted
-      decreaseSuggest().then((response) => {
-        if (response?.data?.data?.[0]) {
-          setSuggest(response?.data?.data?.[0].suggest || 0);
-        }
-      });
-      setIsSuggestModalVisible(true);
-    }
   };
 
   const progress = t("games.wordProgress", {
@@ -280,60 +256,10 @@ const ChooseCorrectFromVoice = () => {
                   autoCorrect={false}
                   spellCheck={false}
                 />
-
-                <View>
-                  <TouchableOpacity
-                    onPress={handleSuggestPress}
-                    style={[
-                      styles.suggestButton,
-                      {
-                        borderColor:
-                          isCorrect !== null
-                            ? colors.textDisabled
-                            : colors.primary,
-                      },
-                    ]}
-                    disabled={isCorrect !== null || !currentWord}
-                  >
-                    <MaterialIcons
-                      name="lightbulb-outline"
-                      size={s(18)}
-                      color={
-                        isCorrect !== null
-                          ? colors.textDisabled
-                          : colors.primary
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.suggestButtonText,
-                        {
-                          color:
-                            isCorrect !== null
-                              ? colors.textDisabled
-                              : colors.primary,
-                        },
-                      ]}
-                    >
-                      {t("games.suggestButton")}
-                    </Text>
-                    <View
-                      style={[
-                        styles.suggestNumberContainer,
-                        { backgroundColor: colors.primary },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.suggestNumberText,
-                          { color: colors.card },
-                        ]}
-                      >
-                        {suggest || "AD"}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+                <SuggestButton
+                  isCorrect={isCorrect}
+                  currentWord={currentWord}
+                />
                 {isCorrect !== null && currentWord && (
                   <View style={styles.feedbackContainer}>
                     <MaterialIcons
@@ -377,11 +303,6 @@ const ChooseCorrectFromVoice = () => {
                 {progress}
               </Text>
             </View>
-            <WordSuggestionModal
-              isVisible={isSuggestModalVisible}
-              onClose={() => setIsSuggestModalVisible(false)}
-              wordDetail={currentWord}
-            />
           </SafeAreaView>
         </View>
       )}

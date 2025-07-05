@@ -41,6 +41,8 @@ const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
   const { reset } = useSpellStore();
   const testSoundPlayer = useAudioPlayer(AppAudio.CORRECT); // Using an existing sound for testing
+  const setIsSwappingTheme = useThemeStore((state) => state.setIsSwappingTheme);
+  const isSwappingTheme = useThemeStore((state) => state.isSwappingTheme);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -160,7 +162,8 @@ const SettingsScreen = () => {
   };
 
   const handleToggleTheme = () => {
-    toggleTheme();
+    // toggleTheme();
+    setIsSwappingTheme(true);
   };
 
   const handleToggleLanguage = () => {
@@ -228,19 +231,21 @@ const SettingsScreen = () => {
               <Text style={[styles.settingText, { color: colors.textPrimary }]}>
                 {t("settings.maxDailyNotifications")}
               </Text>
-              <TextInput
-                style={[
-                  styles.inputField,
-                  { color: colors.textPrimary, borderColor: colors.border },
-                ]}
-                value={inputValue}
-                onChangeText={handleMaxNotificationsChange}
-                onBlur={submitMaxNotifications} // Update store when input loses focus
-                onSubmitEditing={submitMaxNotifications} // Update store when user presses "done"
-                keyboardType="number-pad"
-                returnKeyType="done"
-                maxLength={3} // Max 3 digits for notifications per day
-              />
+              {!isSwappingTheme && (
+                <TextInput
+                  style={[
+                    styles.inputField,
+                    { color: colors.textPrimary, borderColor: colors.border },
+                  ]}
+                  value={inputValue}
+                  onChangeText={handleMaxNotificationsChange}
+                  onBlur={submitMaxNotifications} // Update store when input loses focus
+                  onSubmitEditing={submitMaxNotifications} // Update store when user presses "done"
+                  keyboardType="number-pad"
+                  returnKeyType="done"
+                  maxLength={3} // Max 3 digits for notifications per day
+                />
+              )}
             </View>
 
             {/* Group Manager Setting */}

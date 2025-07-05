@@ -8,6 +8,8 @@ type ThemeStore = {
   theme: string;
   colors: typeof Colors.dark | typeof Colors.dark;
   toggleTheme: () => void;
+  isSwappingTheme: boolean;
+  setIsSwappingTheme: (_?: boolean) => void;
 };
 
 const useThemeStore = create<ThemeStore, any>(
@@ -16,6 +18,12 @@ const useThemeStore = create<ThemeStore, any>(
       immer((set, get) => ({
         theme: "light",
         colors: Colors.light,
+        isSwappingTheme: false,
+        setIsSwappingTheme(value) {
+          set((state) => {
+            state.isSwappingTheme = value === true;
+          });
+        },
         toggleTheme: () =>
           set((state) => {
             const newTheme = state.theme === "light" ? "dark" : "light";
@@ -26,6 +34,7 @@ const useThemeStore = create<ThemeStore, any>(
       {
         name: "theme-storage", // Key for AsyncStorage
         storage: createJSONStorage(() => AsyncStorage),
+        partialize: (state) => ({ theme: state.theme, colors: state.colors }),
       }
     )
   )

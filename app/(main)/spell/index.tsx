@@ -5,7 +5,6 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
-import { energyCheck } from "@/utils/energy";
 import { router, useLocalSearchParams } from "expo-router"; // Import router and params
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -45,11 +44,9 @@ const SpellCharactor = () => {
           style={[styles.actionButton, { backgroundColor: colors.warning }]}
           onPress={() => {
             if (params.spell) {
-              energyCheck(() => {
-                router.push({
-                  pathname: "/spell/speak",
-                  params: { spell: params.spell },
-                });
+              router.push({
+                pathname: "/spell/speak",
+                params: { spell: params.spell },
               });
             }
           }}

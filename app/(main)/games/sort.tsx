@@ -70,12 +70,14 @@ const SortCharactersGame = () => {
             {t("games.sortPrompt")}
           </Text>
           {currentWordDetail ? (
-            <SingleWordSortGame
-              key={currentWordDetail.word + currentWordDetail.source} // Ensure re-render on word change
-              wordDetail={currentWordDetail}
-              onCorrect={handleWordCorrect}
-              onSkip={advanceToNextWord} // Skip also advances to the next word
-            />
+            <>
+              <SingleWordSortGame
+                key={currentWordDetail.word + currentWordDetail.source} // Ensure re-render on word change
+                wordDetail={currentWordDetail}
+                onCorrect={handleWordCorrect}
+                onSkip={advanceToNextWord} // Skip also advances to the next word
+              />
+            </>
           ) : (
             <Text style={{ color: colors.textDisabled, fontSize: scale(16) }}>
               {t("games.loadingWord")}

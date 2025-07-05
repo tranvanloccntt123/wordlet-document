@@ -1,10 +1,52 @@
 import useEnergyStore from "@/store/energyStore";
 import useThemeStore from "@/store/themeStore";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
+
+const duration = 700;
+
+const AnimatedEnergyIcon = () => {
+  const { colors } = useThemeStore();
+
+  const scaleAnim = useSharedValue(0.5);
+
+  React.useEffect(() => {
+    scaleAnim.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration }),
+        withTiming(0.5, { duration })
+      ),
+      -1
+    );
+  }, []);
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scaleAnim.value }],
+      opacity: scaleAnim.value,
+    };
+  });
+
+  return (
+    <Animated.View style={containerStyle}>
+      <FontAwesome
+        name="flash"
+        size={s(100)}
+        color={colors.warning} // Using warning color for energy, adjust as needed
+      />
+    </Animated.View>
+  );
+};
 
 const EnergyModal: React.FC = () => {
   const { isVisible, setIsVisible } = useEnergyStore();
@@ -21,11 +63,7 @@ const EnergyModal: React.FC = () => {
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          <MaterialCommunityIcons
-            name="flash" // Bolt icon
-            size={s(100)}
-            color={colors.warning} // Using warning color for energy, adjust as needed
-          />
+          <AnimatedEnergyIcon />
           <Text style={styles.titleText}>{t("common.energyModalTitle")}</Text>
           <Text style={styles.messageText}>
             {t("common.energyModalMessage")}

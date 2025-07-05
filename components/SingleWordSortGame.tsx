@@ -4,6 +4,7 @@ import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import SortUnInputType from "./SortUnInputType";
+import SuggestButton from "./SuggestButton";
 
 interface SingleWordSortGameProps {
   wordDetail: Omit<WordStore, "id">;
@@ -69,6 +70,7 @@ const SingleWordSortGame: React.FC<SingleWordSortGameProps> = ({
         editable={false}
         onSkip={onSkip}
       />
+      <SuggestButton currentWord={wordDetail} isCorrect={null} />
       {wordDetail.content && (
         <View style={styles.wordContentContainer}>
           <ScrollView
