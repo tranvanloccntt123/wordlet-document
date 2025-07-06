@@ -1,4 +1,4 @@
-package com.tei.englishdirectory.dev
+package com.tei.englishdirectory
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

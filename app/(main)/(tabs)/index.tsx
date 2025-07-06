@@ -1,8 +1,10 @@
 import CalendarStreak from "@/components/CalendarStreak";
 import HomePlay from "@/components/HomePlay";
+import PremiumBadge from "@/components/PremiumBadge";
 import RemoteConfigComponentWrapper from "@/components/RemoteConfigComponentWrapper";
 import SpellRandom from "@/components/SpellRandom";
 import useEnergyStore from "@/store/energyStore";
+import useInfoStore from "@/store/infoStore";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
 import { commonStyles } from "@/styles/commonStyles";
@@ -23,28 +25,44 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScaledSheet, s } from "react-native-size-matters";
+import { ScaledSheet, s, scale } from "react-native-size-matters";
 
 const EnergyView = () => {
   const { colors } = useThemeStore();
   const { energy, fetchEnergy, isLoading } = useEnergyStore();
+  const { info } = useInfoStore();
   React.useEffect(() => {
     fetchEnergy();
   }, []);
   return (
-    <View style={[styles.energyContainer, { backgroundColor: colors.shadow }]}>
+    <View
+      style={[
+        styles.energyContainer,
+        { backgroundColor: info?.is_premium ? "#FFD700" : colors.shadow },
+      ]}
+    >
       <MaterialCommunityIcons
         name="flash" // Bolt icon
         size={s(22)}
         color={colors.warning} // Using warning color for energy, adjust as needed
       />
       {!isLoading && (
-        <Text style={[styles.energyText, { color: colors.textPrimary }]}>
+        <Text
+          style={[
+            styles.energyText,
+            { color: info?.is_premium ? "black" : colors.textPrimary },
+          ]}
+        >
           {energy || 0}
         </Text>
       )}
       {isLoading && (
         <ActivityIndicator size={"small"} color={colors.textPrimary} />
+      )}
+      {info?.is_premium && (
+        <View style={styles.premiumBadgeIcon}>
+          <PremiumBadge size={scale(30)} />
+        </View>
       )}
     </View>
   );
@@ -161,6 +179,17 @@ const styles = ScaledSheet.create({
   },
   contentContainer: {
     padding: "20@ms", // Add padding to the content area below the header
+  },
+  premiumBadgeIcon: {
+    position: "absolute",
+    top: "-12@s",
+    right: "-12@s",
+    zIndex: 2,
+    transform: [
+      {
+        rotate: "45deg",
+      },
+    ],
   },
 });
 

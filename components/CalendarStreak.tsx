@@ -67,7 +67,6 @@ const CalendarStreak = () => {
             />
           </TouchableOpacity>
         </View>
-
         <View style={styles.daysOfWeekContainer}>
           {daysData.map((dayData) => (
             <DayOfWeekItem
@@ -80,7 +79,6 @@ const CalendarStreak = () => {
             />
           ))}
         </View>
-
         <Text
           style={[
             styles.streakEncouragement,

@@ -25,6 +25,7 @@ const UserTopRank: React.FC<{
   height: number;
   color: string;
   animOrder: number;
+  rank: number,
 }> = ({ player, height, color, animOrder: rank }) => {
   const { textPrimary } = useThemeStore((state) => state.colors);
   const heightAnim = useSharedValue(vs(50));
@@ -102,6 +103,7 @@ const LeaderboardScreen = () => {
             height={vs(140)}
             color={colors.warning}
             animOrder={2}
+            rank={2}
           />
         )}
         {!!top100Players?.[0] && top100Players[0].total_score !== 0 && (
@@ -110,6 +112,7 @@ const LeaderboardScreen = () => {
             height={vs(180)}
             color={colors.success}
             animOrder={3}
+            rank={1}
           />
         )}
         {!!top100Players?.[2] && top100Players[2].total_score !== 0 && (
@@ -118,6 +121,7 @@ const LeaderboardScreen = () => {
             height={vs(100)}
             color={colors.primary}
             animOrder={1}
+            rank={3}
           />
         )}
       </View>
