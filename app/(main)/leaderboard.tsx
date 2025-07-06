@@ -7,12 +7,52 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
+import { formatScore } from "@/utils";
 import { getCurrentRankKey, getTop100PlayersKey } from "@/utils/string";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScaledSheet, s } from "react-native-size-matters";
+import { ScaledSheet, s, vs } from "react-native-size-matters";
+
+const UserTopRank: React.FC<{
+  player: PlayerRank;
+  height: number;
+  color: string;
+  animOrder: number;
+}> = ({ player, height, color, animOrder: rank }) => {
+  const { textPrimary } = useThemeStore((state) => state.colors);
+  const heightAnim = useSharedValue(vs(50));
+
+  React.useEffect(() => {
+    heightAnim.value = withTiming(height, { duration: 500 * (rank || 0 + 1) });
+  }, []);
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      height: heightAnim.value,
+    };
+  });
+
+  return (
+    <Animated.View style={[containerStyle]}>
+      <View style={[styles.topRankAvatar]}>
+        <Image source={{ uri: player.avatar }} style={styles.avatar} />
+      </View>
+      <Animated.View
+        style={[styles.topRank, { backgroundColor: color, flex: 1 }]}
+      />
+      <Text style={[styles.topRankScore, { color: textPrimary }]}>
+        {formatScore(player?.total_score || 0)}
+      </Text>
+    </Animated.View>
+  );
+};
 
 const LeaderboardScreen = () => {
   const { colors } = useThemeStore();
@@ -34,21 +74,55 @@ const LeaderboardScreen = () => {
     },
   });
 
-  const renderItem = ({ item }: { item: PlayerRank }) => (
-    <View style={[styles.leaderboardItem, { backgroundColor: colors.card }]}>
-      <Text style={[styles.rank, { color: colors.textSecondary }]}>
-        {item.rank}
-      </Text>
-      <Image source={{ uri: item.avatar }} style={styles.avatar} />
-      <Text style={[styles.name, { color: colors.textPrimary }]}>
-        {item.name}
-      </Text>
-      <Text style={[styles.score, { color: colors.primary }]}>
-        {item.total_score.toLocaleString()}{" "}
-        {t("leaderboard.pointsSuffix", "PT")}
-      </Text>
-    </View>
-  );
+  const renderItem = ({ item, index }: { item: PlayerRank; index: number }) =>
+    !([0, 1, 2].includes(index) && item.total_score !== 0) ? (
+      <View style={[styles.leaderboardItem, { backgroundColor: colors.card }]}>
+        <Text style={[styles.rank, { color: colors.textSecondary }]}>
+          {item.rank}
+        </Text>
+        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <Text style={[styles.name, { color: colors.textPrimary }]}>
+          {item.name}
+        </Text>
+        <Text style={[styles.score, { color: colors.primary }]}>
+          {item.total_score.toLocaleString()}{" "}
+          {t("leaderboard.pointsSuffix", "PT")}
+        </Text>
+      </View>
+    ) : (
+      <></>
+    );
+
+  const TopRanking = () => {
+    return (
+      <View style={styles.topRankContainer}>
+        {!!top100Players?.[1] && top100Players[1].total_score !== 0 && (
+          <UserTopRank
+            player={top100Players[1]}
+            height={vs(140)}
+            color={colors.warning}
+            animOrder={2}
+          />
+        )}
+        {!!top100Players?.[0] && top100Players[0].total_score !== 0 && (
+          <UserTopRank
+            player={top100Players[0]}
+            height={vs(180)}
+            color={colors.success}
+            animOrder={3}
+          />
+        )}
+        {!!top100Players?.[2] && top100Players[2].total_score !== 0 && (
+          <UserTopRank
+            player={top100Players[2]}
+            height={vs(100)}
+            color={colors.primary}
+            animOrder={1}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView
@@ -75,6 +149,7 @@ const LeaderboardScreen = () => {
               <Text style={[styles.top100Text, { color: colors.textPrimary }]}>
                 {t("leaderboard.top100")}
               </Text>
+              {TopRanking()}
             </View>
           }
           onEndReachedThreshold={0.5}
@@ -197,6 +272,33 @@ const styles = ScaledSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingBottom: "35@s",
+  },
+  topRankContainer: {
+    flexDirection: "row",
+    gap: "12@s",
+    marginTop: "40@vs",
+    height: "180@vs",
+    alignItems: "flex-end",
+  },
+  topRank: {
+    width: "60@s",
+    borderRadius: "8@s",
+    paddingBottom: "8@s",
+    alignItems: "center",
+  },
+  topRankAvatar: {
+    backgroundColor: "white",
+    padding: 2,
+    borderRadius: 100,
+    alignSelf: "center",
+    marginBottom: "8@s",
+  },
+  topRankScore: {
+    ...getAppFontStyle({
+      fontSizeKey: FontSizeKeys.caption,
+      fontFamily: FontFamilies.NunitoBlack,
+    }),
+    textAlign: "center",
   },
 });
 

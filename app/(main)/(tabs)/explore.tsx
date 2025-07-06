@@ -19,6 +19,7 @@ import * as supabase from "@/services/supabase";
 import { deleteAccount } from "@/services/supabase";
 import useNotificationStore from "@/store/notificationStore";
 import useSpellStore from "@/store/spellStore";
+import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
@@ -66,6 +67,7 @@ const SettingsScreen = () => {
   const { language: currentLanguage, setLanguage } = useLanguageStore();
 
   const playTestSound = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await testSoundPlayer.seekTo(0);
     testSoundPlayer.play();
   };
@@ -101,6 +103,7 @@ const SettingsScreen = () => {
   };
 
   const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Alert.alert(
       t("settings.logoutTitle", "Logout"),
       t("settings.logoutConfirmation", "Are you sure you want to logout?"),
@@ -130,6 +133,7 @@ const SettingsScreen = () => {
   };
 
   const handleDelete = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Alert.alert(
       t("settings.deleteAccount", "Delete Account"),
       t(
@@ -162,11 +166,14 @@ const SettingsScreen = () => {
   };
 
   const handleToggleTheme = () => {
+    if (isSwappingTheme) return;
     // toggleTheme();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsSwappingTheme(true);
   };
 
   const handleToggleLanguage = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const newLanguage = currentLanguage.startsWith("vn") ? "en" : "vn";
     setLanguage(newLanguage); // Update Zustand store
     i18n.changeLanguage(newLanguage); // Update i18next instance
@@ -251,7 +258,10 @@ const SettingsScreen = () => {
             {/* Group Manager Setting */}
             <TouchableOpacity
               style={[styles.settingItem, { backgroundColor: colors.card }]}
-              onPress={() => router.navigate("/groups")}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.navigate("/groups");
+              }}
             >
               <MaterialIcons
                 name="folder"
@@ -310,11 +320,11 @@ const SettingsScreen = () => {
                 {currentLanguageDisplay}
               </Text>
             </TouchableOpacity>
-
             {/* Feedback Setting */}
             <TouchableOpacity
               style={[styles.settingItem, { backgroundColor: colors.card }]}
               onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Linking.openURL("https://discord.gg/w2uwFQHV");
               }}
             >

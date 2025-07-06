@@ -1,6 +1,5 @@
 import AppAudio from "@/assets/audio";
-import { wordSupabase } from "@/services/supabase";
-import { calculateSimilarityPercentage, getSearchKey } from "@/utils/string";
+import { calculateSimilarityText } from "@/utils/string";
 import { useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import {
@@ -15,7 +14,6 @@ import {
   Platform,
 } from "react-native";
 import { useSharedValue, withTiming } from "react-native-reanimated";
-import { getQueryData, setQueryData } from "./useQuery";
 
 const useSpeakAndCompare = () => {
   const playerLoss = useAudioPlayer(AppAudio.LOSS);
@@ -57,56 +55,60 @@ const useSpeakAndCompare = () => {
     if (currentWord.current.toLowerCase() === transcript.toLowerCase()) {
       sim = 100;
     } else {
-      //Current word cached
-      let _currentWordStore: WordStore[] | null =
-        getQueryData(getSearchKey(currentWord.current)) || null;
+      sim = await calculateSimilarityText(
+        currentWord.current.toLowerCase(),
+        transcript.toLowerCase()
+      );
+      // //Current word cached
+      // let _currentWordStore: WordStore[] | null =
+      //   getQueryData(getSearchKey(currentWord.current)) || null;
 
-      if (_currentWordStore === null) {
-        const res = (
-          await wordSupabase
-            .schema("public")
-            .from("fts_words")
-            .select("*")
-            .in(
-              "word",
-              listword.map((w) => w.trim()).filter((w) => !!w.length)
-            )
-        ).data;
-        setQueryData(getSearchKey(currentWord.current), res || []);
-        _currentWordStore = res || [];
-      }
-      //Transcript cached
-      let _transcriptWordStore: WordStore[] | null =
-        getQueryData(getSearchKey(transcript)) || null;
+      // if (_currentWordStore === null) {
+      //   const res = (
+      //     await wordSupabase
+      //       .schema("public")
+      //       .from("fts_words")
+      //       .select("*")
+      //       .in(
+      //         "word",
+      //         listword.map((w) => w.trim()).filter((w) => !!w.length)
+      //       )
+      //   ).data;
+      //   setQueryData(getSearchKey(currentWord.current), res || []);
+      //   _currentWordStore = res || [];
+      // }
+      // //Transcript cached
+      // let _transcriptWordStore: WordStore[] | null =
+      //   getQueryData(getSearchKey(transcript)) || null;
 
-      if (_transcriptWordStore === null) {
-        const res = (
-          await wordSupabase
-            .schema("public")
-            .from("fts_words")
-            .select("*")
-            .in(
-              "word",
-              transcript
-                .split(" ")
-                .map((w) => w.trim())
-                .filter((w) => !!w.length)
-            )
-        ).data;
-        setQueryData(getSearchKey(transcript), res || []);
-        _transcriptWordStore = res || [];
-      }
+      // if (_transcriptWordStore === null) {
+      //   const res = (
+      //     await wordSupabase
+      //       .schema("public")
+      //       .from("fts_words")
+      //       .select("*")
+      //       .in(
+      //         "word",
+      //         transcript
+      //           .split(" ")
+      //           .map((w) => w.trim())
+      //           .filter((w) => !!w.length)
+      //       )
+      //   ).data;
+      //   setQueryData(getSearchKey(transcript), res || []);
+      //   _transcriptWordStore = res || [];
+      // }
 
-      for (const word of listword) {
-        const wordSim = await calculateSimilarityPercentage(
-          word,
-          transcript,
-          _currentWordStore || [],
-          _transcriptWordStore || []
-        );
-        sim += wordSim;
-      }
-      sim = sim / (listword.length || 1);
+      // for (const word of listword) {
+      //   const wordSim = await calculateSimilarityPercentage(
+      //     word,
+      //     transcript,
+      //     _currentWordStore || [],
+      //     _transcriptWordStore || []
+      //   );
+      //   sim += wordSim;
+      // }
+      // sim = sim / (listword.length || 1);
     }
     return sim;
   };
@@ -121,6 +123,7 @@ const useSpeakAndCompare = () => {
         simCalculate[transcript] = await calculateScorePerTranscript(
           transcript
         );
+        if (simCalculate[transcript] === 100) break;
       }
 
       const sim = Math.max(0, ...Object.values(simCalculate));

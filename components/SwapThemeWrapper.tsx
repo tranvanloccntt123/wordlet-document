@@ -2,20 +2,21 @@ import useThemeStore from "@/store/themeStore";
 import { delay } from "@/utils";
 import type { SkImage } from "@shopify/react-native-skia";
 import {
-    Canvas,
-    Circle,
-    Image,
-    ImageShader,
-    makeImageFromView,
+  Canvas,
+  Circle,
+  Image,
+  ImageShader,
+  makeImageFromView,
 } from "@shopify/react-native-skia";
 
 import React, { useRef } from "react";
 import { PixelRatio, useWindowDimensions, View } from "react-native";
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  cancelAnimation,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 const pd = PixelRatio.get();
 
@@ -28,7 +29,8 @@ const OverlayImage: React.FC<{
   const r = useSharedValue(12);
 
   React.useEffect(() => {
-    if (!!image2) {
+    cancelAnimation(r);
+    if (!!image2 && !!image) {
       r.value = withTiming(1000, { duration: 800 }, (finished) => {
         if (finished && onAnimationFinished) {
           runOnJS(onAnimationFinished)();
@@ -37,7 +39,7 @@ const OverlayImage: React.FC<{
     } else {
       r.value = 12;
     }
-  }, [image2]);
+  }, [image2, image]);
 
   return (
     <Canvas style={{ flex: 1 }}>

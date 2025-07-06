@@ -29,6 +29,8 @@ const common = {
   revert: "Revert",
   feedback: "Feedback",
   share: "Share",
+  published: "Published",
+  pending: "Pending",
 };
 
 export default common;

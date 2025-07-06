@@ -29,6 +29,8 @@ const common = {
   revert: "Thu hồi",
   feedback: "Phản hồi",
   share: "Chia sẻ",
+  published: "Đã xuất bản",
+  pending: "Đang chờ",
 };
 
 export default common;

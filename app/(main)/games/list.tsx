@@ -184,6 +184,8 @@ export default function SelectGameScreen() {
     }
   }, [isLoading, info, group]);
 
+  const isAuthor = !!info && !!group && info.user_id === group.user_id;
+
   return (
     <AppLoading isLoading={isLoading}>
       <SafeAreaView
@@ -206,6 +208,24 @@ export default function SelectGameScreen() {
           keyExtractor={(item) => item.id}
           ListHeaderComponent={
             <>
+              {isAuthor && (
+                <View
+                  style={[
+                    styles.publicStatusContainer,
+                    {
+                      backgroundColor: group.is_publish
+                        ? colors.success
+                        : colors.accent,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.publishStatusTxt, { color: "black" }]}>
+                    {group.is_publish
+                      ? t("common.published")
+                      : t("common.pending")}
+                  </Text>
+                </View>
+              )}
               {!!group && group.words && group.words.length > 0 ? (
                 <View style={styles.carouselSectionContainer}>
                   <Text
@@ -325,9 +345,11 @@ export default function SelectGameScreen() {
                   { backgroundColor: colors.card, opacity: itemOpacity },
                 ]}
                 onPress={() =>
-                  energyCheck(() => {
-                    handleSelectGameType(item.id, t(item.titleKey));
-                  })
+                  group.user_id === info?.user_id
+                    ? handleSelectGameType(item.id, t(item.titleKey))
+                    : energyCheck(() => {
+                        handleSelectGameType(item.id, t(item.titleKey));
+                      })
                 }
                 disabled={isDisabled}
               >
@@ -576,5 +598,18 @@ const styles = ScaledSheet.create({
   },
   skipButtonText: {
     // color: colors.textSecondary,
+  },
+  publicStatusContainer: {
+    marginLeft: "16@s",
+    paddingHorizontal: "16@s",
+    paddingVertical: "8@s",
+    borderRadius: "100@s",
+    alignSelf: "flex-start",
+  },
+  publishStatusTxt: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBold,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
   },
 });

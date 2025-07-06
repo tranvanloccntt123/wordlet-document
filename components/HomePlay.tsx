@@ -1,10 +1,11 @@
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
+import { formatScore } from "@/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -12,24 +13,10 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { s, ScaledSheet } from "react-native-size-matters";
 
-const formatScore = (score: number): string => {
-  if (score >= 1000000000) {
-    return `${Math.floor(score / 1000000000)}B+`;
-  }
-  if (score >= 1000000) {
-    return `${Math.floor(score / 1000000)}M+`;
-  }
-  if (score >= 1000) {
-    // Handles 1k, 10k, 100k
-    return `${Math.floor(score / 1000)}k+`;
-  }
-  return score.toString();
-};
-
 const HomePlay = () => {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
-  const { playerRank: info, isLoading } = useInfoStore();
+  const { info, isLoading } = useInfoStore();
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity
