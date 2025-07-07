@@ -34,6 +34,31 @@ const useSpeakAndCompare = () => {
 
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
 
+  const feedback = React.useMemo(() => {
+    if (spokenText === "" || !currentWord.current) return [];
+    const result: any[] = [];
+    const spokenArray = spokenText.toLowerCase().split("");
+    const targetArray = currentWord.current.toLowerCase().split("");
+
+    // Compare characters
+    spokenArray.forEach((char, index) => {
+      if (index < targetArray.length && char === targetArray[index]) {
+        result.push({ char, status: "correct" });
+      } else {
+        result.push({ char, status: "incorrect" });
+      }
+    });
+
+    // Check if there are missing characters
+    if (spokenArray.length < targetArray.length) {
+      for (let i = spokenArray.length; i < targetArray.length; i++) {
+        result.push({ char: targetArray[i], status: "missing" });
+      }
+    }
+
+    return result;
+  }, [spokenText]);
+
   const startAnimation = useSharedValue(0);
 
   useSpeechRecognitionEvent("start", () => {
@@ -127,6 +152,8 @@ const useSpeakAndCompare = () => {
       }
 
       const sim = Math.max(0, ...Object.values(simCalculate));
+
+      console.log(simCalculate);
 
       setSpokenText(
         Object.keys(simCalculate).find((k) => simCalculate[k] === sim) || ""
@@ -261,6 +288,7 @@ const useSpeakAndCompare = () => {
     setError,
     isCalculating,
     nextWord: () => setSimilarity(0),
+    feedback,
   };
 };
 

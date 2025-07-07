@@ -1,11 +1,11 @@
 import React from 'react';
 import Svg, {
-    Circle,
-    Defs,
-    LinearGradient,
-    Path,
-    Stop,
-    Text as SvgText,
+  Circle,
+  Defs,
+  LinearGradient,
+  Path,
+  Stop,
+  Text as SvgText,
 } from 'react-native-svg';
 
 type Rank = 1 | 2 | 3;
@@ -46,7 +46,7 @@ const rankConfig = {
 };
 
 const CrownIcon: React.FC<CrownIconProps> = ({ size = 40, rank }) => {
-  const { gradientId, stops, jewelColor, textColor } = rankConfig[rank];
+  const { gradientId, stops, jewelColor, textColor } = rankConfig[rank || 3];
 
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">

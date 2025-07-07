@@ -1,4 +1,5 @@
 import CommonHeader from "@/components/CommonHeader";
+import CrownIcon from "@/components/CrownIcon";
 import useQuery from "@/hooks/useQuery";
 import { fetchLeaderboardRanks, getUserPlayerRank } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
@@ -13,8 +14,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
 import Animated, {
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,14 +28,27 @@ const UserTopRank: React.FC<{
   height: number;
   color: string;
   animOrder: number;
-  rank: number,
-}> = ({ player, height, color, animOrder: rank }) => {
+  rank: number;
+}> = ({ player, height, color, animOrder, rank }) => {
   const { textPrimary } = useThemeStore((state) => state.colors);
   const heightAnim = useSharedValue(vs(50));
 
+  const crownAnim = useSharedValue(0);
+
   React.useEffect(() => {
-    heightAnim.value = withTiming(height, { duration: 500 * (rank || 0 + 1) });
+    heightAnim.value = withTiming(height, {
+      duration: 500 * (animOrder || 0 + 1),
+    });
   }, []);
+
+  React.useEffect(() => {
+    crownAnim.value = withDelay(
+      500 * (animOrder || 0 + 1),
+      withTiming(1, {
+        duration: 500,
+      })
+    );
+  }, [rank, animOrder]);
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -40,10 +56,44 @@ const UserTopRank: React.FC<{
     };
   });
 
+  const crownContainerStyle = useAnimatedStyle(() => {
+    const rotation = interpolate(
+      crownAnim.value,
+      [0, 1],
+      [0, rank === 2 ? -42 : rank === 3 ? 20 : 0]
+    );
+    const translateX = interpolate(
+      crownAnim.value,
+      [0, 1],
+      [0, rank === 2 ? -15 : rank === 3 ? 10 : 0]
+    );
+    const translateY = interpolate(
+      crownAnim.value,
+      [0, 1],
+      [0, rank === 2 ? -5 : rank === 3 ? -3 : 0]
+    );
+    return {
+      transform: [
+        {
+          rotate: `${rotation}deg`,
+        },
+        {
+          translateX: translateX,
+        },
+        {
+          translateY: translateY,
+        },
+      ],
+    };
+  });
+
   return (
     <Animated.View style={[containerStyle]}>
       <View style={[styles.topRankAvatar]}>
         <Image source={{ uri: player.avatar }} style={styles.avatar} />
+        <Animated.View style={[styles.crownIconContainer, crownContainerStyle]}>
+          <CrownIcon rank={rank as never} size={s(30)} />
+        </Animated.View>
       </View>
       <Animated.View
         style={[styles.topRank, { backgroundColor: color, flex: 1 }]}
@@ -303,6 +353,11 @@ const styles = ScaledSheet.create({
       fontFamily: FontFamilies.NunitoBlack,
     }),
     textAlign: "center",
+  },
+  crownIconContainer: {
+    position: "absolute",
+    top: "-18@s",
+    alignSelf: "center",
   },
 });
 

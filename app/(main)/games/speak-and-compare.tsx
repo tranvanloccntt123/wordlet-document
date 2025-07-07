@@ -49,7 +49,10 @@ const SpeakAndCompareScreen = () => {
     startListening,
     isCalculating,
     nextWord,
+    feedback,
   } = useSpeakAndCompare();
+
+  console.log(feedback);
 
   React.useEffect(() => {
     nextWord();
@@ -119,25 +122,44 @@ const SpeakAndCompareScreen = () => {
                     : error}
                 </Text>
               )}
-
+              <View style={{ flexDirection: "row" }}>
+                {spokenText !== "" &&
+                  feedback.map((item, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        styles.suggestedText,
+                        item.status === "correct"
+                          ? { color: colors.success }
+                          : item.status === "incorrect"
+                          ? { color: colors.error }
+                          : { color: colors.textPrimary },
+                      ]}
+                    >
+                      {item.char}
+                    </Text>
+                  ))}
+              </View>
               {!isListening && !!spokenText && similarity !== null && (
                 <View style={styles.resultsContainer}>
                   {similarity !== null && (
-                    <Text
-                      style={[
-                        styles.similarityText,
-                        {
-                          color:
-                            similarity >= 75
-                              ? colors.success
-                              : similarity >= 50
-                              ? colors.warning
-                              : colors.error,
-                        },
-                      ]}
-                    >
-                      {similarity.toFixed(0)}%
-                    </Text>
+                    <>
+                      <Text
+                        style={[
+                          styles.similarityText,
+                          {
+                            color:
+                              similarity >= 75
+                                ? colors.success
+                                : similarity >= 50
+                                ? colors.warning
+                                : colors.error,
+                          },
+                        ]}
+                      >
+                        {similarity.toFixed(0)}%
+                      </Text>
+                    </>
                   )}
                 </View>
               )}
@@ -201,7 +223,7 @@ const styles = StyleSheet.create({
   suggestedText: {
     ...getAppFontStyle({
       fontFamily: FontFamilies.NunitoBlack,
-      fontSizeKey: FontSizeKeys.heading,
+      fontSizeKey: FontSizeKeys.title,
     }),
     textAlign: "center",
   },
@@ -224,6 +246,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     width: "100%",
+  },
+  spokenText: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack,
+      fontSizeKey: FontSizeKeys.heading,
+    }),
+    marginTop: vs(5),
   },
   similarityText: {
     ...getAppFontStyle({
