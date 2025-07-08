@@ -36,25 +36,21 @@ const useSpeakAndCompare = () => {
 
   const feedback = React.useMemo(() => {
     if (spokenText === "" || !currentWord.current) return [];
-    const result: any[] = [];
+    const result: Array<{
+      char: string;
+      status: "correct" | "incorrect" | "missing";
+    }> = [];
     const spokenArray = spokenText.toLowerCase().split("");
     const targetArray = currentWord.current.toLowerCase().split("");
 
-    // Compare characters
-    spokenArray.forEach((char, index) => {
-      if (index < targetArray.length && char === targetArray[index]) {
+    // Compare characters based on target word
+    targetArray.forEach((char, index) => {
+      if (index < spokenArray.length && char === spokenArray[index]) {
         result.push({ char, status: "correct" });
       } else {
         result.push({ char, status: "incorrect" });
       }
     });
-
-    // Check if there are missing characters
-    if (spokenArray.length < targetArray.length) {
-      for (let i = spokenArray.length; i < targetArray.length; i++) {
-        result.push({ char: targetArray[i], status: "missing" });
-      }
-    }
 
     return result;
   }, [spokenText]);

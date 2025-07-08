@@ -18,13 +18,14 @@ import Svg, {
   Path as SvgPath,
 } from "react-native-svg";
 
+import IntroLoading from "@/components/IntroLoading";
 import { getQueryData } from "@/hooks/useQuery";
 import { getFormattedDate, getGroupKey } from "@/utils/string";
 import { useAudioPlayer } from "expo-audio";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, verticalScale } from "react-native-size-matters";
 
@@ -41,7 +42,6 @@ const GameOverScreen: React.FC<object> = () => {
     groupId?: string;
   }>();
   const { setEnergy } = useEnergyStore();
-  const score = params.score ? parseInt(params.score, 10) : 0;
   const totalAnswerCorrect = params.totalAnswerCorrect
     ? parseInt(params.totalAnswerCorrect, 10)
     : 0;
@@ -73,13 +73,19 @@ const GameOverScreen: React.FC<object> = () => {
 
   const { playGame } = useStreakStore();
 
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+
+  const [finalScore, setFinalScore] = React.useState<number>(0);
+
   React.useEffect(() => {
     playerWinner.seekTo(0);
     playerWinner.play();
     playGame();
+    setIsLoading(true);
     decreaseEnergy({
       historyId: params?.historyId ? parseInt(params.historyId || "0") : null,
       score: parseInt(params.score || "0"),
+      groupId: params.groupId ? parseInt(params.groupId || "0") : undefined,
       message:
         percent < 10
           ? gameOver.oneMoreShot
@@ -97,6 +103,9 @@ const GameOverScreen: React.FC<object> = () => {
           ? gameOver.victory
           : gameOver.awesomeJob,
     }).then((r) => {
+      console.log(r.data);
+      setIsLoading(false);
+      setFinalScore(r.data.score || 0);
       if (r.data?.data?.[0]) {
         setEnergy(r.data.data[0].energy);
       }
@@ -104,138 +113,149 @@ const GameOverScreen: React.FC<object> = () => {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView style={{ flex: 1 }}>
-        {/* Gold Cup using Skia */}
-        <View style={styles.container}>
-          <Svg style={styles.canvas} viewBox="0 0 256 256">
-            <Defs>
-              <SvgLinearGradient id="cupGradient" x1="0" y1="1" x2="0" y2="0">
-                <Stop offset="0" stopColor="#fc9502" />
-                <Stop offset="1" stopColor="#fcbe02" />
-              </SvgLinearGradient>
-            </Defs>
-            <G transform={`translate(${translateX} ${translateY})`}>
-              <SvgPath d={path1String} fill="#fcc402" />
-              <SvgPath d={path2String} fill="#fce202" />
-              <SvgPath d={path3String} fill="#fce202" />
-              <SvgPath d={path4String} fill="url(#cupGradient)" />
-              <SvgPath d={path5String} fill="#fcc402" />
-              <SvgPath d={path6String} fill="#ffffff" />
-            </G>
-          </Svg>
-          <Text
-            style={[
-              styles.resultText,
-              {
-                color:
-                  percent < 10
-                    ? colors.error
-                    : percent < 20
-                    ? colors.error
-                    : percent < 30
-                    ? colors.warning
-                    : percent < 50
-                    ? colors.warning
-                    : percent < 60
-                    ? colors.primary
-                    : percent < 70
-                    ? colors.primaryDark
-                    : percent < 80
-                    ? colors.success
-                    : colors.success,
-              },
-            ]}
-          >
-            {percent < 10
-              ? t("gameOver.oneMoreShot")
-              : percent < 20
-              ? t("gameOver.nextTimeChamp")
-              : percent < 30
-              ? t("gameOver.awesomeJob")
-              : percent < 50
-              ? t("gameOver.dontGiveUp")
-              : percent < 60
-              ? t("gameOver.betterLuckNextTime")
-              : percent < 70
-              ? t("gameOver.superstar")
-              : percent < 80
-              ? t("gameOver.victory")
-              : t("gameOver.awesomeJob")}
-          </Text>
-          {/* Score and Questions */}
-          <View style={styles.scoreContainer}>
-            {params.isMyGroup !== "1" && (
-              <View
-                style={[
-                  styles.scoreContentContainer,
-                  { backgroundColor: colors.card },
-                ]}
-              >
-                <Text style={[styles.scoreText, { color: colors.textPrimary }]}>
-                  {score}
-                </Text>
-              </View>
-            )}
-            {params.gameType !== "SpeakAndCompare" && (
-              <View
-                style={[
-                  styles.scoreContentContainer,
-                  { backgroundColor: colors.warning },
-                ]}
-              >
-                <Text style={styles.scoreText}>
-                  {totalAnswerCorrect}/{totalQuestions}
-                </Text>
-              </View>
-            )}
+    <IntroLoading isLoading={isLoading}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={{ flex: 1 }}>
+          {/* Gold Cup using Skia */}
+          <View style={styles.container}>
+            <Svg style={styles.canvas} viewBox="0 0 256 256">
+              <Defs>
+                <SvgLinearGradient id="cupGradient" x1="0" y1="1" x2="0" y2="0">
+                  <Stop offset="0" stopColor="#fc9502" />
+                  <Stop offset="1" stopColor="#fcbe02" />
+                </SvgLinearGradient>
+              </Defs>
+              <G transform={`translate(${translateX} ${translateY})`}>
+                <SvgPath d={path1String} fill="#fcc402" />
+                <SvgPath d={path2String} fill="#fce202" />
+                <SvgPath d={path3String} fill="#fce202" />
+                <SvgPath d={path4String} fill="url(#cupGradient)" />
+                <SvgPath d={path5String} fill="#fcc402" />
+                <SvgPath d={path6String} fill="#ffffff" />
+              </G>
+            </Svg>
+            <Text
+              style={[
+                styles.resultText,
+                {
+                  color:
+                    percent < 10
+                      ? colors.error
+                      : percent < 20
+                      ? colors.error
+                      : percent < 30
+                      ? colors.warning
+                      : percent < 50
+                      ? colors.warning
+                      : percent < 60
+                      ? colors.primary
+                      : percent < 70
+                      ? colors.primaryDark
+                      : percent < 80
+                      ? colors.success
+                      : colors.success,
+                },
+              ]}
+            >
+              {percent < 10
+                ? t("gameOver.oneMoreShot")
+                : percent < 20
+                ? t("gameOver.nextTimeChamp")
+                : percent < 30
+                ? t("gameOver.awesomeJob")
+                : percent < 50
+                ? t("gameOver.dontGiveUp")
+                : percent < 60
+                ? t("gameOver.betterLuckNextTime")
+                : percent < 70
+                ? t("gameOver.superstar")
+                : percent < 80
+                ? t("gameOver.victory")
+                : t("gameOver.awesomeJob")}
+            </Text>
+            {/* Score and Questions */}
+            <View style={styles.scoreContainer}>
+              {params.isMyGroup !== "1" && (
+                <View
+                  style={[
+                    styles.scoreContentContainer,
+                    { backgroundColor: colors.card },
+                  ]}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator
+                      size={"small"}
+                      color={colors.textPrimary}
+                    />
+                  ) : (
+                    <Text
+                      style={[styles.scoreText, { color: colors.textPrimary }]}
+                    >
+                      {finalScore}
+                    </Text>
+                  )}
+                </View>
+              )}
+              {params.gameType !== "SpeakAndCompare" && (
+                <View
+                  style={[
+                    styles.scoreContentContainer,
+                    { backgroundColor: colors.warning },
+                  ]}
+                >
+                  <Text style={styles.scoreText}>
+                    {totalAnswerCorrect}/{totalQuestions}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-        {/* Play Again Button */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            let group: Group | null | undefined = null;
-            if (params?.groupId) {
-              group =
-                getQueryData(getGroupKey(Number(params.groupId || "0"))) ||
-                undefined;
-            }
-            const history: GameHistory = {
-              id: Number(params?.historyId || "0"),
-              score: parseInt(params.score || "0"),
-              created_at: getFormattedDate(new Date()),
-              message:
-                percent < 10
-                  ? gameOver.oneMoreShot
-                  : percent < 20
-                  ? gameOver.nextTimeChamp
-                  : percent < 30
-                  ? gameOver.awesomeJob
-                  : percent < 50
-                  ? gameOver.dontGiveUp
-                  : percent < 60
-                  ? gameOver.betterLuckNextTime
-                  : percent < 70
-                  ? gameOver.superstar
-                  : percent < 80
-                  ? gameOver.victory
-                  : gameOver.awesomeJob,
-              group: group as Group,
-              group_id: params.groupId
-                ? Number(params.groupId || "0")
-                : undefined,
-            };
-            addGameResult(history);
-            router.back();
-          }}
-        >
-          <Text style={styles.buttonText}>
-            {t("games.gameOverBackToGames")}
-          </Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    </View>
+          {/* Play Again Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              let group: Group | null | undefined = null;
+              if (params?.groupId) {
+                group =
+                  getQueryData(getGroupKey(Number(params.groupId || "0"))) ||
+                  undefined;
+              }
+              const history: GameHistory = {
+                id: Number(params?.historyId || "0"),
+                score: parseInt(params.score || "0"),
+                created_at: getFormattedDate(new Date()),
+                message:
+                  percent < 10
+                    ? gameOver.oneMoreShot
+                    : percent < 20
+                    ? gameOver.nextTimeChamp
+                    : percent < 30
+                    ? gameOver.awesomeJob
+                    : percent < 50
+                    ? gameOver.dontGiveUp
+                    : percent < 60
+                    ? gameOver.betterLuckNextTime
+                    : percent < 70
+                    ? gameOver.superstar
+                    : percent < 80
+                    ? gameOver.victory
+                    : gameOver.awesomeJob,
+                group: group as Group,
+                group_id: params.groupId
+                  ? Number(params.groupId || "0")
+                  : undefined,
+              };
+              addGameResult(history);
+              router.back();
+            }}
+          >
+            <Text style={styles.buttonText}>
+              {t("games.gameOverBackToGames")}
+            </Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </View>
+    </IntroLoading>
   );
 };
 

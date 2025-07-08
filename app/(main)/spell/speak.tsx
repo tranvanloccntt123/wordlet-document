@@ -55,12 +55,21 @@ const SpeakAndCompareScreen = () => {
     nextWord();
   }, [currentIndex]);
 
+  const percent = React.useMemo(() => {
+    if (!feedback.length) return 0;
+    return (
+      (feedback.filter((item) => item.status === "correct").length /
+        feedback.length) *
+      100
+    );
+  }, [feedback]);
+
   const handleNextWord = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
     await stopListening(true);
     setError("");
     setSpokenText("");
-    submitAnswer(similarity, 1);
+    submitAnswer(percent, 1);
     next();
   };
 
@@ -95,11 +104,32 @@ const SpeakAndCompareScreen = () => {
                 { backgroundColor: colors.card, borderColor: colors.border },
               ]}
             >
-              <Text
-                style={[styles.suggestedText, { color: colors.textPrimary }]}
-              >
-                {currentWordDetail?.word || t("games.loadingWord")}
-              </Text>
+              {feedback.length && spokenText !== "" ? (
+                <View style={{ flexDirection: "row" }}>
+                  {spokenText !== "" &&
+                    feedback.map((item, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          styles.suggestedText,
+                          item.status === "correct"
+                            ? { color: colors.success }
+                            : item.status === "incorrect"
+                            ? { color: colors.error }
+                            : { color: colors.textPrimary },
+                        ]}
+                      >
+                        {item.char}
+                      </Text>
+                    ))}
+                </View>
+              ) : (
+                <Text
+                  style={[styles.suggestedText, { color: colors.textPrimary }]}
+                >
+                  {currentWordDetail?.word || t("games.loadingWord")}
+                </Text>
+              )}
               <ParseContent
                 content={currentWordDetail?.content || ""}
                 hideComponents={["3#", "5#", "6#", "7#", "8#", "9#"]}
@@ -123,21 +153,22 @@ const SpeakAndCompareScreen = () => {
                 </Text>
               )}
               <View style={{ flexDirection: "row" }}>
-                {spokenText !== "" && feedback.map((item, index) => (
-                  <Text
-                    key={index}
-                    style={[
-                      styles.suggestedText,
-                      item.status === "correct"
-                        ? { color: colors.success }
-                        : item.status === "incorrect"
-                        ? { color: colors.error }
-                        : { color: colors.textPrimary },
-                    ]}
-                  >
-                    {item.char}
-                  </Text>
-                ))}
+                {spokenText !== "" &&
+                  feedback.map((item, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        styles.suggestedText,
+                        item.status === "correct"
+                          ? { color: colors.success }
+                          : item.status === "incorrect"
+                          ? { color: colors.error }
+                          : { color: colors.textPrimary },
+                      ]}
+                    >
+                      {item.char}
+                    </Text>
+                  ))}
               </View>
               {!isListening && !!spokenText && similarity !== null && (
                 <View style={styles.resultsContainer}>
@@ -147,15 +178,15 @@ const SpeakAndCompareScreen = () => {
                         styles.similarityText,
                         {
                           color:
-                            similarity >= 75
+                            percent >= 75
                               ? colors.success
-                              : similarity >= 50
+                              : percent >= 50
                               ? colors.warning
                               : colors.error,
                         },
                       ]}
                     >
-                      {similarity.toFixed(0)}%
+                      {percent.toFixed(0)}%
                     </Text>
                   )}
                 </View>
