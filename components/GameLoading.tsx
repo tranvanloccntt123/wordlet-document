@@ -1,10 +1,16 @@
 import useGameStore from "@/store/gameStore";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
-import { router } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  Text,
+  View,
+} from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 
 const GameLoading: React.FC<{
@@ -28,6 +34,8 @@ const GameLoading: React.FC<{
   } = useGameStore();
   const { colors } = useThemeStore();
   const { t } = useTranslation(); // Initialize useTranslation
+  const router = useRouter();
+  const navigation = useNavigation();
   useEffect(() => {
     return () => {
       reset();
@@ -71,6 +79,67 @@ const GameLoading: React.FC<{
     }
   }, [isLoading, currentIndex, shuffledWords, scores, history, user]);
 
+  // Handle hardware back button (Android)
+  const onBackPress = () => {
+    Alert.alert(
+      t("common.confirm"),
+      "Are you sure you want to leave this screen?",
+      [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+          onPress: () => {}, // Stay on the screen
+        },
+        {
+          text: t("common.goBack"),
+          onPress: () => {
+            router.back(); // Proceed with back action
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+    return true; // Prevent default back action
+  };
+
+  useEffect(() => {
+    // Add BackHandler listener for Android
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress
+    );
+
+    // Handle navigation state changes (e.g., gestures, software back)
+    // const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+    //   e.preventDefault(); // Prevent default navigation
+
+    //   Alert.alert(
+    //     t("common.confirm"),
+    //     "Are you sure you want to leave this screen?",
+    //     [
+    //       {
+    //         text: t("common.cancel"),
+    //         style: "cancel",
+    //         onPress: () => {}, // Stay on the screen
+    //       },
+    //       {
+    //         text: t("common.goBack"),
+    //         onPress: () => {
+    //           router.back(); // Proceed with back action
+    //         },
+    //       },
+    //     ],
+    //     { cancelable: false }
+    //   );
+    // });
+
+    // Clean up listeners on unmount
+    return () => {
+      // unsubscribe();
+      subscription.remove();
+    };
+  }, [navigation, router]);
+
   useEffect(() => {
     if (!isLoading && !!history && !!user && !!group) {
       start();
@@ -92,6 +161,7 @@ const GameLoading: React.FC<{
       </View>
     );
   }
+
   return !!children ? <View style={{ flex: 1 }}>{children}</View> : <></>;
 };
 

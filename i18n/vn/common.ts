@@ -31,6 +31,7 @@ const common = {
   share: "Chia sẻ",
   published: "Đã xuất bản",
   pending: "Đang chờ",
+  confirm: "Xác nhận",
 };
 
 export default common;

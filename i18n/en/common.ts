@@ -31,6 +31,7 @@ const common = {
   share: "Share",
   published: "Published",
   pending: "Pending",
+  confirm: "Confirm",
 };
 
 export default common;
