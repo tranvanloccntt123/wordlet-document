@@ -1,7 +1,8 @@
+import * as Notifications from "expo-notifications";
 import { SQLiteDatabase } from "expo-sqlite";
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
-  const TARGET_DATABASE_VERSION = 4; // Incremented database version
+  const TARGET_DATABASE_VERSION = 17; // Incremented database version
 
   // Get current database version
   const versionResult = await db.getFirstAsync<{
@@ -16,46 +17,32 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     return;
   }
 
-  console.log(
-    `Current DB version: ${currentDbVersion}. Target DB version: ${TARGET_DATABASE_VERSION}. Starting migration...`
-  );
-
-  // Migration to version 1: Create fts_words table
-  if (currentDbVersion < 1) {
-    console.log("Applying migration to version 1...");
-    await db.execAsync(`
-        PRAGMA journal_mode = 'wal';
-        CREATE VIRTUAL TABLE IF NOT EXISTS fts_words USING fts4(
-          word TEXT,
-          content TEXT,
-          parsedword TEXT,
-          source TEXT,
-          tokenize=porter
-        );
-      `);
-    await db.execAsync("PRAGMA user_version = 1");
-    currentDbVersion = 1; // Update current version after successful migration
-    console.log("Migration to version 1 completed.");
+  if (currentDbVersion < 5) {
+    console.log("Migrate DB version 5");
+    await db.execAsync(`DROP TABLE IF EXISTS history;`);
+    await db.execAsync(`DROP TABLE IF EXISTS fts_words;`);
+    currentDbVersion = 5;
   }
 
-  // Migration to version 2: Create history table
-  if (currentDbVersion < 4) {
-    await db.execAsync(`DROP TABLE IF EXISTS history;`);
-    console.log("Applying migration to version 4...");
-    try {
-      await db.execAsync(`
-            CREATE TABLE IF NOT EXISTS history (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              score INTEGER,
-              date TEXT,
-              message TEXT
-            );
-          `);
-    } catch (e) {
-      console.log(e);
-    }
-    currentDbVersion = 4; // Update current version after successful migration
-    console.log("Migration to version 4 completed.");
+  if (currentDbVersion < 16) {
+    console.log("Migrate DB version 16");
+    await db.execAsync(`DROP TABLE IF EXISTS local_notifications;`);
+    console.log("Migrate DB version 16 Dropped local_notifications");
+    await db.execAsync(`CREATE TABLE IF NOT EXISTS local_notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT,
+      content TEXT,
+      title TEXT,
+      source TEXT
+    );`);
+    currentDbVersion = 16;
+  }
+
+  if (currentDbVersion < 17) {
+    console.log("Migrate DB version 17");
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
+    currentDbVersion = 17;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentDbVersion}`);

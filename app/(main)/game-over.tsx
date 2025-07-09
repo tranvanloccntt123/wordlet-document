@@ -103,7 +103,6 @@ const GameOverScreen: React.FC<object> = () => {
           ? gameOver.victory
           : gameOver.awesomeJob,
     }).then((r) => {
-      console.log(r.data);
       setIsLoading(false);
       setFinalScore(r.data.score || 0);
       if (r.data?.data?.[0]) {

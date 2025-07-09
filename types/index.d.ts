@@ -127,3 +127,10 @@ type ParseHTMLElement = {
   children: ParseHTMLElement[];
   content?: string;
 };
+
+type NotificationDB = {
+  id: number;
+  created_at: string;
+  content: string;
+  title: string;
+};

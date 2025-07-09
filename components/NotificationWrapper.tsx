@@ -42,10 +42,21 @@ const NotificationSetup: React.FC = () => {
       return [];
     },
   });
+
+  const timeOutToSetup = React.useRef<any>(null);
+  const isFinished = React.useRef<boolean>(false);
+
   const { setupScheduledNotifications } = useNotificationStore();
 
   React.useEffect(() => {
-    if (groups?.length) setupScheduledNotifications(groups);
+    if (groups?.length && !isFinished.current) {
+      clearTimeout(timeOutToSetup.current);
+      timeOutToSetup.current = setTimeout(() => {
+        isFinished.current = true;
+        setupScheduledNotifications(groups);
+        //To confirm migration successfully
+      }, 2000);
+    }
   }, [groups]);
   return <></>;
 };
