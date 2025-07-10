@@ -84,7 +84,13 @@
         }
       ],
       "expo-font",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Allow this app to collect app-related data that can be used for tracking you or your device."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,5 +1,6 @@
 import CommonHeader from "@/components/CommonHeader";
 import { updateGroupInfo } from "@/services/groupServices";
+import { convert } from "@/services/ipa";
 import useThemeStore from "@/store/themeStore";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -61,10 +62,14 @@ export default function CreateWordScreen() {
       return;
     }
 
+    const spell = convert(word);
+
     const newWordObject: Omit<WordStore, "id"> = {
       word: word.trim(),
       //   type: wordType || undefined,
-      content: `${wordType !== "" ? `3#${wordType}\n` : ""}5#${content.trim()}`,
+      content: `${spell != "" ? `1#[${spell}]\n` : ""}${
+        wordType !== "" ? `3#${wordType}\n` : ""
+      }5#${content.trim()}`,
       parsedword: word.trim().toLowerCase(),
       source: "manual",
     };

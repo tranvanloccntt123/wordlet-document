@@ -14,11 +14,20 @@ type FetchStore = {
   fetchData: Record<string, QueriesData>;
   fetch: (key: string, callback: () => Promise<any>) => Promise<void>;
   setData: (key: string, data: any) => void;
+  clear: () => void;
 };
 
 export const fetchStore = create<FetchStore, any>(
   immer((set, get) => ({
     fetchData: {},
+    clear() {
+      set((state) => {
+        Object.keys(state.fetchData).forEach(key => {
+          state.fetchData[key].data = undefined;
+          state.fetchData[key].lastFetch = null;
+        })
+      });
+    },
     async fetch(key, callback) {
       const isRefresh = !!get().fetchData[key];
       set((state) => {

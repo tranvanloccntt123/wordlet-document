@@ -53,7 +53,7 @@ const EnergyView = () => {
             { color: info?.is_premium ? "black" : colors.textPrimary },
           ]}
         >
-          {energy || 0}
+          {energy || "AD"}
         </Text>
       )}
       {isLoading && (

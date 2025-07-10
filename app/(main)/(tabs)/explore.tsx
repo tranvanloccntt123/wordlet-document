@@ -17,6 +17,7 @@ import AppLoading from "@/components/AppLoading";
 import * as Mixpanel from "@/services/mixpanel";
 import * as supabase from "@/services/supabase";
 import { deleteAccount } from "@/services/supabase";
+import useFetchStore from "@/store/fetchStore";
 import useNotificationStore from "@/store/notificationStore";
 import useSpellStore from "@/store/spellStore";
 import * as Haptics from "expo-haptics";
@@ -44,6 +45,7 @@ const SettingsScreen = () => {
   const testSoundPlayer = useAudioPlayer(AppAudio.CORRECT); // Using an existing sound for testing
   const setIsSwappingTheme = useThemeStore((state) => state.setIsSwappingTheme);
   const isSwappingTheme = useThemeStore((state) => state.isSwappingTheme);
+  const clearFetch = useFetchStore(state => state.clear);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -124,6 +126,8 @@ const SettingsScreen = () => {
               setIsLoading(false);
             } catch (e) {
               setIsLoading(false);
+            } finally {
+              clearFetch();
             }
           }, // Call signOutGoogle on confirmation
           style: "destructive",

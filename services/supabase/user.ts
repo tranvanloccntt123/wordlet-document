@@ -23,6 +23,10 @@ export const fetchUserGameHistory = async (
   }
   const user = await getUsers();
 
+  if (!user) {
+    throw "User not found";
+  }
+
   let query = supabase
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.HISTORY) // Make sure SUPABASE_TABLE.HISTORY is defined in your constants
@@ -43,6 +47,9 @@ export const fetchUserGameHistory = async (
 
 const fetchUpdateFCMToken = async (token: string) => {
   const user = await getUsers();
+  if (!user) {
+    throw "User not found";
+  }
   await supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.PROFILE)
@@ -62,6 +69,9 @@ export const updateFCMToken = async (token: string) => {
 
 export const fetchUserInfo = async () => {
   const user = await getUsers();
+  if (!user) {
+    throw "User not found";
+  }
   const response = await supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.INFO)

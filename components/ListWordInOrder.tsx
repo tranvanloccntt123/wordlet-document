@@ -188,7 +188,15 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
             marginBottom: s(5),
           }}
         >
-          <Text style={[styles.wordTextStyle, { color: colors.textPrimary }]}>
+          <Text
+            style={[
+              styles.wordTextStyle,
+              {
+                color: colors.textPrimary,
+                fontSize: item.word.length > 20 ? s(15) : s(18),
+              },
+            ]}
+          >
             {item.word}
           </Text>
           {info?.user_id === group.user_id && (
@@ -220,6 +228,7 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
       </View>
     </View>
   );
+
   return (
     <>
       <FlatList

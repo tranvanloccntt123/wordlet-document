@@ -460,7 +460,7 @@ const styles = ScaledSheet.create({
   },
   carouselSectionContainer: {
     marginVertical: "10@ms",
-    height: "200@s",
+    height: "300@vs",
   },
   carouselTitle: {
     fontSize: "14@s",

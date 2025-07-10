@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "2622477593-d99o1mp5bufqa1kfm6osf87utel6p3bu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tei.englishdirectory",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "2622477593-f88fqvah8v7kfagdc4j3cd2vtrdml5pr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tei.englishdirectory",
+            "certificate_hash": "a5613362a47c421c0de238baa028d17be52f1af5"
+          }
+        },
+        {
           "client_id": "2622477593-uf17icir2rde262jpqivr1bb2m45c81r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

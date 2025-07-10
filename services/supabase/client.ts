@@ -1,6 +1,11 @@
 import { getSupabaseAnonKey, getSupabaseURL } from "@/constants/Supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
+import {
+  AuthTokenResponse,
+  createClient,
+  SupabaseClient,
+  User,
+} from "@supabase/supabase-js";
 import "react-native-url-polyfill/auto";
 
 export let supabase: SupabaseClient<any, "public", any> | null = null;
@@ -23,15 +28,32 @@ export const init = () => {
 
 let userFetching: any = null;
 
+let signInUser: any = null;
+
+let cachedUser: User | null = null;
+
 export const clearUserFetching = () => {
   userFetching = null;
+  cachedUser = null;
 };
 
 export const getUsers = async (): Promise<User | null> => {
+  if (cachedUser) {
+    return cachedUser;
+  }
+  if (signInUser) {
+    const waitingUser: AuthTokenResponse = await signInUser;
+    if (waitingUser.data.user) {
+      return waitingUser.data.user;
+    }
+  }
   if (!userFetching) {
     userFetching = fetchUser();
   }
-  return userFetching;
+  const response = await userFetching;
+  cachedUser = response;
+  clearUserFetching();
+  return response;
 };
 
 export const fetchUser = async () => {
@@ -42,5 +64,14 @@ export const fetchUser = async () => {
 };
 
 export const signInWithGoogle = async (token: string) => {
-  await supabase!.auth.signInWithIdToken({ token: token, provider: "google" });
+  signInUser = supabase!.auth.signInWithIdToken({
+    token: token,
+    provider: "google",
+  });
+  const response = await signInUser;
+  if (response.data.user) {
+    cachedUser = response.data.user;
+  }
+  console.log("SIGN IN GOOGLE");
+  signInUser = null;
 };

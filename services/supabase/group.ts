@@ -16,6 +16,9 @@ export const clearOwnerGroupFetching = () => {
 export const createGroup = async (name?: string) => {
   try {
     const user = await getUsers();
+    if (!user) {
+      throw "User not found";
+    }
     const response = await supabase!.functions.invoke(
       SUPABASE_FUNCTION.CREATE_GROUP,
       {
@@ -45,6 +48,9 @@ export const deleteGroup = async (groupId: number) => {
 
 const fetchOwnerGroup = async () => {
   const user = await getUsers();
+  if (!user) {
+    throw "User not found";
+  }
   const response = await supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.GROUP)
