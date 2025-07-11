@@ -1,24 +1,19 @@
+import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert, // Import Dimensions
   Keyboard,
-  Modal,
   Text,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming
-} from "react-native-reanimated";
-import { ScaledSheet } from "react-native-size-matters";
+import { TextInput } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
+import { s, ScaledSheet } from "react-native-size-matters";
 
 interface EditGroupModalProps {
-  visible: boolean;
   onClose: () => void;
   group: Group | null;
   onSave: (groupId: number, newName: string) => void;
@@ -33,46 +28,17 @@ const Content: React.FC<{
 }> = ({ onClose, onSave, group, colors }) => {
   const [name, setName] = useState(group?.name || "");
   const { t } = useTranslation(); // Initialize useTranslation
-  // Initialize slideAnim to start off-screen (at the bottom)
-  const slideAnim = useSharedValue(0);
 
-  React.useEffect(() => {
-    const subscribe = Keyboard.addListener("keyboardDidShow", (e) => {
-      slideAnim.value = withTiming(e.endCoordinates.height, { duration: 200 });
-    });
-    return () => subscribe.remove();
-  }, []);
-
-  React.useEffect(() => {
-    const subscribe = Keyboard.addListener("keyboardDidHide", (e) => {
-      slideAnim.value = e.endCoordinates.height;
-    });
-    return () => subscribe.remove();
-  }, []);
+  const inputRef = React.useRef<TextInput>(null);
 
   const triggerAnimatedClose = () => {
+    inputRef.current?.blur();
     Keyboard.dismiss(); // Dismiss keyboard first
     onClose();
-    // slideAnim.value = withTiming(
-    //   screenHeight,
-    //   { duration: 300 },
-    //   (finished) => {
-    //     if (finished) {
-    //       runOnJS(onClose)();
-    //     }
-    //   }
-    // );
-    // Animate slide out (from on-screen to bottom)
-    // Animated.timing(slideAnim, {
-    //   toValue: screenHeight,
-    //   duration: 300,
-    //   useNativeDriver: true,
-    // }).start(() => {
-    //   onClose(); // Call the parent's onClose AFTER the animation completes
-    // });
   };
 
   const handleConfirmSave = () => {
+    inputRef.current?.blur();
     Keyboard.dismiss(); // Dismiss keyboard first
     if (name.trim()) {
       onSave(group.id, name.trim());
@@ -85,19 +51,9 @@ const Content: React.FC<{
     }
   };
 
-  const contentStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: -slideAnim.value }],
-    };
-  });
-
   return (
     <Animated.View
-      style={[
-        styles.modalContent,
-        { backgroundColor: colors.card },
-        contentStyle,
-      ]}
+      style={[styles.modalContent, { backgroundColor: colors.card }]}
     >
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View>
@@ -106,7 +62,8 @@ const Content: React.FC<{
           >
             {t("groups.editGroupTitle")}
           </Text>
-          <TextInput
+          <BottomSheetTextInput
+            ref={inputRef}
             style={[
               styles.textInput,
               {
@@ -129,6 +86,7 @@ const Content: React.FC<{
                 {
                   backgroundColor: colors.background,
                   borderColor: colors.border,
+                  marginRight: s(5),
                 }, // Themed cancel button
               ]}
               onPress={triggerAnimatedClose} // Corrected to use animated close
@@ -146,7 +104,7 @@ const Content: React.FC<{
               style={[
                 styles.modalButton, // General button style
                 styles.saveButton, // Specific save button style
-                { backgroundColor: colors.primary }, // Themed save button
+                { backgroundColor: colors.primary, marginLeft: s(5) }, // Themed save button
               ]}
               onPress={handleConfirmSave}
             >
@@ -162,7 +120,6 @@ const Content: React.FC<{
 };
 
 const EditGroupModal: React.FC<EditGroupModalProps> = ({
-  visible,
   onClose,
   group,
   onSave,
@@ -172,31 +129,8 @@ const EditGroupModal: React.FC<EditGroupModalProps> = ({
 
   if (!group) return null;
 
-  const triggerAnimatedClose = () => {
-    Keyboard.dismiss(); // Dismiss keyboard first
-    onClose();
-  };
-
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={triggerAnimatedClose}
-      statusBarTranslucent={true}
-    >
-      <TouchableWithoutFeedback onPress={triggerAnimatedClose}>
-        <View style={styles.modalOverlay}>
-          {/* Animated.View will now be the sliding content container */}
-          <Content
-            onClose={onClose}
-            group={group}
-            onSave={onSave}
-            colors={colors}
-          />
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+    <Content onClose={onClose} group={group} onSave={onSave} colors={colors} />
   );
 };
 
@@ -206,23 +140,16 @@ const styles = ScaledSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    paddingHorizontal: "20@ms",
-    paddingTop: "20@ms",
-    paddingBottom: "30@ms", // More space at the bottom for buttons
-    borderTopLeftRadius: "20@s",
-    borderTopRightRadius: "20@s",
     width: "100%",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+    height: "100%",
+    paddingVertical: "16@s",
     // backgroundColor is applied dynamically by the component
   },
   modalTitle: {
-    fontSize: "18@s",
+    fontSize: "15@s",
     fontWeight: "bold",
     marginBottom: "15@ms",
-    textAlign: "center",
+    textAlign: "left",
   },
   textInput: {
     height: "45@ms",
@@ -245,7 +172,6 @@ const styles = ScaledSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1, // Allow buttons to share space
-    marginHorizontal: "5@ms", // Add small margin between buttons
     minHeight: "45@ms", // Ensure buttons have a good tap height
   },
   cancelButton: {

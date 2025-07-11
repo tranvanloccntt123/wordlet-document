@@ -68,7 +68,11 @@ const cardStyles = ScaledSheet.create({
 });
 
 const WordDetailScreen = () => {
-  const params = useLocalSearchParams<{ word?: string; source?: string }>();
+  const params = useLocalSearchParams<{
+    word?: string;
+    source?: string;
+    groupId?: string;
+  }>();
   const { word: wordToSearch, source: wordSource } = params;
   const { data: wordDetails, isLoading } = useQuery<WordStore>({
     key: getWordKey(wordToSearch || ""),
@@ -96,7 +100,10 @@ const WordDetailScreen = () => {
         pathname: `/word/${wordSource || ""}/${
           wordToSearch || ""
         }/add-group` as any,
-        params: { wordDetails: JSON.stringify(wordDetails) },
+        params: {
+          wordDetails: JSON.stringify(wordDetails),
+          groupId: params.groupId,
+        },
       });
     } else {
       Alert.alert(

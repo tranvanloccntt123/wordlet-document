@@ -13,6 +13,10 @@ import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore"; // Import theme store
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -130,10 +134,10 @@ const GroupManagementScreen = () => {
       return [];
     },
   });
+  const bottomSheetRef = React.useRef<BottomSheet>(null);
   const userInfo = useInfoStore((state) => state.info);
   const { colors } = useThemeStore(); // Use theme colors
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentEditingGroup, setCurrentEditingGroup] = useState<Group | null>(
     null
   );
@@ -160,15 +164,16 @@ const GroupManagementScreen = () => {
 
   const openEditModal = (group: Group) => {
     setCurrentEditingGroup(group);
-    setIsEditModalVisible(true);
+    bottomSheetRef.current?.expand();
   };
 
   const closeEditModal = () => {
-    setIsEditModalVisible(false);
+    bottomSheetRef.current?.close();
     setCurrentEditingGroup(null);
   };
 
   const handleSaveGroupName = async (groupId: number, newName: string) => {
+    bottomSheetRef.current?.close();
     await updateGroupInfo(groupId, (oldData) =>
       !oldData
         ? oldData
@@ -270,13 +275,27 @@ const GroupManagementScreen = () => {
           >
             <MaterialIcons name="add" size={s(28)} color="#FFFFFF" />
           </TouchableOpacity>
-          <EditGroupModal
-            visible={isEditModalVisible}
-            onClose={closeEditModal}
-            group={currentEditingGroup}
-            onSave={handleSaveGroupName}
-            colors={colors}
-          />
+          <BottomSheet
+            index={-1}
+            ref={bottomSheetRef}
+            snapPoints={["25%"]}
+            enableDynamicSizing={true}
+            backdropComponent={BottomSheetBackdrop}
+            keyboardBehavior="interactive"
+            keyboardBlurBehavior="restore"
+            backgroundStyle={{
+              backgroundColor: colors.card,
+            }}
+          >
+            <BottomSheetView style={{ paddingHorizontal: s(20) }}>
+              <EditGroupModal
+                onClose={closeEditModal}
+                group={currentEditingGroup}
+                onSave={handleSaveGroupName}
+                colors={colors}
+              />
+            </BottomSheetView>
+          </BottomSheet>
         </SafeAreaView>
       </View>
     </AppLoading>

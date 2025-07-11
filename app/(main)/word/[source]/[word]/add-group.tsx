@@ -10,6 +10,7 @@ import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Keyboard,
@@ -66,6 +67,7 @@ const GroupItem: React.FC<{
 };
 
 const AddGroupScreen = () => {
+  const { t } = useTranslation();
   // WordStore interface should be defined or imported if not already available globally
   const { colors } = useThemeStore();
   const { data: groups } = useQuery<number[]>({
@@ -302,69 +304,102 @@ const AddGroupScreen = () => {
                   </Text>
                 </View>
               )}
-              {/* Use onLayout to get the Y position of the form container */}
-              <View
-                style={styles.formContainer}
-                onLayout={(event) => {
-                  formContainerY.current = event.nativeEvent.layout.y;
-                }}
-              >
-                <Text style={styles.label}>Group Name</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., My Favorite Words"
-                  placeholderTextColor={colors.textSecondary}
-                  value={groupName}
-                  editable={!atGroupLimit}
-                  onChangeText={setGroupName}
-                  // autoFocus={true} // Consider removing if definition selection is primary first step
-                />
-                {!!wordToAdd && !!selectedDefinitionText && (
-                  <Text style={styles.infoText}>
-                    This new group will include the word: "{wordToAdd.word}"
-                  </Text>
-                )}
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    (atGroupLimit ||
-                      isSubmitting ||
-                      !wordToAdd ||
-                      !selectedDefinitionText ||
-                      !canAddWord) &&
-                      styles.buttonDisabled,
-                  ]}
-                  onPress={handleCreateGroupAndAddWord}
-                  disabled={
-                    atGroupLimit ||
-                    isSubmitting ||
-                    !wordToAdd ||
-                    !selectedDefinitionText ||
-                    !canAddWord
-                  }
-                >
-                  <Text style={styles.buttonText}>
-                    {isSubmitting ? "Processing..." : "Create Group & Add Word"}
-                  </Text>
-                </TouchableOpacity>
-                {(groups?.length || 0) > 0 && (
-                  <Text style={styles.orText}>OR select an existing group</Text>
-                )}
-                {(groups?.length || 0) > 0 &&
-                  groups.map((group) => (
-                    <GroupItem
-                      key={group}
-                      onAddWordToGroup={() => handleAddToExistingGroup(group)}
-                      disabled={
+              {!!params.groupId && (
+                <View>
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      (atGroupLimit ||
                         isSubmitting ||
                         !wordToAdd ||
                         !selectedDefinitionText ||
-                        !canAddWord
-                      } // Disable while submitting or if no definition selected
-                      groupId={group}
-                    />
-                  ))}
-              </View>
+                        !canAddWord) &&
+                        styles.buttonDisabled,
+                    ]}
+                    disabled={
+                      atGroupLimit ||
+                      isSubmitting ||
+                      !wordToAdd ||
+                      !selectedDefinitionText ||
+                      !canAddWord
+                    }
+                    onPress={() =>
+                      handleAddToExistingGroup(Number(params.groupId || "0"))
+                    }
+                  >
+                    <Text style={styles.buttonText}>{t("common.confirm")}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {/* Use onLayout to get the Y position of the form container */}
+              {!params.groupId && (
+                <View
+                  style={styles.formContainer}
+                  onLayout={(event) => {
+                    formContainerY.current = event.nativeEvent.layout.y;
+                  }}
+                >
+                  <Text style={styles.label}>Group Name</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g., My Favorite Words"
+                    placeholderTextColor={colors.textSecondary}
+                    value={groupName}
+                    editable={!atGroupLimit}
+                    onChangeText={setGroupName}
+                    // autoFocus={true} // Consider removing if definition selection is primary first step
+                  />
+                  {!!wordToAdd && !!selectedDefinitionText && (
+                    <Text style={styles.infoText}>
+                      This new group will include the word: "{wordToAdd.word}"
+                    </Text>
+                  )}
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      (atGroupLimit ||
+                        isSubmitting ||
+                        !wordToAdd ||
+                        !selectedDefinitionText ||
+                        !canAddWord) &&
+                        styles.buttonDisabled,
+                    ]}
+                    onPress={handleCreateGroupAndAddWord}
+                    disabled={
+                      atGroupLimit ||
+                      isSubmitting ||
+                      !wordToAdd ||
+                      !selectedDefinitionText ||
+                      !canAddWord
+                    }
+                  >
+                    <Text style={styles.buttonText}>
+                      {isSubmitting
+                        ? "Processing..."
+                        : "Create Group & Add Word"}
+                    </Text>
+                  </TouchableOpacity>
+                  {(groups?.length || 0) > 0 && (
+                    <Text style={styles.orText}>
+                      OR select an existing group
+                    </Text>
+                  )}
+                  {(groups?.length || 0) > 0 &&
+                    groups.map((group) => (
+                      <GroupItem
+                        key={group}
+                        onAddWordToGroup={() => handleAddToExistingGroup(group)}
+                        disabled={
+                          isSubmitting ||
+                          !wordToAdd ||
+                          !selectedDefinitionText ||
+                          !canAddWord
+                        } // Disable while submitting or if no definition selected
+                        groupId={group}
+                      />
+                    ))}
+                </View>
+              )}
             </ScrollView>
           </KeyboardAvoidingView>
         </SafeAreaView>

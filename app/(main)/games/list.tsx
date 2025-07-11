@@ -228,16 +228,33 @@ export default function SelectGameScreen() {
               )}
               {!!group && group.words && group.words.length > 0 ? (
                 <View style={styles.carouselSectionContainer}>
-                  <Text
-                    style={[
-                      styles.carouselTitle,
-                      { color: colors.textSecondary },
-                    ]}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                    }}
                   >
-                    {t("games.wordsInThisGroup", {
-                      count: group.words.length,
-                    })}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.carouselTitle,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {t("games.wordsInThisGroup", {
+                        count: group.words.length,
+                      })}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => router.push(`/search?groupId=${group.id}`)}
+                      style={{ marginRight: s(16) }}
+                    >
+                      <MaterialIcons
+                        name="add"
+                        size={s(20)}
+                        color={colors.textPrimary}
+                      />
+                    </TouchableOpacity>
+                  </View>
                   <ListWordInOrder group={group} />
                 </View>
               ) : !!group && (!group.words || group.words.length === 0) ? (
@@ -262,7 +279,9 @@ export default function SelectGameScreen() {
                           styles.addWordsButton,
                           { backgroundColor: colors.primary },
                         ]}
-                        onPress={() => router.push("/search")}
+                        onPress={() =>
+                          router.push(`/search?groupId=${group.id}`)
+                        }
                       >
                         <MaterialIcons
                           name="search"

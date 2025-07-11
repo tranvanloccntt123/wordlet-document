@@ -14,7 +14,7 @@ import {
 } from "@/styles/fontStyles"; // Import font styles
 import { getWordKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import {
@@ -31,7 +31,7 @@ const SearchScreen = () => {
   const router = useRouter();
   const { colors } = useThemeStore();
   const { t } = useTranslation(); // Get the t function
-
+  const params = useLocalSearchParams<{ groupId?: string }>();
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = React.useState<WordStore[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -45,11 +45,14 @@ const SearchScreen = () => {
     setQueryData(getWordKey(item.word), item);
     // Navigate to the detail screen, passing the word itself as a parameter.
     // Ensure the word is URL-encoded in case it contains special characters.
-    router.push(
-      `/word/${encodeURIComponent(item.source)}/${encodeURIComponent(
+    router.push({
+      pathname: `/word/${encodeURIComponent(item.source)}/${encodeURIComponent(
         item.word
-      )}/detail`
-    );
+      )}/detail` as any,
+      params: {
+        groupId: params.groupId,
+      },
+    });
   };
 
   React.useEffect(() => {
