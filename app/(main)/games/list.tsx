@@ -341,6 +341,23 @@ export default function SelectGameScreen() {
                   </Text>
                 </TouchableOpacity>
               )}
+              {!!group?.description && (
+                <View
+                  style={[
+                    styles.emptyWordsContainer,
+                    { backgroundColor: colors.card, alignItems: "flex-start" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.gameTextContainer,
+                      { color: colors.textPrimary },
+                    ]}
+                  >
+                    {group.description}
+                  </Text>
+                </View>
+              )}
             </>
           }
           renderItem={({ item }) => {

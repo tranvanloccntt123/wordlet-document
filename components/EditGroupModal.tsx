@@ -76,7 +76,6 @@ const Content: React.FC<{
             onChangeText={setName}
             placeholder={t("groups.editGroupPlaceholder")}
             placeholderTextColor={colors.textDisabled}
-            autoFocus
           />
           <View style={[styles.modalActions]}>
             <TouchableOpacity

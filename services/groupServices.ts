@@ -28,9 +28,9 @@ export const syncOwnerGroup = async () => {
   }
 };
 
-export const createGroupInfo = async (name?: string) => {
+export const createGroupInfo = async (name?: string, description?: string) => {
   try {
-    const { data, error } = await createGroup(name);
+    const { data, error } = await createGroup(name, description);
     if (!error && data?.data?.[0]) {
       setQueryData<Group>(getGroupKey(data.data[0].id as number), data.data[0]);
       setQueryData<number[]>(getOwnerGroupKey(), (oldData) => {

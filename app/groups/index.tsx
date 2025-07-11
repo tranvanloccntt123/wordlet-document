@@ -3,11 +3,7 @@ import CommonHeader from "@/components/CommonHeader"; // Import the new CommonHe
 import EditGroupModal from "@/components/EditGroupModal"; // Import the moved component
 import { GROUP_LIMIT } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import {
-  createGroupInfo,
-  deleteGroupInfo,
-  updateGroupInfo,
-} from "@/services/groupServices";
+import { deleteGroupInfo, updateGroupInfo } from "@/services/groupServices";
 import { getOwnerGroup } from "@/services/supabase";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore"; // Import theme store
@@ -17,7 +13,7 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -28,6 +24,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
 
@@ -141,7 +143,7 @@ const GroupManagementScreen = () => {
   const [currentEditingGroup, setCurrentEditingGroup] = useState<Group | null>(
     null
   );
-
+  const addAnim = useSharedValue(0);
   const atGroupLimit =
     !userInfo?.is_premium && (groups?.length || 0) >= GROUP_LIMIT;
 
@@ -155,11 +157,15 @@ const GroupManagementScreen = () => {
       );
       return;
     }
-    setIsLoading(true); // Keep loading indicator for the createGroup async operation
-    try {
-      await createGroupInfo(); // This will internally check the limit again if you modify createGroup store logic
-    } catch (e) {}
-    setIsLoading(false); // Stop loading indicator
+    addAnim.value = withTiming(1, { duration: 500 });
+    setTimeout(() => {
+      router.push("/groups/add");
+    }, 600);
+    // setIsLoading(true); // Keep loading indicator for the createGroup async operation
+    // try {
+    //   await createGroupInfo(); // This will internally check the limit again if you modify createGroup store logic
+    // } catch (e) {}
+    // setIsLoading(false); // Stop loading indicator
   };
 
   const openEditModal = (group: Group) => {
@@ -183,6 +189,29 @@ const GroupManagementScreen = () => {
           }
     );
   };
+
+  useFocusEffect(
+    // Callback should be wrapped in `React.useCallback` to avoid running the effect too often.
+    React.useCallback(() => {
+      addAnim.value = withTiming(0, { duration: 500 });
+    }, [])
+  );
+
+  const addButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          scale: interpolate(addAnim.value, [0, 1], [1, 50]),
+        },
+      ],
+    };
+  });
+
+  const addIconStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(addAnim.value, [0, 0.15], [1, 0]),
+    };
+  });
 
   return (
     <AppLoading isLoading={isFetchGroupLoading || isLoading}>
@@ -259,7 +288,7 @@ const GroupManagementScreen = () => {
               </View>
             }
           />
-          <TouchableOpacity
+          <Animated.View
             style={[
               styles.addButton,
               {
@@ -268,13 +297,24 @@ const GroupManagementScreen = () => {
                   : colors.primary,
                 shadowColor: colors.shadow,
               },
+              addButtonStyle,
             ]}
-            onPress={addGroup}
-            disabled={atGroupLimit} // Disable the button if at limit
-            activeOpacity={atGroupLimit ? 1 : 0.7} // Reduce opacity feedback when disabled
           >
-            <MaterialIcons name="add" size={s(28)} color="#FFFFFF" />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={addGroup}
+              disabled={atGroupLimit} // Disable the button if at limit
+              activeOpacity={atGroupLimit ? 1 : 0.7} // Reduce opacity feedback when disabled
+            >
+              <Animated.View style={addIconStyle}>
+                <MaterialIcons name="add" size={s(28)} color="#FFFFFF" />
+              </Animated.View>
+            </TouchableOpacity>
+          </Animated.View>
           <BottomSheet
             index={-1}
             ref={bottomSheetRef}

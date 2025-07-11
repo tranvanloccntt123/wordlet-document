@@ -13,7 +13,7 @@ export const clearOwnerGroupFetching = () => {
   ownerGroupFetching = null;
 };
 
-export const createGroup = async (name?: string) => {
+export const createGroup = async (name?: string, description?: string) => {
   try {
     const user = await getUsers();
     if (!user) {
@@ -22,7 +22,7 @@ export const createGroup = async (name?: string) => {
     const response = await supabase!.functions.invoke(
       SUPABASE_FUNCTION.CREATE_GROUP,
       {
-        body: { user_id: user?.id, words: [], name },
+        body: { user_id: user?.id, words: [], name, description },
       }
     );
 

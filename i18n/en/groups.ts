@@ -23,6 +23,7 @@ const groups = {
   errorDeletingGroup: "Error deleting group. Please try again.",
   errorUpdatingGroup: "Error updating group. Please try again.",
   enterGroupName: "Please enter a group name.",
+  enterGroupDescription: "Please enter a group description.",
   wordCount_one: "{{count}} word",
   wordCount_other: "{{count}} words",
   editGroupTitle: "Edit Group Name",

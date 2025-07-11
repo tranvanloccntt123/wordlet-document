@@ -186,7 +186,7 @@ const SpeakAndCompareScreen = () => {
             onPrimaryPress={
               isListening
                 ? stopListening
-                : () => startListening(currentWordDetail?.word || "")
+                : () => startListening(currentWordDetail?.word.replaceAll("-", " ") || "")
             }
           />
         </ScrollView>

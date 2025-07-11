@@ -23,6 +23,7 @@ const groups = {
   errorDeletingGroup: "Xoá nhóm lỗi. Vui lòng thử lại.",
   errorUpdatingGroup: "Cập nhật nhóm thất bại. Vui lòng thử lại.",
   enterGroupName: "Vui lòng nhập tên nhóm.",
+  enterGroupDescription: "Vui lòng nhập mô tả cho nhóm.",
   wordCount_one: "{{count}} từ",
   wordCount_other: "{{count}} từ",
   editGroupTitle: "Chỉnh Sửa Tên Nhóm",

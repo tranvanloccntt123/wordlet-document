@@ -16,6 +16,7 @@ interface Group {
   is_boosted: boolean;
   created_at: string;
   is_publish?: boolean;
+  description?: string;
 }
 
 /**

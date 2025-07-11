@@ -17,6 +17,7 @@ interface GameButtonsProps {
   onPrimaryPress?: () => void;
   onSkipPress?: () => void;
   primaryButtonText?: string; // Added to make primary button text configurable
+  skipButtonText?: string;
 }
 
 // Moved createStyles up and cleaned it
@@ -64,6 +65,7 @@ const GameButtons: React.FC<GameButtonsProps> = ({
   skipButtonDisabled = false,
   onPrimaryPress,
   onSkipPress,
+  skipButtonText,
   primaryButtonText = "Submit", // Default text for primary button
 }) => {
   const { colors } = useThemeStore();
@@ -97,7 +99,7 @@ const GameButtons: React.FC<GameButtonsProps> = ({
         disabled={skipButtonDisabled}
       >
         <Text style={[styles.actionButtonText, styles.skipButtonText]}>
-          {t("common.skip")}
+          {skipButtonText || t("common.skip")}
         </Text>
       </TouchableOpacity>
     </View>
