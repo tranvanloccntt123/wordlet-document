@@ -12,6 +12,20 @@ const MyGroupLayout: React.FC = () => {
           animation: "none",
         }}
       />
+      <Stack.Screen
+        name="delete"
+        options={{
+          presentation: "containedTransparentModal",
+          animation: "none",
+        }}
+      />
+      <Stack.Screen
+        name="edit"
+        options={{
+          presentation: "containedTransparentModal",
+          animation: "none",
+        }}
+      />
     </Stack>
   );
 };

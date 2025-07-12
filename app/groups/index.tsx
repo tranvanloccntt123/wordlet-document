@@ -3,7 +3,7 @@ import CommonHeader from "@/components/CommonHeader"; // Import the new CommonHe
 import EditGroupModal from "@/components/EditGroupModal"; // Import the moved component
 import { GROUP_LIMIT } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import { deleteGroupInfo, updateGroupInfo } from "@/services/groupServices";
+import { updateGroupInfo } from "@/services/groupServices";
 import { getOwnerGroup } from "@/services/supabase";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore"; // Import theme store
@@ -24,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -36,9 +37,7 @@ import { ScaledSheet, ms, s } from "react-native-size-matters";
 const GroupItem: React.FC<{
   groupId: number;
   onOpenEdit: (item: Group) => void;
-  onDeleteStart: () => void;
-  onDeleteFinish: () => void;
-}> = ({ groupId, onOpenEdit, onDeleteFinish, onDeleteStart }) => {
+}> = ({ groupId, onOpenEdit }) => {
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
 
   const { data: item } = useQuery({
@@ -46,29 +45,6 @@ const GroupItem: React.FC<{
   });
 
   const colors = useThemeStore((state) => state.colors); // Use theme colors
-
-  const handleDeleteGroupWithConfirmation = (group: Group) => {
-    Alert.alert(
-      t("groups.deleteGroup"),
-      t("groups.confirmDelete", { groupName: group.name }),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("common.delete"),
-          onPress: () => {
-            onDeleteStart?.();
-            deleteGroupInfo(group.id).then((r) => {
-              onDeleteFinish?.();
-            });
-          },
-          style: "destructive",
-        },
-      ]
-    );
-  };
 
   // Placeholder for navigating to a game screen for a specific group
   const handleSelectGroupForGame = (groupId: number, groupName: string) => {
@@ -84,43 +60,70 @@ const GroupItem: React.FC<{
     // You might navigate here, e.g.:
     // router.push(`/games/sort?groupId=${groupId}`); // Example navigation
   };
+
+  const editTab = Gesture.Tap()
+    .onEnd((event) => {
+      router.push({
+        pathname: "/groups/edit",
+        params: {
+          groupId: `${groupId}`,
+          x: `${event.absoluteX || 0}`,
+          y: `${event.absoluteY || 0}`,
+          groupName: item?.name,
+        },
+      });
+    })
+    .runOnJS(true);
+
+  const deleteTab = Gesture.Tap()
+    .onEnd((event) => {
+      router.push({
+        pathname: "/groups/delete",
+        params: {
+          groupId: `${groupId}`,
+          x: `${event.absoluteX || 0}`,
+          y: `${event.absoluteY || 0}`,
+          groupName: item?.name,
+        },
+      });
+    })
+    .runOnJS(true);
+
   return (
-    <Pressable onPress={() => handleSelectGroupForGame(item.id, item.name)}>
-      <View
-        style={[
-          styles.groupCard,
-          {
-            backgroundColor: colors.card,
-            shadowColor: colors.shadow,
-          },
-        ]}
-      >
-        <View style={styles.groupInfo}>
+    <View
+      style={[
+        styles.groupCard,
+        {
+          backgroundColor: colors.card,
+          shadowColor: colors.shadow,
+        },
+      ]}
+    >
+      <View style={styles.groupInfo}>
+        <Pressable onPress={() => handleSelectGroupForGame(item.id, item.name)}>
           <Text style={[styles.groupName, { color: colors.textPrimary }]}>
             {item?.name}
           </Text>
-          <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
-            {(item?.words?.length || 0) > 1
-              ? t("groups.wordCount_other", {
-                  count: item?.words?.length || 0,
-                })
-              : t("groups.wordCount_one", {
-                  count: item?.words?.length || 0,
-                })}
-          </Text>
-        </View>
-        <View style={styles.actions}>
-          <TouchableOpacity onPress={() => onOpenEdit(item)}>
-            <MaterialIcons name="edit" size={s(22)} color={colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleDeleteGroupWithConfirmation(item)}
-          >
-            <MaterialIcons name="delete" size={s(22)} color={colors.error} />
-          </TouchableOpacity>
-        </View>
+        </Pressable>
+        <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
+          {(item?.words?.length || 0) > 1
+            ? t("groups.wordCount_other", {
+                count: item?.words?.length || 0,
+              })
+            : t("groups.wordCount_one", {
+                count: item?.words?.length || 0,
+              })}
+        </Text>
       </View>
-    </Pressable>
+      <View style={styles.actions}>
+        <GestureDetector gesture={editTab}>
+          <MaterialIcons name="edit" size={s(22)} color={colors.primary} />
+        </GestureDetector>
+        <GestureDetector gesture={deleteTab}>
+          <MaterialIcons name="delete" size={s(22)} color={colors.error} />
+        </GestureDetector>
+      </View>
+    </View>
   );
 };
 
@@ -259,12 +262,6 @@ const GroupManagementScreen = () => {
                 groupId={item}
                 onOpenEdit={(item) => {
                   openEditModal(item);
-                }}
-                onDeleteStart={() => {
-                  setIsLoading(true);
-                }}
-                onDeleteFinish={() => {
-                  setIsLoading(false);
                 }}
               />
             )}

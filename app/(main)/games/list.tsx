@@ -28,7 +28,7 @@ import React from "react"; // Import useEffect, useState
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScaledSheet, s } from "react-native-size-matters";
+import { ScaledSheet, s, vs } from "react-native-size-matters";
 import Rive from "rive-react-native";
 
 const LimitCountDownModal: React.FC<object> = () => {
@@ -226,6 +226,36 @@ export default function SelectGameScreen() {
                   </Text>
                 </View>
               )}
+              {!!group?.description && (
+                <View style={{ marginTop: vs(16) }}>
+                  <Text
+                    style={[
+                      styles.carouselTitle,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {t("groups.groupDescription")}
+                  </Text>
+                  <View
+                    style={[
+                      styles.emptyWordsContainer,
+                      {
+                        backgroundColor: colors.card,
+                        alignItems: "flex-start",
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.gameTextContainer,
+                        { color: colors.textPrimary },
+                      ]}
+                    >
+                      {group.description}
+                    </Text>
+                  </View>
+                </View>
+              )}
               {!!group && group.words && group.words.length > 0 ? (
                 <View style={styles.carouselSectionContainer}>
                   <View
@@ -244,16 +274,20 @@ export default function SelectGameScreen() {
                         count: group.words.length,
                       })}
                     </Text>
-                    <TouchableOpacity
-                      onPress={() => router.push(`/search?groupId=${group.id}`)}
-                      style={{ marginRight: s(16) }}
-                    >
-                      <MaterialIcons
-                        name="add"
-                        size={s(20)}
-                        color={colors.textPrimary}
-                      />
-                    </TouchableOpacity>
+                    {isAuthor && (
+                      <TouchableOpacity
+                        onPress={() =>
+                          router.push(`/search?groupId=${group.id}`)
+                        }
+                        style={{ marginRight: s(16) }}
+                      >
+                        <MaterialIcons
+                          name="add"
+                          size={s(20)}
+                          color={colors.textPrimary}
+                        />
+                      </TouchableOpacity>
+                    )}
                   </View>
                   <ListWordInOrder group={group} />
                 </View>
@@ -340,23 +374,6 @@ export default function SelectGameScreen() {
                     {t("games.createWordForGroupTitle")}
                   </Text>
                 </TouchableOpacity>
-              )}
-              {!!group?.description && (
-                <View
-                  style={[
-                    styles.emptyWordsContainer,
-                    { backgroundColor: colors.card, alignItems: "flex-start" },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.gameTextContainer,
-                      { color: colors.textPrimary },
-                    ]}
-                  >
-                    {group.description}
-                  </Text>
-                </View>
               )}
             </>
           }
@@ -518,6 +535,10 @@ const styles = ScaledSheet.create({
   },
   gameTextContainer: {
     flex: 1,
+    ...getAppFontStyle({
+      fontSizeKey: FontSizeKeys.caption,
+      fontFamily: FontFamilies.NunitoRegular,
+    }),
   },
   gameTitle: {
     fontSize: "17@s",
@@ -530,7 +551,7 @@ const styles = ScaledSheet.create({
   emptyWordsContainer: {
     padding: "15@ms",
     marginHorizontal: "16@s",
-    marginVertical: "10@s",
+    marginBottom: "10@s",
     borderRadius: "10@s",
     // marginTop: "10@ms", // Already part of marginVertical
     alignItems: "center", // Center the content if it's a single block

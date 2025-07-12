@@ -93,7 +93,12 @@ export const updateGroup = async (group: Group) => {
     const { data, error } = await supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
-      .update({ name: group.name, words: group.words, user_id: group.user_id })
+      .update({
+        name: group.name,
+        words: group.words,
+        user_id: group.user_id,
+        description: group.description,
+      })
       .eq("id", group.id)
       .select()
       .single();
@@ -153,7 +158,7 @@ export const fetchGroups = async (
     let query = supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
-      .select("id, name, created_at, words, is_boosted, user_id, is_publish")
+      .select("id, name, created_at, words, is_boosted, user_id, is_publish, description")
       .eq("is_publish", true)
       .order("is_boosted", { ascending: false })
       .order("created_at", { ascending: false }) // Fetch newest first

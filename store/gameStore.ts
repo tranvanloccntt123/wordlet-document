@@ -98,19 +98,19 @@ const useGameStore = create<GameState>()(
             groupData = storeData;
           }
           if (groupData) {
-            const { data: gameData, error: gameError } = await createNewGame(
-              groupId
-            );
-            if (gameError || !gameData.data.length) {
-              set((state) => {
-                state.isLoadError = true;
-                state.isLoading = false;
-              });
-              return;
-            }
+            // const { data: gameData, error: gameError } = await createNewGame(
+            //   groupId
+            // );
+            // if (gameError || !gameData.data.length) {
+            //   set((state) => {
+            //     state.isLoadError = true;
+            //     state.isLoading = false;
+            //   });
+            //   return;
+            // }
             set((state) => {
               state.group = groupData;
-              state.history = gameData.data[0];
+              // state.history = gameData.data[0];
               state.shuffledWords = shuffleArray([...groupData.words]);
               state.scores = Array.from(
                 { length: groupData.words.length },

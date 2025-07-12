@@ -5,7 +5,7 @@ const groups = {
   noGroups: "No groups yet!",
   startManaging: "Start managing your groups or create a new one.",
   groupName: "Group Name",
-  groupDescription: "Group Description (Optional)",
+  groupDescription: "Group Description",
   members: "Members",
   leaveGroup: "Leave Group",
   deleteGroup: "Delete Group",
@@ -26,7 +26,7 @@ const groups = {
   enterGroupDescription: "Please enter a group description.",
   wordCount_one: "{{count}} word",
   wordCount_other: "{{count}} words",
-  editGroupTitle: "Edit Group Name",
+  editGroupTitle: "Edit Information",
   editGroupPlaceholder: "Enter new group name",
   removeWordTitle: "Remove Word",
   confirmRemoveWordMessage:

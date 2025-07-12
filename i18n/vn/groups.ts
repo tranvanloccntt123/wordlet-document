@@ -5,7 +5,7 @@ const groups = {
   noGroups: "Chưa có nhóm nào!",
   startManaging: "Bắt đầu quản lý nhóm của bạn hoặc tạo một nhóm mới.",
   groupName: "Tên Nhóm",
-  groupDescription: "Mô Tả Nhóm (Không bắt buộc)",
+  groupDescription: "Mô Tả Nhóm",
   members: "Thành viên",
   leaveGroup: "Rời Nhóm",
   deleteGroup: "Xóa Nhóm",
@@ -26,7 +26,7 @@ const groups = {
   enterGroupDescription: "Vui lòng nhập mô tả cho nhóm.",
   wordCount_one: "{{count}} từ",
   wordCount_other: "{{count}} từ",
-  editGroupTitle: "Chỉnh Sửa Tên Nhóm",
+  editGroupTitle: "Chỉnh Sửa Thông Tin",
   editGroupPlaceholder: "Nhập tên nhóm mới",
   removeWordTitle: "Xóa Từ",
   confirmRemoveWordMessage:

@@ -78,8 +78,6 @@ const GameOverScreen: React.FC<object> = () => {
   const [finalScore, setFinalScore] = React.useState<number>(0);
 
   React.useEffect(() => {
-    playerWinner.seekTo(0);
-    playerWinner.play();
     playGame();
     setIsLoading(true);
     decreaseEnergy({
@@ -102,13 +100,18 @@ const GameOverScreen: React.FC<object> = () => {
           : percent < 80
           ? gameOver.victory
           : gameOver.awesomeJob,
-    }).then((r) => {
-      setIsLoading(false);
-      setFinalScore(r.data.score || 0);
-      if (r.data?.data?.[0]) {
-        setEnergy(r.data.data[0].energy);
-      }
-    });
+    })
+      .then((r) => {
+        setIsLoading(false);
+        setFinalScore(r.data.score || 0);
+        if (r.data?.data?.[0]) {
+          setEnergy(r.data.data[0].energy);
+        }
+      })
+      .finally(() => {
+        playerWinner.seekTo(0);
+        playerWinner.play();
+      });
   }, []);
 
   return (

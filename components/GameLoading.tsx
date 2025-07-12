@@ -50,7 +50,6 @@ const GameLoading: React.FC<{
     if (
       !isLoading &&
       currentIndex >= shuffledWords.length &&
-      !!history &&
       !!user
     ) {
       if (gameType === "SpeakAndCompareIPA") {
@@ -70,7 +69,6 @@ const GameLoading: React.FC<{
             .reduce((old, current) => (current > 0 ? old + 1 : old), 0)
             .toString(),
           totalQuestions: shuffledWords.length.toString(),
-          historyId: history.id,
           gameType: gameType,
           isMyGroup: group?.user_id === user?.id || !!ipaChar ? "1" : "0",
           groupId: group?.id?.toString(),
@@ -108,30 +106,6 @@ const GameLoading: React.FC<{
       "hardwareBackPress",
       onBackPress
     );
-
-    // Handle navigation state changes (e.g., gestures, software back)
-    // const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-    //   e.preventDefault(); // Prevent default navigation
-
-    //   Alert.alert(
-    //     t("common.confirm"),
-    //     "Are you sure you want to leave this screen?",
-    //     [
-    //       {
-    //         text: t("common.cancel"),
-    //         style: "cancel",
-    //         onPress: () => {}, // Stay on the screen
-    //       },
-    //       {
-    //         text: t("common.goBack"),
-    //         onPress: () => {
-    //           router.back(); // Proceed with back action
-    //         },
-    //       },
-    //     ],
-    //     { cancelable: false }
-    //   );
-    // });
 
     // Clean up listeners on unmount
     return () => {

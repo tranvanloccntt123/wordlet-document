@@ -149,8 +149,6 @@ const useSpeakAndCompare = () => {
 
       const sim = Math.max(0, ...Object.values(simCalculate));
 
-      console.log(simCalculate);
-
       setSpokenText(
         Object.keys(simCalculate).find((k) => simCalculate[k] === sim) || ""
       );

@@ -152,24 +152,6 @@ const SpeakAndCompareScreen = () => {
                     : error}
                 </Text>
               )}
-              <View style={{ flexDirection: "row" }}>
-                {spokenText !== "" &&
-                  feedback.map((item, index) => (
-                    <Text
-                      key={index}
-                      style={[
-                        styles.suggestedText,
-                        item.status === "correct"
-                          ? { color: colors.success }
-                          : item.status === "incorrect"
-                          ? { color: colors.error }
-                          : { color: colors.textPrimary },
-                      ]}
-                    >
-                      {item.char}
-                    </Text>
-                  ))}
-              </View>
               {!isListening && !!spokenText && similarity !== null && (
                 <View style={styles.resultsContainer}>
                   {similarity !== null && (
