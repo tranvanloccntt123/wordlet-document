@@ -15,6 +15,7 @@ export const clearEnergyFetching = () => {
 export const fetchEnergy = async () => {
   const user = await getUsers();
   if (!user) {
+    console.log("Throw user", user);
     throw "User not found";
   }
   const response: PostgrestSingleResponse<Energy> = await supabase!

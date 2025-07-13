@@ -17,6 +17,7 @@ import AppLoading from "@/components/AppLoading";
 import * as Mixpanel from "@/services/mixpanel";
 import * as supabase from "@/services/supabase";
 import { deleteAccount } from "@/services/supabase";
+import useAuthStore from "@/store/authStore";
 import useFetchStore from "@/store/fetchStore";
 import useNotificationStore from "@/store/notificationStore";
 import useSpellStore from "@/store/spellStore";
@@ -45,7 +46,7 @@ const SettingsScreen = () => {
   const testSoundPlayer = useAudioPlayer(AppAudio.CORRECT); // Using an existing sound for testing
   const setIsSwappingTheme = useThemeStore((state) => state.setIsSwappingTheme);
   const isSwappingTheme = useThemeStore((state) => state.isSwappingTheme);
-  const clearFetch = useFetchStore(state => state.clear);
+  const clearFetch = useFetchStore((state) => state.clear);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -63,7 +64,7 @@ const SettingsScreen = () => {
     clearAllNotifications,
   } = useNotificationStore();
   const currentTheme = useThemeStore((state) => state.theme);
-  const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const setIsLogged = useAuthStore((state) => state.setIsLogged);
 
   // Use the language store
   const { language: currentLanguage, setLanguage } = useLanguageStore();
@@ -119,6 +120,7 @@ const SettingsScreen = () => {
           onPress: async () => {
             try {
               setIsLoading(true);
+              setIsLogged(false);
               await supabase.signOut();
               await signOutGoogle();
               reset();

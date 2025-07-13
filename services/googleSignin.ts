@@ -1,5 +1,6 @@
 // src/auth/googleSignIn.ts
 import * as supabase from "@/services/supabase";
+import { authStore } from "@/store/authStore";
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import {
   GoogleSignin,
@@ -41,6 +42,11 @@ export const signInWithGoogle =
       const userCredential = await auth().signInWithCredential(
         googleCredential
       );
+
+      setTimeout(() => {
+        authStore.getState().setIsLogged(true);
+      }, 50);
+
       return userCredential.user;
     } catch (error: any) {
       console.log("[ERROR] ", error);

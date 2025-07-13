@@ -22,6 +22,12 @@ const MainLayout = () => {
       <NotificationWrapper>
         <StatusBar />
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="games" />
+          <Stack.Screen name="groups" />
+          <Stack.Screen name="spell" />
+          <Stack.Screen name="word" />
+          <Stack.Screen name="search" />
           <Stack.Screen
             name="game-over"
             options={{

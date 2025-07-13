@@ -31,20 +31,20 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="history"
-        options={{
-          title: "",
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="timeline" size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="index"
         options={{
           title: "",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="home" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="timeline" size={28} color={color} />
           ),
         }}
       />
