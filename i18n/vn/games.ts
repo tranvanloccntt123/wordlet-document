@@ -107,6 +107,7 @@ const games = {
   othersGroupGameAlertTitle: "Chế Độ Thử Thách!",
   othersGroupGameAlertMessage:
     "Trò chơi này sẽ được tính điểm vào bảng xếp hạng của bạn. Chúc may mắn!",
+  quitGames: "Bạn có chắc chắn muốn rời khỏi màn hình này không?",
 };
 
 export default games;

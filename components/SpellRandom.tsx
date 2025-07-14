@@ -1,4 +1,4 @@
-import { getIPA } from "@/constants/Spell";
+import { getIPA } from "@/constants/RemoteConfig";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
 import {

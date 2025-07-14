@@ -1,7 +1,7 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader"; // Import the new CommonHeader
 import EditGroupModal from "@/components/EditGroupModal"; // Import the moved component
-import { GROUP_LIMIT } from "@/constants";
+import { getSericesConfig } from "@/constants/RemoteConfig";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { updateGroupInfo } from "@/services/groupServices";
 import { getOwnerGroup } from "@/services/supabase";
@@ -33,6 +33,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
+
+const GROUP_LIMIT = getSericesConfig().MAX_GROUPS;
 
 const GroupItem: React.FC<{
   groupId: number;

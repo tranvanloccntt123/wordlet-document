@@ -19,6 +19,7 @@ interface GameButtonsProps {
   primaryButtonText?: string; // Added to make primary button text configurable
   skipButtonText?: string;
   skipButtonTextColor?: string;
+  fontSize?: number;
 }
 
 // Moved createStyles up and cleaned it
@@ -69,6 +70,7 @@ const GameButtons: React.FC<GameButtonsProps> = ({
   skipButtonText,
   primaryButtonText = "Submit", // Default text for primary button
   skipButtonTextColor,
+  fontSize,
 }) => {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
@@ -77,40 +79,51 @@ const GameButtons: React.FC<GameButtonsProps> = ({
   return (
     <View style={styles.actionButtonsContainer}>
       {!hidePrimaryButton && (
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              styles.primaryButton,
+              { opacity: primaryButtonDisabled ? 0.5 : 1 },
+            ]}
+            onPress={onPrimaryPress}
+            disabled={primaryButtonDisabled}
+          >
+            <Text
+              style={[
+                styles.actionButtonText,
+                styles.primaryButtonText,
+                fontSize ? { fontSize } : undefined,
+              ]}
+            >
+              {primaryButtonText}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      <View style={{ flex: 1 }}>
         <TouchableOpacity
           style={[
             styles.actionButton,
-            styles.primaryButton,
-            { opacity: primaryButtonDisabled ? 0.5 : 1 },
+            styles.skipButton,
+            { opacity: skipButtonDisabled ? 0.5 : 1 },
           ]}
-          onPress={onPrimaryPress}
-          disabled={primaryButtonDisabled}
+          onPress={onSkipPress}
+          disabled={skipButtonDisabled}
         >
-          <Text style={[styles.actionButtonText, styles.primaryButtonText]}>
-            {primaryButtonText}
+          <Text
+            style={[
+              styles.actionButtonText,
+              skipButtonTextColor
+                ? { color: skipButtonTextColor }
+                : styles.skipButtonText,
+              fontSize ? { fontSize } : undefined,
+            ]}
+          >
+            {skipButtonText || t("common.skip")}
           </Text>
         </TouchableOpacity>
-      )}
-      <TouchableOpacity
-        style={[
-          styles.actionButton,
-          styles.skipButton,
-          { opacity: skipButtonDisabled ? 0.5 : 1 },
-        ]}
-        onPress={onSkipPress}
-        disabled={skipButtonDisabled}
-      >
-        <Text
-          style={[
-            styles.actionButtonText,
-            skipButtonTextColor
-              ? { color: skipButtonTextColor }
-              : styles.skipButtonText,
-          ]}
-        >
-          {skipButtonText || t("common.skip")}
-        </Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };

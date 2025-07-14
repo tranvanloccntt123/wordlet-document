@@ -1,5 +1,4 @@
 import AppAudio from "@/assets/audio";
-import CommonHeader from "@/components/CommonHeader";
 import GameButtons from "@/components/GameButtons";
 import GameLoading from "@/components/GameLoading";
 import GameProgressBar from "@/components/GameProgressBart";
@@ -27,7 +26,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
 
 // Define voice speed levels
@@ -150,160 +148,149 @@ const ChooseCorrectFromVoice = () => {
     <GameLoading
       gameType="TypeCorrectFromVoice"
       groupId={parseInt(groupId || "0")}
+      title={t("games.translationFromVoiceTitle")}
     >
       {!!shuffledWords?.length && (
-        <View
-          style={[styles.container, { backgroundColor: colors.background }]}
-        >
-          <SafeAreaView style={[styles.container]}>
-            <CommonHeader title={t("games.translationFromVoiceTitle")} />
-            <View style={[styles.safeArea]}>
-              <GameProgressBar
-                groupWords={shuffledWords}
-                currentWordIndex={currentIndex}
+        <View style={[styles.safeArea]}>
+          <GameProgressBar
+            groupWords={shuffledWords}
+            currentWordIndex={currentIndex}
+          />
+          <View style={styles.interactiveArea}>
+            <TouchableOpacity
+              onPress={handlePlaySound}
+              style={styles.playSoundButton}
+              disabled={isCorrect !== null}
+            >
+              <MaterialIcons
+                name="volume-up"
+                size={s(40)}
+                color={
+                  isCorrect !== null ? colors.textDisabled : colors.primary
+                }
               />
-              <View style={styles.interactiveArea}>
-                <TouchableOpacity
-                  onPress={handlePlaySound}
-                  style={styles.playSoundButton}
-                  disabled={isCorrect !== null}
-                >
-                  <MaterialIcons
-                    name="volume-up"
-                    size={s(40)}
-                    color={
-                      isCorrect !== null ? colors.textDisabled : colors.primary
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.instructionText,
-                      {
-                        color:
-                          isCorrect !== null
-                            ? colors.textDisabled
-                            : colors.textPrimary,
-                      },
-                    ]}
-                  >
-                    {t("games.tapToListenInstruction")}
-                  </Text>
-                </TouchableOpacity>
+              <Text
+                style={[
+                  styles.instructionText,
+                  {
+                    color:
+                      isCorrect !== null
+                        ? colors.textDisabled
+                        : colors.textPrimary,
+                  },
+                ]}
+              >
+                {t("games.tapToListenInstruction")}
+              </Text>
+            </TouchableOpacity>
 
-                <View style={styles.speedControlContainer}>
-                  {VOICE_SPEED_LEVELS.map((speed) => (
-                    <TouchableOpacity
-                      key={speed.level}
-                      style={[
-                        styles.speedButton,
-                        {
-                          backgroundColor:
-                            currentVoiceSpeed === speed.level
-                              ? colors.primary
-                              : colors.card,
-                          borderColor:
-                            currentVoiceSpeed === speed.level
-                              ? colors.primary
-                              : colors.border,
-                        },
-                        isCorrect !== null && styles.disabledSpeedButton, // Style for disabled state
-                      ]}
-                      onPress={() => setCurrentVoiceSpeed(speed.level)}
-                      disabled={isCorrect !== null}
-                    >
-                      <Text
-                        style={[
-                          styles.speedButtonText,
-                          {
-                            color:
-                              currentVoiceSpeed === speed.level
-                                ? colors.card
-                                : colors.textPrimary,
-                          },
-                          isCorrect !== null && { color: colors.textDisabled }, // Text color for disabled state
-                        ]}
-                      >
-                        {t(speed.labelKey as any)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <ParseContent
-                  content={currentWord?.content || ""}
-                  hideComponents={["1#"]}
-                />
-                <TextInput
+            <View style={styles.speedControlContainer}>
+              {VOICE_SPEED_LEVELS.map((speed) => (
+                <TouchableOpacity
+                  key={speed.level}
                   style={[
-                    styles.textInput,
+                    styles.speedButton,
                     {
-                      color: colors.textPrimary,
-                      backgroundColor: colors.card,
+                      backgroundColor:
+                        currentVoiceSpeed === speed.level
+                          ? colors.primary
+                          : colors.card,
                       borderColor:
-                        isCorrect === false
-                          ? colors.error
-                          : isCorrect === true
-                          ? colors.success
+                        currentVoiceSpeed === speed.level
+                          ? colors.primary
                           : colors.border,
                     },
+                    isCorrect !== null && styles.disabledSpeedButton, // Style for disabled state
                   ]}
-                  value={userInput}
-                  onChangeText={setUserInput}
-                  placeholder={t("games.typeWordPlaceholder")}
-                  placeholderTextColor={colors.textSecondary}
-                  onSubmitEditing={handleSubmitAnswer}
-                  editable={isCorrect === null}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  spellCheck={false}
-                />
-                <SuggestButton
-                  isCorrect={isCorrect}
-                  currentWord={currentWord}
-                />
-                {isCorrect !== null && currentWord && (
-                  <View style={styles.feedbackContainer}>
-                    <MaterialIcons
-                      name={isCorrect ? "check-circle" : "cancel"}
-                      size={s(24)}
-                      color={isCorrect ? colors.success : colors.error}
-                    />
-                    <Text
-                      style={[
-                        styles.feedbackResultText,
-                        { color: isCorrect ? colors.success : colors.error },
-                      ]}
-                    >
-                      {isCorrect ? t("games.correct") : t("games.tryAgain")}
-                    </Text>
-                  </View>
-                )}
-                {showAnswer && !isCorrect && currentWord && (
+                  onPress={() => setCurrentVoiceSpeed(speed.level)}
+                  disabled={isCorrect !== null}
+                >
                   <Text
                     style={[
-                      styles.correctAnswerText,
-                      { color: colors.textSecondary },
+                      styles.speedButtonText,
+                      {
+                        color:
+                          currentVoiceSpeed === speed.level
+                            ? colors.card
+                            : colors.textPrimary,
+                      },
+                      isCorrect !== null && { color: colors.textDisabled }, // Text color for disabled state
                     ]}
                   >
-                    {t("games.correctWordWas", { word: currentWord.word })}
+                    {t(speed.labelKey as any)}
                   </Text>
-                )}
-                <GameButtons
-                  primaryButtonText={t("games.submitButton")}
-                  primaryButtonDisabled={
-                    isCorrect !== null || userInput.trim() === ""
-                  }
-                  skipButtonDisabled={isCorrect !== null}
-                  onPrimaryPress={handleSubmitAnswer}
-                  onSkipPress={handleSkipPress}
-                />
-              </View>
-              <Text
-                style={[styles.progressText, { color: colors.textSecondary }]}
-              >
-                {progress}
-              </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-          </SafeAreaView>
+            <ParseContent
+              content={currentWord?.content || ""}
+              hideComponents={["1#"]}
+            />
+            <TextInput
+              style={[
+                styles.textInput,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.card,
+                  borderColor:
+                    isCorrect === false
+                      ? colors.error
+                      : isCorrect === true
+                      ? colors.success
+                      : colors.border,
+                },
+              ]}
+              value={userInput}
+              onChangeText={setUserInput}
+              placeholder={t("games.typeWordPlaceholder")}
+              placeholderTextColor={colors.textSecondary}
+              onSubmitEditing={handleSubmitAnswer}
+              editable={isCorrect === null}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+            />
+            <SuggestButton isCorrect={isCorrect} currentWord={currentWord} />
+            {isCorrect !== null && currentWord && (
+              <View style={styles.feedbackContainer}>
+                <MaterialIcons
+                  name={isCorrect ? "check-circle" : "cancel"}
+                  size={s(24)}
+                  color={isCorrect ? colors.success : colors.error}
+                />
+                <Text
+                  style={[
+                    styles.feedbackResultText,
+                    { color: isCorrect ? colors.success : colors.error },
+                  ]}
+                >
+                  {isCorrect ? t("games.correct") : t("games.tryAgain")}
+                </Text>
+              </View>
+            )}
+            {showAnswer && !isCorrect && currentWord && (
+              <Text
+                style={[
+                  styles.correctAnswerText,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {t("games.correctWordWas", { word: currentWord.word })}
+              </Text>
+            )}
+            <GameButtons
+              primaryButtonText={t("games.submitButton")}
+              primaryButtonDisabled={
+                isCorrect !== null || userInput.trim() === ""
+              }
+              skipButtonDisabled={isCorrect !== null}
+              onPrimaryPress={handleSubmitAnswer}
+              onSkipPress={handleSkipPress}
+            />
+          </View>
+          <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+            {progress}
+          </Text>
         </View>
       )}
     </GameLoading>

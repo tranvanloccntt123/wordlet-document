@@ -1,4 +1,3 @@
-import CommonHeader from "@/components/CommonHeader"; // Import CommonHeader
 import GameButtons from "@/components/GameButtons";
 import GameLoading from "@/components/GameLoading";
 import GameProgressBar from "@/components/GameProgressBart"; // Import GameProgressBar
@@ -16,7 +15,6 @@ import { useLocalSearchParams } from "expo-router"; // Import router and params
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ms, s, vs } from "react-native-size-matters";
 
 const SpeakAndCompareScreen = () => {
@@ -75,122 +73,124 @@ const SpeakAndCompareScreen = () => {
   };
 
   return (
-    <GameLoading gameType="SpeakAndCompare" groupId={parseInt(groupId || "0")}>
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
+    <GameLoading
+      gameType="SpeakAndCompare"
+      groupId={parseInt(groupId || "0")}
+      title={t("games.speakAndCompareTitle")}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <CommonHeader title={t("games.speakAndCompareTitle")} />
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.gameArea}>
-            {shuffledWords.length > 0 && currentWordDetail && (
-              <GameProgressBar
-                groupWords={shuffledWords}
-                currentWordIndex={currentIndex}
-              />
+        <View style={styles.gameArea}>
+          {shuffledWords.length > 0 && currentWordDetail && (
+            <GameProgressBar
+              groupWords={shuffledWords}
+              currentWordIndex={currentIndex}
+            />
+          )}
+          <Text
+            style={[
+              styles.instructionText,
+              { color: colors.textSecondary, marginTop: vs(15) },
+            ]}
+          >
+            {t("games.tapToSpeakInstruction")}
+          </Text>
+          <View
+            style={[
+              styles.suggestionBox,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
+            {feedback.length && spokenText !== "" ? (
+              <View style={{ flexDirection: "row" }}>
+                {spokenText !== "" &&
+                  feedback.map((item, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        styles.suggestedText,
+                        item.status === "correct"
+                          ? { color: colors.success }
+                          : item.status === "incorrect"
+                          ? { color: colors.error }
+                          : { color: colors.textPrimary },
+                      ]}
+                    >
+                      {item.char}
+                    </Text>
+                  ))}
+              </View>
+            ) : (
+              <Text
+                style={[styles.suggestedText, { color: colors.textPrimary }]}
+              >
+                {currentWordDetail?.word || t("games.loadingWord")}
+              </Text>
             )}
-            <Text
-              style={[
-                styles.instructionText,
-                { color: colors.textSecondary, marginTop: vs(15) },
-              ]}
-            >
-              {t("games.tapToSpeakInstruction")}
-            </Text>
-            <View
-              style={[
-                styles.suggestionBox,
-                { backgroundColor: colors.card, borderColor: colors.border },
-              ]}
-            >
-              {feedback.length && spokenText !== "" ? (
-                <View style={{ flexDirection: "row" }}>
-                  {spokenText !== "" &&
-                    feedback.map((item, index) => (
-                      <Text
-                        key={index}
-                        style={[
-                          styles.suggestedText,
-                          item.status === "correct"
-                            ? { color: colors.success }
-                            : item.status === "incorrect"
-                            ? { color: colors.error }
-                            : { color: colors.textPrimary },
-                        ]}
-                      >
-                        {item.char}
-                      </Text>
-                    ))}
-                </View>
-              ) : (
-                <Text
-                  style={[styles.suggestedText, { color: colors.textPrimary }]}
-                >
-                  {currentWordDetail?.word || t("games.loadingWord")}
-                </Text>
-              )}
 
-              <ParseContent content={currentWordDetail?.content || ""} />
-            </View>
+            <ParseContent content={currentWordDetail?.content || ""} />
           </View>
-          <View style={styles.interactiveArea}>
-            <View style={styles.feedbackSection}>
-              {isListening && !error && (
-                <Text
-                  style={[styles.statusText, { color: colors.textSecondary }]}
-                >
-                  {t("games.listeningStatus")}
-                </Text>
-              )}
-              {error && (
-                <Text style={[styles.errorText, { color: colors.error }]}>
-                  {error.includes("No speech was detected")
-                    ? t("games.noSound")
-                    : error}
-                </Text>
-              )}
-              {!isListening && !!spokenText && similarity !== null && (
-                <View style={styles.resultsContainer}>
-                  {similarity !== null && (
-                    <>
-                      <Text
-                        style={[
-                          styles.similarityText,
-                          {
-                            color:
-                              percent >= 75
-                                ? colors.success
-                                : percent >= 50
-                                ? colors.warning
-                                : colors.error,
-                          },
-                        ]}
-                      >
-                        {percent.toFixed(0)}%
-                      </Text>
-                    </>
-                  )}
-                </View>
-              )}
-            </View>
+        </View>
+        <View style={styles.interactiveArea}>
+          <View style={styles.feedbackSection}>
+            {isListening && !error && (
+              <Text
+                style={[styles.statusText, { color: colors.textSecondary }]}
+              >
+                {t("games.listeningStatus")}
+              </Text>
+            )}
+            {error && (
+              <Text style={[styles.errorText, { color: colors.error }]}>
+                {error.includes("No speech was detected")
+                  ? t("games.noSound")
+                  : error}
+              </Text>
+            )}
+            {!isListening && !!spokenText && similarity !== null && (
+              <View style={styles.resultsContainer}>
+                {similarity !== null && (
+                  <>
+                    <Text
+                      style={[
+                        styles.similarityText,
+                        {
+                          color:
+                            percent >= 75
+                              ? colors.success
+                              : percent >= 50
+                              ? colors.warning
+                              : colors.error,
+                        },
+                      ]}
+                    >
+                      {percent.toFixed(0)}%
+                    </Text>
+                  </>
+                )}
+              </View>
+            )}
           </View>
-          <GameButtons
-            skipButtonDisabled={isListening || isCalculating}
-            primaryButtonDisabled={isCalculating}
-            primaryButtonText={
-              isListening ? t("games.stopButton") : t("games.startButton")
-            }
-            onSkipPress={handleNextWord}
-            onPrimaryPress={
-              isListening
-                ? stopListening
-                : () => startListening(currentWordDetail?.word.replaceAll("-", " ") || "")
-            }
-          />
-        </ScrollView>
-      </SafeAreaView>
+        </View>
+        <GameButtons
+          skipButtonDisabled={isListening || isCalculating}
+          primaryButtonDisabled={isCalculating}
+          primaryButtonText={
+            isListening ? t("games.stopButton") : t("games.startButton")
+          }
+          onSkipPress={handleNextWord}
+          onPrimaryPress={
+            isListening
+              ? stopListening
+              : () =>
+                  startListening(
+                    currentWordDetail?.word.replaceAll("-", " ") || ""
+                  )
+          }
+        />
+      </ScrollView>
     </GameLoading>
   );
 };

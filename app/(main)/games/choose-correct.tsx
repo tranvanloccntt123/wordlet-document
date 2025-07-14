@@ -1,5 +1,4 @@
 import AppAudio from "@/assets/audio";
-import CommonHeader from "@/components/CommonHeader";
 import GameLoading from "@/components/GameLoading";
 import GameProgressBar from "@/components/GameProgressBart";
 import SingleChooseCorrectQuestion from "@/components/SingleChooseCorrectQuestion"; // Import the new component
@@ -12,7 +11,6 @@ import { useLocalSearchParams } from "expo-router"; // Import useRef
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet } from "react-native-size-matters";
 
 const MAX_OPTIONS = 4;
@@ -84,39 +82,32 @@ const ChooseCorrect = () => {
   });
 
   return (
-    <GameLoading groupId={groupId} gameType="ChooseCorrect">
+    <GameLoading
+      groupId={groupId}
+      gameType="ChooseCorrect"
+      title={t("games.wordFromTranslationTitle")}
+    >
       {!!group && (
-        <View
-          style={[styles.container, { backgroundColor: colors.background }]}
-        >
-          <SafeAreaView style={[styles.container]}>
-            <CommonHeader title={t("games.wordFromTranslationTitle")} />
-            <View style={styles.safeArea}>
-              <GameProgressBar
-                groupWords={group.words}
-                currentWordIndex={currentIndex}
-              />
-              <Text
-                style={[styles.progressText, { color: colors.textSecondary }]}
-              >
-                {progress}
-              </Text>
-              {questionText && currentWordDetail && answerOptions.length > 0 ? (
-                <SingleChooseCorrectQuestion
-                  question={questionText}
-                  options={answerOptions}
-                  correctAnswer={currentWordDetail.word}
-                  onAnswerPress={handleAnswerPress}
-                />
-              ) : (
-                <Text
-                  style={[styles.loadingText, { color: colors.textPrimary }]}
-                >
-                  {t("games.preparingQuestion")}
-                </Text>
-              )}
-            </View>
-          </SafeAreaView>
+        <View style={styles.safeArea}>
+          <GameProgressBar
+            groupWords={group.words}
+            currentWordIndex={currentIndex}
+          />
+          <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+            {progress}
+          </Text>
+          {questionText && currentWordDetail && answerOptions.length > 0 ? (
+            <SingleChooseCorrectQuestion
+              question={questionText}
+              options={answerOptions}
+              correctAnswer={currentWordDetail.word}
+              onAnswerPress={handleAnswerPress}
+            />
+          ) : (
+            <Text style={[styles.loadingText, { color: colors.textPrimary }]}>
+              {t("games.preparingQuestion")}
+            </Text>
+          )}
         </View>
       )}
     </GameLoading>

@@ -70,6 +70,15 @@ const NotificationWrapper: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   React.useEffect(() => {
+    // Handle notification when app is in foreground
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      console.log("MESSAGING: ", remoteMessage);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  React.useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         const url = response.notification.request.content.data.screen;
@@ -78,6 +87,11 @@ const NotificationWrapper: React.FC<{ children: React.ReactNode }> = ({
             pathname: url as never,
           });
         }
+      }
+    );
+    const notificationListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log("EXPO NOTIFICATIONS: ", notification);
       }
     );
     const unsubscribeBackground = messaging().onNotificationOpenedApp(
@@ -93,8 +107,27 @@ const NotificationWrapper: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     );
+
+    // Handle notification when app is opened from a quit state
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage?.data) {
+          const { data } = remoteMessage;
+          if (data) {
+            const url = data.screen;
+            if (url) {
+              router.navigate({
+                pathname: url as never,
+              });
+            }
+          }
+        }
+      });
+
     return () => {
       unsubscribeBackground();
+      notificationListener.remove();
       subscription.remove();
     };
   }, []);

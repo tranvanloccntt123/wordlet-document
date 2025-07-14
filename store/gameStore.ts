@@ -1,4 +1,4 @@
-import { getIPA } from "@/constants/Spell";
+import { getIPA } from "@/constants/RemoteConfig";
 import { getQueryData } from "@/hooks/useQuery";
 import * as Mixpanel from "@/services/mixpanel";
 import { fetchWordsByKeywordList } from "@/services/searchDb";

@@ -24,7 +24,6 @@ SplashScreen.preventAutoHideAsync();
 
 const AppProtected: React.FC = () => {
   const isLogged = useAuthStore((state) => state.isLogged);
-  const session = isLogged ? "authenticated" : null;
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* <Stack.Screen name="get-started" /> */}

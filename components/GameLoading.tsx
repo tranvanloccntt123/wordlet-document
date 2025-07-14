@@ -1,24 +1,34 @@
 import useGameStore from "@/store/gameStore";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
 import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
-  Alert,
   BackHandler,
+  Modal,
   Text,
   View,
 } from "react-native";
-import { ScaledSheet } from "react-native-size-matters";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { s, ScaledSheet } from "react-native-size-matters";
+import Rive from "rive-react-native";
+import CommonHeader from "./CommonHeader";
+import GameButtons from "./GameButtons";
 
 const GameLoading: React.FC<{
   children?: React.ReactNode;
   groupId?: number;
   gameType: GameType;
   ipaChar?: string;
-}> = ({ children, groupId, gameType, ipaChar }) => {
+  title?: string;
+}> = ({ children, groupId, gameType, ipaChar, title }) => {
   const { setPercent } = useSpellStore();
   const {
     isLoading,
@@ -36,6 +46,8 @@ const GameLoading: React.FC<{
   const { t } = useTranslation(); // Initialize useTranslation
   const router = useRouter();
   const navigation = useNavigation();
+  const [challengeVisible, setChallengeVisible] = React.useState(false);
+
   useEffect(() => {
     return () => {
       reset();
@@ -47,11 +59,7 @@ const GameLoading: React.FC<{
   }, [groupId, gameType]);
 
   useEffect(() => {
-    if (
-      !isLoading &&
-      currentIndex >= shuffledWords.length &&
-      !!user
-    ) {
+    if (!isLoading && currentIndex >= shuffledWords.length && !!user) {
       if (gameType === "SpeakAndCompareIPA") {
         setPercent(
           ipaChar || "",
@@ -79,24 +87,7 @@ const GameLoading: React.FC<{
 
   // Handle hardware back button (Android)
   const onBackPress = () => {
-    Alert.alert(
-      t("common.confirm"),
-      "Are you sure you want to leave this screen?",
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-          onPress: () => {}, // Stay on the screen
-        },
-        {
-          text: t("common.goBack"),
-          onPress: () => {
-            router.back(); // Proceed with back action
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    setChallengeVisible(true);
     return true; // Prevent default back action
   };
 
@@ -136,7 +127,47 @@ const GameLoading: React.FC<{
     );
   }
 
-  return !!children ? <View style={{ flex: 1 }}>{children}</View> : <></>;
+  return !!children ? (
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <CommonHeader
+          title={title || ""}
+          onBackPress={() => {
+            setChallengeVisible(true);
+          }}
+        />
+        {children}
+      </SafeAreaView>
+      <Modal visible={challengeVisible} transparent={true} animationType="fade">
+        <View style={[styles.alertModalContainer]}>
+          <View style={styles.alertContentContainer}>
+            <Rive
+              resourceName={"winner"}
+              style={{ width: s(200), height: s(200), alignSelf: "center" }}
+            />
+            <Text style={[styles.alertTitle]}>{t("common.confirm")}</Text>
+            <Text style={[styles.alertDescription]}>
+              {t("games.quitGames")}
+            </Text>
+            <GameButtons
+              primaryButtonText={t("common.goBack")}
+              skipButtonText={t("common.cancel")}
+              fontSize={s(15)}
+              onPrimaryPress={() => {
+                router.back(); // Proceed with back action
+                setChallengeVisible(false);
+              }}
+              onSkipPress={() => {
+                setChallengeVisible(false);
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
+    </View>
+  ) : (
+    <></>
+  );
 };
 
 export default GameLoading;
@@ -169,4 +200,47 @@ const styles = ScaledSheet.create({
     marginTop: "20@s",
   },
   buttonText: { fontSize: "16@s", fontWeight: "bold" },
+  lertContentContainer: {
+    backgroundColor: "white",
+    borderRadius: "16@s",
+    padding: "20@s",
+    width: "300@s",
+    gap: "8@s",
+  },
+  alertTitle: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack,
+      fontSizeKey: FontSizeKeys.subheading,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  alertDescription: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoRegular,
+      fontSizeKey: FontSizeKeys.caption,
+    }),
+    textAlign: "center",
+    color: "black",
+  },
+  // Use the getAppFontStyle utility for font styling
+  actionButtonText: {
+    ...getAppFontStyle({
+      fontFamily: FontFamilies.NunitoBlack, // Choose the base font family
+      fontSizeKey: FontSizeKeys.heading, // Choose the size key
+    }),
+  },
+  alertModalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alertContentContainer: {
+    backgroundColor: "white",
+    borderRadius: "16@s",
+    padding: "20@s",
+    width: "300@s",
+    gap: "8@s",
+  },
 });

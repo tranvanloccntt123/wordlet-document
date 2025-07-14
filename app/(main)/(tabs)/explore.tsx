@@ -22,6 +22,7 @@ import useFetchStore from "@/store/fetchStore";
 import useNotificationStore from "@/store/notificationStore";
 import useSpellStore from "@/store/spellStore";
 import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
@@ -203,6 +204,26 @@ const SettingsScreen = () => {
     }
   };
 
+  const handleTestNotification = async () => {
+    const payload = {
+      title: "Test",
+      body: "Test Notification",
+      data: {
+        word: "Test",
+        groupId: "0",
+        screen: `/word/${encodeURIComponent("extra_mtb_ev.db")}/test/detail`,
+      }, // Optional: useful for handling notification tap
+    };
+    await Notifications.scheduleNotificationAsync({
+      content: payload,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 15,
+        repeats: false, // Show once per word for this scheduling session
+      },
+    });
+  };
+
   const shareDB = async (db: string) => {
     Sharing.shareAsync(`${DB_DIR}/${db}`);
   };
@@ -361,6 +382,27 @@ const SettingsScreen = () => {
                   style={[styles.settingText, { color: colors.textPrimary }]}
                 >
                   Export DB (DEV)
+                </Text>
+                <View style={styles.placeholder} />
+              </TouchableOpacity>
+            )}
+
+            {/* Handle Test Notification */}
+            {__DEV__ && (
+              <TouchableOpacity
+                style={[styles.settingItem, { backgroundColor: colors.card }]}
+                onPress={handleTestNotification}
+              >
+                <MaterialIcons
+                  name="notifications" // Icon for export/download
+                  size={s(22)}
+                  color={colors.warning} // Use a distinct color for dev features
+                  style={styles.icon}
+                />
+                <Text
+                  style={[styles.settingText, { color: colors.textPrimary }]}
+                >
+                  Test Notifications
                 </Text>
                 <View style={styles.placeholder} />
               </TouchableOpacity>

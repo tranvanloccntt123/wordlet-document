@@ -1,4 +1,3 @@
-import CommonHeader from "@/components/CommonHeader";
 import GameLoading from "@/components/GameLoading";
 import GameProgressBar from "@/components/GameProgressBart";
 import SingleWordSortGame from "@/components/SingleWordSortGame";
@@ -9,7 +8,6 @@ import { useLocalSearchParams } from "expo-router";
 import React from "react"; // Added useRef
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { scale, ScaledSheet } from "react-native-size-matters";
 
 const SortCharactersGame = () => {
@@ -45,54 +43,42 @@ const SortCharactersGame = () => {
     <GameLoading
       gameType="SortCharacterGame"
       groupId={parseInt(groupId || "0")}
+      title={t("games.sortCharactersTitle")}
     >
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: colors.background }]}
-      >
-        <CommonHeader title={t("games.sortCharactersTitle")} />
-        <ScrollView style={styles.container}>
-          {/* Progress Bar */}
-          {shuffledWords.length > 0 && (
-            <GameProgressBar
-              groupWords={shuffledWords}
-              currentWordIndex={currentIndex}
+      <ScrollView style={styles.container}>
+        {/* Progress Bar */}
+        {shuffledWords.length > 0 && (
+          <GameProgressBar
+            groupWords={shuffledWords}
+            currentWordIndex={currentIndex}
+          />
+        )}
+        <Text
+          style={[
+            styles.prompt,
+            {
+              color: colors.textSecondary,
+              marginTop: currentWordDetail ? 0 : scale(20),
+            },
+          ]}
+        >
+          {t("games.sortPrompt")}
+        </Text>
+        {currentWordDetail ? (
+          <>
+            <SingleWordSortGame
+              key={currentWordDetail.word + currentWordDetail.source} // Ensure re-render on word change
+              wordDetail={currentWordDetail}
+              onCorrect={handleWordCorrect}
+              onSkip={advanceToNextWord} // Skip also advances to the next word
             />
-          )}
-          <Text
-            style={[
-              styles.prompt,
-              {
-                color: colors.textSecondary,
-                marginTop: currentWordDetail ? 0 : scale(20),
-              },
-            ]}
-          >
-            {t("games.sortPrompt")}
+          </>
+        ) : (
+          <Text style={{ color: colors.textDisabled, fontSize: scale(16) }}>
+            {t("games.loadingWord")}
           </Text>
-          {currentWordDetail ? (
-            <>
-              <SingleWordSortGame
-                key={currentWordDetail.word + currentWordDetail.source} // Ensure re-render on word change
-                wordDetail={currentWordDetail}
-                onCorrect={handleWordCorrect}
-                onSkip={advanceToNextWord} // Skip also advances to the next word
-              />
-            </>
-          ) : (
-            <Text style={{ color: colors.textDisabled, fontSize: scale(16) }}>
-              {t("games.loadingWord")}
-            </Text>
-          )}
-          {/* {shuffledWords.length > 0 && (
-            <Text style={[styles.progressText, { color: colors.textDisabled }]}>
-              {t("games.wordProgress", {
-                current: Math.min(currentIndex + 1, shuffledWords.length),
-                total: shuffledWords.length,
-              })}
-            </Text>
-          )} */}
-        </ScrollView>
-      </SafeAreaView>
+        )}
+      </ScrollView>
     </GameLoading>
   );
 };

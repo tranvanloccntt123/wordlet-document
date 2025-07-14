@@ -1,9 +1,10 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
-import { GROUP_LIMIT } from "@/constants";
+import { getSericesConfig } from "@/constants/RemoteConfig";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { createGroupInfo, updateGroupInfo } from "@/services/groupServices";
 import { fetchGroupDetail, getOwnerGroup } from "@/services/supabase";
+import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import { delay } from "@/utils";
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
@@ -24,6 +25,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, ms, s, vs } from "react-native-size-matters";
+
+const GROUP_LIMIT = getSericesConfig().MAX_GROUPS;
 
 const GroupItem: React.FC<{
   groupId: number;
@@ -81,6 +84,7 @@ const AddGroupScreen = () => {
       return [];
     },
   });
+  const userInfo = useInfoStore((state) => state.info);
   const params = useLocalSearchParams();
   const wordToAdd = React.useMemo(() => {
     if (typeof params.wordDetails === "string") {
@@ -140,7 +144,8 @@ const AddGroupScreen = () => {
 
   const styles = createStyles(colors);
 
-  const atGroupLimit = (groups?.length || 0) >= GROUP_LIMIT;
+  const atGroupLimit =
+    !userInfo?.is_premium && (groups?.length || 0) >= GROUP_LIMIT;
 
   const handleCreateGroupAndAddWord = async () => {
     if (atGroupLimit) {

@@ -13,7 +13,11 @@ export const clearOwnerGroupFetching = () => {
   ownerGroupFetching = null;
 };
 
-export const createGroup = async (name?: string, description?: string) => {
+export const createGroup = async (
+  name?: string,
+  description?: string,
+  serices_id?: number
+) => {
   try {
     const user = await getUsers();
     if (!user) {
@@ -22,7 +26,7 @@ export const createGroup = async (name?: string, description?: string) => {
     const response = await supabase!.functions.invoke(
       SUPABASE_FUNCTION.CREATE_GROUP,
       {
-        body: { user_id: user?.id, words: [], name, description },
+        body: { user_id: user?.id, words: [], name, description, serices_id },
       }
     );
 
@@ -158,7 +162,9 @@ export const fetchGroups = async (
     let query = supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
-      .select("id, name, created_at, words, is_boosted, user_id, is_publish, description")
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description"
+      )
       .eq("is_publish", true)
       .order("is_boosted", { ascending: false })
       .order("created_at", { ascending: false }) // Fetch newest first

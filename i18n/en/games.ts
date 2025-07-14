@@ -103,9 +103,12 @@ const games = {
   watchVideoPrompt:
     "Watch the video to learn how to pronounce this sound before starting the game!",
   myGroupGameAlertTitle: "Friendly Match!",
-  myGroupGameAlertMessage: "This is your own group's game. Scores won't be recorded on the leaderboard. Have fun practicing!",
+  myGroupGameAlertMessage:
+    "This is your own group's game. Scores won't be recorded on the leaderboard. Have fun practicing!",
   othersGroupGameAlertTitle: "Challenge Mode!",
-  othersGroupGameAlertMessage: "This game will count towards your leaderboard score. Good luck!",
+  othersGroupGameAlertMessage:
+    "This game will count towards your leaderboard score. Good luck!",
+  quitGames: "Are you sure you want to leave this screen?",
 };
 
 export default games;
