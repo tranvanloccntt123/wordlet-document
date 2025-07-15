@@ -17,6 +17,7 @@ interface Group {
   created_at: string;
   is_publish?: boolean;
   description?: string;
+  series_id?: number;
 }
 
 interface Series {
@@ -144,7 +145,7 @@ type NotificationDB = {
   title: string;
 };
 
-type Report = {
+type ReportGroup = {
   id: number;
   user_id: string;
   group_id: string;

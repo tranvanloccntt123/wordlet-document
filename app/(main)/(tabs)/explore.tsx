@@ -287,7 +287,7 @@ const SettingsScreen = () => {
               style={[styles.settingItem, { backgroundColor: colors.card }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.navigate("/groups");
+                router.navigate("/series");
               }}
             >
               <MaterialIcons
@@ -297,7 +297,7 @@ const SettingsScreen = () => {
                 style={styles.icon}
               />
               <Text style={[styles.settingText, { color: colors.textPrimary }]}>
-                {t("settings.groupManager")}
+                {t("common.series")}
               </Text>
               <View style={styles.placeholder} />
             </TouchableOpacity>

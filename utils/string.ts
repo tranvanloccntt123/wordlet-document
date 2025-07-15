@@ -135,7 +135,7 @@ export const getFormattedDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const getOwnerGroupKey = () => `OWNER_GROUP`;
+export const getOwnerGroupKey = (serieId?: number) => `OWNER_GROUP_${serieId}`;
 
 export const getGroupKey = (groupId: number): string => `GROUP_${groupId}`;
 
@@ -149,3 +149,7 @@ export const getTop100PlayersKey = (): string => `TOP_100_PLAYERS`;
 
 export const getReportOnGroupKey = (groupId: number): string =>
   `REPORT_GROUP_${groupId}`;
+
+export const getOwnerSeriesKey = () => `OWNER_SERIES`;
+
+export const getSerieDetailKey = (seriesId: number) => `SERIES_${seriesId}`;

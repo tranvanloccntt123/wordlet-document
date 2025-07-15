@@ -1,5 +1,5 @@
 const groups = {
-  title: "Groups",
+  title: "{{serieName}} Groups",
   createGroup: "Create Group",
   joinGroup: "Join Group",
   noGroups: "No groups yet!",

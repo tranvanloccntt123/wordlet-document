@@ -28,12 +28,16 @@ export const syncOwnerGroup = async () => {
   }
 };
 
-export const createGroupInfo = async (name?: string, description?: string) => {
+export const createGroupInfo = async (
+  name?: string,
+  description?: string,
+  serieId?: number
+) => {
   try {
-    const { data, error } = await createGroup(name, description);
+    const { data, error } = await createGroup(name, description, serieId);
     if (!error && data?.data?.[0]) {
       setQueryData<Group>(getGroupKey(data.data[0].id as number), data.data[0]);
-      setQueryData<number[]>(getOwnerGroupKey(), (oldData) => {
+      setQueryData<number[]>(getOwnerGroupKey(serieId), (oldData) => {
         if (!oldData) {
           return [data.data[0].id];
         }
@@ -47,10 +51,10 @@ export const createGroupInfo = async (name?: string, description?: string) => {
   }
 };
 
-export const deleteGroupInfo = async (groupId: number) => {
+export const deleteGroupInfo = async (groupId: number, serieId?: number) => {
   try {
     await deleteGroup(groupId);
-    setQueryData<number[]>(getOwnerGroupKey(), (oldData) => {
+    setQueryData<number[]>(getOwnerGroupKey(serieId), (oldData) => {
       if (!oldData) {
         return oldData;
       }

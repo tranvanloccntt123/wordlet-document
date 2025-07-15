@@ -1,7 +1,7 @@
 import EditNameAndDescriptionForm from "@/components/EditNameAndDescriptionForm";
-import useQuery from "@/hooks/useQuery";
-import { updateGroupInfo } from "@/services/groupServices";
-import { getGroupKey } from "@/utils/string";
+import useQuery, { setQueryData } from "@/hooks/useQuery";
+import { updateOwnerSeries } from "@/services/supabase";
+import { getSerieDetailKey } from "@/utils/string";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -11,11 +11,11 @@ const EditGroup: React.FC = () => {
   const params = useLocalSearchParams<{
     x: string;
     y: string;
-    groupId?: string;
-    groupName?: string;
+    serieId?: string;
+    serieName?: string;
   }>();
   const { data: item } = useQuery({
-    key: getGroupKey(parseInt(params.groupId || "0")),
+    key: getSerieDetailKey(parseInt(params.serieId || "0")),
   });
 
   return (
@@ -24,15 +24,18 @@ const EditGroup: React.FC = () => {
       initDescription={item?.description || ""}
       title={t("groups.editGroupTitle")}
       onSubmit={async function (name: string, description: string) {
-        await updateGroupInfo(parseInt(params.groupId || "0"), (oldData) =>
-          !oldData
-            ? oldData
-            : {
-                ...oldData,
-                name: name,
-                description: description,
-              }
-        );
+        try {
+          const response = await updateOwnerSeries({
+            ...item,
+            id: parseInt(params.serieId || "0"),
+            name,
+            description,
+          });
+          setQueryData(
+            getSerieDetailKey(parseInt(params.serieId || "0")),
+            response.data
+          );
+        } catch {}
       }}
     />
   );

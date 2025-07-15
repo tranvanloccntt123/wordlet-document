@@ -16,7 +16,7 @@ export const clearOwnerGroupFetching = () => {
 export const createGroup = async (
   name?: string,
   description?: string,
-  serices_id?: number
+  series_id?: number
 ) => {
   try {
     const user = await getUsers();
@@ -26,7 +26,7 @@ export const createGroup = async (
     const response = await supabase!.functions.invoke(
       SUPABASE_FUNCTION.CREATE_GROUP,
       {
-        body: { user_id: user?.id, words: [], name, description, serices_id },
+        body: { user_id: user?.id, words: [], name, description, series_id },
       }
     );
 
@@ -50,26 +50,30 @@ export const deleteGroup = async (groupId: number) => {
   }
 };
 
-const fetchOwnerGroup = async () => {
+const fetchOwnerGroup = async (serieId?: number) => {
   const user = await getUsers();
   if (!user) {
     throw "User not found";
   }
-  const response = await supabase!
+  const query = supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.GROUP)
     .select("*")
     .eq("user_id", user?.id)
     .eq("is_deleted", false);
+  if (serieId) {
+    const response = query.eq("series_id", serieId);
+    return response;
+  }
+  const response = await query;
   return response;
 };
 
-export const getOwnerGroup = async () => {
+export const getOwnerGroup = async (serieId?: number) => {
   try {
-    if (!ownerGroupFetching) {
-      ownerGroupFetching = fetchOwnerGroup();
-    }
-    const response: PostgrestSingleResponse<Group[]> = await ownerGroupFetching;
+    const response: PostgrestSingleResponse<Group[]> = await fetchOwnerGroup(
+      serieId
+    );
     clearOwnerGroupFetching();
     return response;
   } catch (e) {

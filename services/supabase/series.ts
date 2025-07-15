@@ -40,7 +40,7 @@ export const insertOwnerSeries = async (
     if (!user) {
       throw "User not found";
     }
-    const response = await supabase!
+    const response: PostgrestSingleResponse<Series> = await supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.SERIES)
       .insert({ ...serie, user_id: user?.id })
@@ -72,6 +72,14 @@ export const updateOwnerSeries = async (serie: Series) => {
   } catch (e) {
     throw e;
   }
+};
+
+export const deleteOwnerSeries = async (serieId: number) => {
+  await supabase!
+    .schema(SUPABASE_SCHEMA)
+    .from(SUPABASE_TABLE.SERIES)
+    .delete()
+    .eq("id", serieId);
 };
 
 export const getSerieDetail = async (serieId: number) => {

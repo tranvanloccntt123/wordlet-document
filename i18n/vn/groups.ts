@@ -1,5 +1,5 @@
 const groups = {
-  title: "Nhóm",
+  title: "Nhóm {{serieName}}",
   createGroup: "Tạo Nhóm",
   joinGroup: "Tham Gia Nhóm",
   noGroups: "Chưa có nhóm nào!",

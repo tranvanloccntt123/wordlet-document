@@ -7,7 +7,7 @@ export const getOwnerReportOnGroup = async (groupId: number) => {
   if (!user) {
     throw "User not found";
   }
-  const response: PostgrestSingleResponse<Report> = await supabase!
+  const response: PostgrestSingleResponse<ReportGroup> = await supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.REPORT)
     .select("*")

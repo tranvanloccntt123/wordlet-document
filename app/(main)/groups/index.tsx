@@ -1,20 +1,14 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader"; // Import the new CommonHeader
-import EditGroupModal from "@/components/EditGroupModal"; // Import the moved component
 import { getSericesConfig } from "@/constants/RemoteConfig";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import { updateGroupInfo } from "@/services/groupServices";
 import { getOwnerGroup } from "@/services/supabase";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore"; // Import theme store
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { router, useFocusEffect } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -38,11 +32,10 @@ const GROUP_LIMIT = getSericesConfig().MAX_GROUPS;
 
 const GroupItem: React.FC<{
   groupId: number;
-  onOpenEdit: (item: Group) => void;
-}> = ({ groupId, onOpenEdit }) => {
+}> = ({ groupId }) => {
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
 
-  const { data: item } = useQuery({
+  const { data: item } = useQuery<Group>({
     key: getGroupKey(groupId),
   });
 
@@ -86,6 +79,7 @@ const GroupItem: React.FC<{
           x: `${event.absoluteX || 0}`,
           y: `${event.absoluteY || 0}`,
           groupName: item?.name,
+          serieId: item?.series_id ? `${item?.series_id}` : undefined,
         },
       });
     })
@@ -130,10 +124,18 @@ const GroupItem: React.FC<{
 };
 
 const GroupManagementScreen = () => {
+  const params = useLocalSearchParams<{
+    serieId?: string;
+    serieName?: string;
+  }>();
   const { data: groups, isLoading: isFetchGroupLoading } = useQuery<number[]>({
-    key: getOwnerGroupKey(),
+    key: getOwnerGroupKey(
+      params?.serieId ? parseInt(params.serieId || "0") : undefined
+    ),
     async queryFn() {
-      const { error, data } = await getOwnerGroup();
+      const { error, data } = await getOwnerGroup(
+        params?.serieId ? parseInt(params.serieId || "0") : undefined
+      );
       if (!error && !!data) {
         data.map((group) => setQueryData(getGroupKey(group.id), group));
         return data.map((v) => v.id);
@@ -141,13 +143,10 @@ const GroupManagementScreen = () => {
       return [];
     },
   });
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
   const userInfo = useInfoStore((state) => state.info);
   const { colors } = useThemeStore(); // Use theme colors
   const { t } = useTranslation(); // Initialize useTranslation for the 'groups' namespace
-  const [currentEditingGroup, setCurrentEditingGroup] = useState<Group | null>(
-    null
-  );
+
   const addAnim = useSharedValue(0);
   const atGroupLimit =
     !userInfo?.is_premium && (groups?.length || 0) >= GROUP_LIMIT;
@@ -164,35 +163,13 @@ const GroupManagementScreen = () => {
     }
     addAnim.value = withTiming(1, { duration: 500 });
     setTimeout(() => {
-      router.push("/groups/add");
+      router.push({
+        pathname: "/groups/add",
+        params: {
+          serieId: params.serieId,
+        },
+      });
     }, 600);
-    // setIsLoading(true); // Keep loading indicator for the createGroup async operation
-    // try {
-    //   await createGroupInfo(); // This will internally check the limit again if you modify createGroup store logic
-    // } catch (e) {}
-    // setIsLoading(false); // Stop loading indicator
-  };
-
-  const openEditModal = (group: Group) => {
-    setCurrentEditingGroup(group);
-    bottomSheetRef.current?.expand();
-  };
-
-  const closeEditModal = () => {
-    bottomSheetRef.current?.close();
-    setCurrentEditingGroup(null);
-  };
-
-  const handleSaveGroupName = async (groupId: number, newName: string) => {
-    bottomSheetRef.current?.close();
-    await updateGroupInfo(groupId, (oldData) =>
-      !oldData
-        ? oldData
-        : {
-            ...oldData,
-            name: newName,
-          }
-    );
   };
 
   useFocusEffect(
@@ -224,7 +201,7 @@ const GroupManagementScreen = () => {
         <SafeAreaView
           style={[styles.container, { backgroundColor: colors.background }]}
         >
-          <CommonHeader title={t("groups.title")} />
+          <CommonHeader title={params.serieName || t("groups.title")} />
           {atGroupLimit && (
             <View
               style={[
@@ -259,14 +236,7 @@ const GroupManagementScreen = () => {
           <FlatList
             data={groups}
             keyExtractor={(item) => `${item}`}
-            renderItem={({ item }) => (
-              <GroupItem
-                groupId={item}
-                onOpenEdit={(item) => {
-                  openEditModal(item);
-                }}
-              />
-            )}
+            renderItem={({ item }) => <GroupItem groupId={item} />}
             contentContainerStyle={styles.listContentContainer}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
@@ -314,27 +284,6 @@ const GroupManagementScreen = () => {
               </Animated.View>
             </TouchableOpacity>
           </Animated.View>
-          <BottomSheet
-            index={-1}
-            ref={bottomSheetRef}
-            snapPoints={["25%"]}
-            enableDynamicSizing={true}
-            backdropComponent={BottomSheetBackdrop}
-            keyboardBehavior="interactive"
-            keyboardBlurBehavior="restore"
-            backgroundStyle={{
-              backgroundColor: colors.card,
-            }}
-          >
-            <BottomSheetView style={{ paddingHorizontal: s(20) }}>
-              <EditGroupModal
-                onClose={closeEditModal}
-                group={currentEditingGroup}
-                onSave={handleSaveGroupName}
-                colors={colors}
-              />
-            </BottomSheetView>
-          </BottomSheet>
         </SafeAreaView>
       </View>
     </AppLoading>

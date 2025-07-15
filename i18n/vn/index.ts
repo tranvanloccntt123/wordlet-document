@@ -7,6 +7,7 @@ import home from "./home";
 import leaderboard from "./leaderboard";
 import login from "./login";
 import search from "./search";
+import series from "./series";
 import settings from "./settings";
 
 export default {
@@ -21,5 +22,6 @@ export default {
     history,
     leaderboard,
     login,
+    series,
   },
 };

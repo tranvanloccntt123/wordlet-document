@@ -20,19 +20,20 @@ const useQuery = <T = any>({
   gcTime?: number;
 }) => {
   const fetch = useFetchStore((state) => state.fetch);
-  const { data, isError, isLoading, isRefreshing, error, lastFetch } =
-    useFetchStore((state) =>
-      state.fetchData[key]
-        ? state.fetchData[key]
-        : {
-            isLoading: true,
-            isRefreshing: false,
-            data: null,
-            isError: false,
-            error: null,
-            lastFetch: null,
-          }
-    );
+  const data = useFetchStore((state) => state.fetchData?.[key]?.data ?? null);
+  const isError = useFetchStore(
+    (state) => state.fetchData?.[key]?.isError ?? false
+  );
+  const isLoading = useFetchStore(
+    (state) => state.fetchData?.[key]?.isLoading ?? false
+  );
+  const isRefreshing = useFetchStore(
+    (state) => state.fetchData?.[key]?.isRefreshing ?? false
+  );
+  const error = useFetchStore((state) => state.fetchData?.[key]?.error ?? null);
+  const lastFetch = useFetchStore(
+    (state) => state.fetchData?.[key]?.lastFetch ?? null
+  );
 
   const fetchData = async () => {
     if (
