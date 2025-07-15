@@ -15,6 +15,8 @@ import { SQLiteProvider } from "expo-sqlite";
 import React, { Suspense } from "react";
 import { I18nextProvider } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Toast from "react-native-toast-message";
+
 // Register background handler
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   console.log("Message handled in the background!", remoteMessage);
@@ -62,6 +64,7 @@ export default function RootLayout() {
               <SwapThemeWrapper>
                 <I18nextProvider i18n={i18next}>
                   <AppProtected />
+                  <Toast />
                 </I18nextProvider>
               </SwapThemeWrapper>
             </BottomSheetModalProvider>

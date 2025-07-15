@@ -16,6 +16,8 @@ export const SUPABASE_TABLE = {
   PLAYER_RANK: "player_ranks",
   PROFILE: "profiles",
   VOWEL_PERCENT: "vowel_percent",
+  SERIES: "series",
+  REPORT: "report",
 };
 
 export const SUPABASE_FUNCTION = {

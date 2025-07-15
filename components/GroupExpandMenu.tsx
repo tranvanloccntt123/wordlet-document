@@ -1,6 +1,10 @@
 import { TIME_LIMIT_MS } from "@/constants";
-import { setQueryData } from "@/hooks/useQuery";
+import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { publishGroup, publishRevertGroup } from "@/services/supabase";
+import {
+  getOwnerReportOnGroup,
+  inserReportOnGroup,
+} from "@/services/supabase/report";
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
@@ -9,17 +13,25 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
-import { getGroupKey } from "@/utils/string";
+import { getGroupKey, getReportOnGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 import { s, ScaledSheet } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
   group,
   onClose,
 }) => {
+  const { data: reportData, isLoading } = useQuery({
+    key: getReportOnGroupKey(group?.id || 0),
+    async queryFn() {
+      const response = await getOwnerReportOnGroup(group?.id || 0);
+      return response.data;
+    },
+  });
   const info = useInfoStore((state) => state.info);
   const colors = useThemeStore((state) => state.colors);
   const { setVisibleCountDownModal, lastUpdate, setLastUpdate } =
@@ -89,14 +101,36 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
       {info?.user_id !== group?.user_id && (
         <TouchableOpacity
           style={styles.modalItem}
+          disabled={!!reportData || isLoading}
           onPress={() => {
             // Handle Report
+            inserReportOnGroup("Report", group?.id || 0).then((r) => {
+              if (r.data) {
+                setQueryData(getReportOnGroupKey(group?.id || 0), r.data);
+                Toast.show({
+                  type: "error",
+                  text1: t("groups.reportBtnTxt"),
+                  text2: t("groups.reportSuccess"),
+                });
+              }
+            });
             onClose();
           }}
         >
-          <MaterialIcons name="report" size={s(22)} color={colors.error} />
-          <Text style={[styles.modalItemText, { color: colors.error }]}>
-            Report Group
+          <MaterialIcons
+            name="report"
+            size={s(22)}
+            color={!!reportData ? colors.textDisabled : colors.error}
+          />
+          <Text
+            style={[
+              styles.modalItemText,
+              { color: !!reportData ? colors.textDisabled : colors.error },
+            ]}
+          >
+            {!!reportData
+              ? t("groups.reportSuccess")
+              : t("groups.reportBtnTxt")}
           </Text>
         </TouchableOpacity>
       )}

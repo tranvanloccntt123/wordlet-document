@@ -19,6 +19,14 @@ interface Group {
   description?: string;
 }
 
+interface Series {
+  id: number;
+  name: string;
+  description: string;
+  user_id: string;
+  is_boosted: boolean;
+}
+
 /**
  * Represents the type of item being stored as a notification.
  * Can be a simple string, or a more complex object.
@@ -134,4 +142,12 @@ type NotificationDB = {
   created_at: string;
   content: string;
   title: string;
+};
+
+type Report = {
+  id: number;
+  user_id: string;
+  group_id: string;
+  description: string;
+  created_at: string;
 };

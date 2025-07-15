@@ -60,7 +60,7 @@ const GroupItem: React.FC<{
       params: { groupId, groupName },
     });
     // You might navigate here, e.g.:
-    // router.push(`/games/sort?groupId=${groupId}`); // Example navigation
+    // router.push(`/games/sort           `?groupId=${groupId}`); // Example navigation
   };
 
   const editTab = Gesture.Tap()

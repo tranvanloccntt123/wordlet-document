@@ -72,6 +72,5 @@ export const signInWithGoogle = async (token: string) => {
   if (response.data.user) {
     cachedUser = response.data.user;
   }
-  console.log("SIGN IN GOOGLE");
   signInUser = null;
 };

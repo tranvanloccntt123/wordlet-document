@@ -32,6 +32,7 @@ const common = {
   published: "Published",
   pending: "Pending",
   confirm: "Confirm",
+  series: "Series",
 };
 
 export default common;

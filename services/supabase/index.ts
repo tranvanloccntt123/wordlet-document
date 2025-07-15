@@ -2,6 +2,8 @@ export * from "./client";
 export * from "./energy";
 export * from "./group";
 export * from "./leaderBoard";
+export * from "./report";
+export * from "./series";
 export * from "./signOut";
 export * from "./user";
 export * from "./vowel";

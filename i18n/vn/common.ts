@@ -32,6 +32,7 @@ const common = {
   published: "Đã xuất bản",
   pending: "Đang chờ",
   confirm: "Xác nhận",
+  series: "Danh sách",
 };
 
 export default common;

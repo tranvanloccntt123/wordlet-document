@@ -146,3 +146,6 @@ export const getWordKey = (key: string): string => `WORD_${key}`;
 export const getCurrentRankKey = (): string => `CURRENT_RANK`;
 
 export const getTop100PlayersKey = (): string => `TOP_100_PLAYERS`;
+
+export const getReportOnGroupKey = (groupId: number): string =>
+  `REPORT_GROUP_${groupId}`;
