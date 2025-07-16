@@ -38,8 +38,6 @@ export default function LoginScreen() {
         mixpanel.track("Sign In Error", error);
         Alert.alert("Error", "An unexpected error occurred during sign-in.");
         setIsErrorVisible(true);
-      } else {
-        setIsErrorVisible(true);
       }
     } finally {
       setIsLoading(false);
