@@ -297,7 +297,7 @@ export default function SelectGameScreen() {
                   <View
                     style={[
                       styles.emptyWordsContainer,
-                      { backgroundColor: colors.card },
+                      { backgroundColor: colors.card, marginTop: s(10) },
                     ]}
                   >
                     <View style={styles.emptyWordsContent}>
