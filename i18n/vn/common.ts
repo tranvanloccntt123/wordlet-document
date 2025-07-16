@@ -33,6 +33,7 @@ const common = {
   pending: "Đang chờ",
   confirm: "Xác nhận",
   series: "Danh sách",
+  retry: "Thử lại",
 };
 
 export default common;

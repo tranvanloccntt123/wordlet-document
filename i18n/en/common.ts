@@ -33,6 +33,7 @@ const common = {
   pending: "Pending",
   confirm: "Confirm",
   series: "Series",
+  retry: "retry",
 };
 
 export default common;

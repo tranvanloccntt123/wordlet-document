@@ -28,9 +28,14 @@ export const signInWithGoogle =
 
       // Get the user details from Google Sign-In
       const googleSignInUser = await GoogleSignin.signIn();
+      if (googleSignInUser.type === "cancelled") {
+        throw { code: "cancelled" };
+      }
       const idToken = googleSignInUser.data?.idToken; // Destructure from the explicitly typed object
       if (!idToken) {
-        throw new Error("Google Sign-In failed to return an ID token.");
+        throw {
+          code: "Google Sign-In failed to return an ID token.",
+        };
       }
 
       // Create a Google credential with the token
@@ -49,27 +54,21 @@ export const signInWithGoogle =
 
       return userCredential.user;
     } catch (error: any) {
-      console.log("[ERROR] ", error);
       // It's common to type 'error' as 'any' in catch blocks, or use a more specific type if known
       const gError = error as NativeModuleError; // Cast to NativeModuleError for status codes
       if (gError.code === String(statusCodes.SIGN_IN_CANCELLED)) {
+        throw { code: "cancelled" };
         // user cancelled the login flow
       } else if (gError.code === String(statusCodes.IN_PROGRESS)) {
         // operation (e.g. sign in) is in progress already
+        throw { code: "in progress" };
       } else if (
         gError.code === String(statusCodes.PLAY_SERVICES_NOT_AVAILABLE)
       ) {
         // play services not available or outdated
-      } else {
-        // some other error happened
-        console.error(
-          "Google Sign-In Error:",
-          gError.code,
-          gError.message,
-          gError
-        );
+        throw { code: "service not available" };
       }
-      return null;
+      throw error;
     }
   };
 
