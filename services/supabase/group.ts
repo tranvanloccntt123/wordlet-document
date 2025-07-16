@@ -167,7 +167,7 @@ export const fetchGroups = async (
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
       .select(
-        "id, name, created_at, words, is_boosted, user_id, is_publish, description"
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id"
       )
       .eq("is_publish", true)
       .order("is_boosted", { ascending: false })
@@ -176,6 +176,24 @@ export const fetchGroups = async (
     if (lastCreatedAt) {
       query = query.lt("created_at", lastCreatedAt); // Fetch records older than the lastCreatedAt
     }
+    return query;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const fetchGroupsInSerie = async (serieId: number) => {
+  try {
+    let query = supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.GROUP)
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id"
+      )
+      .eq("is_publish", true)
+      .eq("series_id", serieId)
+      .order("is_boosted", { ascending: false })
+      .order("created_at", { ascending: false }); // Fetch newest first
     return query;
   } catch (e) {
     throw e;

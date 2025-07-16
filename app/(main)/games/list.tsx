@@ -4,6 +4,7 @@ import CommonHeader from "@/components/CommonHeader";
 import CountdownModal from "@/components/CountdownModal";
 import GroupExpandMenu from "@/components/GroupExpandMenu";
 import ListWordInOrder from "@/components/ListWordInOrder";
+import RecentGroups from "@/components/RecentGroups";
 import { TIME_LIMIT_MS } from "@/constants";
 import useQuery from "@/hooks/useQuery";
 import { fetchGroupDetail } from "@/services/supabase";
@@ -436,6 +437,13 @@ export default function SelectGameScreen() {
             );
           }}
           contentContainerStyle={styles.listContentContainer}
+          ListFooterComponent={
+            <>
+              {!!group?.series_id && (
+                <RecentGroups groupId={group.id} serieId={group.series_id} />
+              )}
+            </>
+          }
         />
         <BottomSheet
           index={-1}

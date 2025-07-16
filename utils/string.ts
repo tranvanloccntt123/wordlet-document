@@ -153,3 +153,6 @@ export const getReportOnGroupKey = (groupId: number): string =>
 export const getOwnerSeriesKey = () => `OWNER_SERIES`;
 
 export const getSerieDetailKey = (seriesId: number) => `SERIES_${seriesId}`;
+
+export const getGroupsInSeries = (seriesId: number) =>
+  `SERIES_GROUP_${seriesId}`;

@@ -128,7 +128,7 @@ const GameLoading: React.FC<{
   }
 
   return !!children ? (
-    <View style={{ flex: 1 }}>
+    <View style={[{ flex: 1 }, { backgroundColor: colors.background }]}>
       <SafeAreaView style={{ flex: 1 }}>
         <CommonHeader
           title={title || ""}
