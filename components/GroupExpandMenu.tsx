@@ -72,7 +72,17 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
               onClose();
             }}
           >
-            <View style={[styles.modalItem]}>
+            <View
+              style={[
+                styles.modalItem,
+                {
+                  opacity:
+                    !group.is_publish && (group?.words?.length || 0) < 10
+                      ? 0.5
+                      : 1,
+                },
+              ]}
+            >
               <MaterialIcons
                 name={group.is_publish ? "unpublished" : "publish"}
                 size={s(22)}

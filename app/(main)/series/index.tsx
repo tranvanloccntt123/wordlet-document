@@ -150,7 +150,7 @@ const MySeries = () => {
 
   return (
     <AppLoading isLoading={isLoading}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <SafeAreaView style={styles.container}>
           <CommonHeader title={t("series.series")} />
           <FlatList
