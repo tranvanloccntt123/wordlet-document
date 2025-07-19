@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwordlet_doc=self.webpackChunkwordlet_doc||[]).push([[1903],{1912:o=>{o.exports=JSON.parse('{"blogBasePath":"/wordlet-document/blog","blogTitle":"Blog","authorsListPath":"/wordlet-document/blog/authors"}')}}]);
