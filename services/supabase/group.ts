@@ -55,17 +55,19 @@ const fetchOwnerGroup = async (serieId?: number) => {
   if (!user) {
     throw "User not found";
   }
-  const query = supabase!
+  const query: any = supabase!
     .schema(SUPABASE_SCHEMA)
     .from(SUPABASE_TABLE.GROUP)
-    .select("*")
+    .select(
+      "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
+    )
     .eq("user_id", user?.id)
     .eq("is_deleted", false);
   if (serieId) {
     const response = query.eq("series_id", serieId);
     return response;
   }
-  const response = await query;
+  const response: PostgrestSingleResponse<Group[]> = await query;
   return response;
 };
 
@@ -86,7 +88,9 @@ export const fetchGroupDetail = async (groupId: number) => {
     const response: PostgrestSingleResponse<Group> = await supabase!
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
-      .select("*")
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
+      )
       .eq("id", groupId)
       .single();
 
@@ -108,7 +112,9 @@ export const updateGroup = async (group: Group) => {
         description: group.description,
       })
       .eq("id", group.id)
-      .select()
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
+      )
       .single();
     if (error) {
       console.log(error);
@@ -127,7 +133,9 @@ export const publishGroup = async (groupId: number) => {
       .from(SUPABASE_TABLE.GROUP)
       .update({ is_publish: true })
       .eq("id", groupId)
-      .select()
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
+      )
       .single();
     if (error) {
       console.log(error);
@@ -146,7 +154,9 @@ export const publishRevertGroup = async (groupId: number) => {
       .from(SUPABASE_TABLE.GROUP)
       .update({ is_publish: false })
       .eq("id", groupId)
-      .select()
+      .select(
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
+      )
       .single();
     if (error) {
       console.log(error);
@@ -167,7 +177,7 @@ export const fetchGroups = async (
       .schema(SUPABASE_SCHEMA)
       .from(SUPABASE_TABLE.GROUP)
       .select(
-        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id"
+        "id, name, created_at, words, is_boosted, user_id, is_publish, description, series_id, series(*)"
       )
       .eq("is_publish", true)
       .order("is_boosted", { ascending: false })

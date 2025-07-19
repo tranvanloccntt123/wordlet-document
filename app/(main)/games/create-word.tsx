@@ -1,3 +1,4 @@
+import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
 import { updateGroupInfo } from "@/services/groupServices";
 import { convert } from "@/services/ipa";
@@ -46,6 +47,7 @@ export default function CreateWordScreen() {
   const [word, setWord] = useState("");
   const [wordType, setWordType] = useState<string>(WORD_TYPES[0].value);
   const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const handleSaveWord = async () => {
     if (!groupId) {
@@ -61,6 +63,8 @@ export default function CreateWordScreen() {
       Alert.alert(t("common.error"), t("games.addContentEmptyError"));
       return;
     }
+
+    setIsLoading(true);
 
     const spell = convert(word);
 
@@ -82,6 +86,8 @@ export default function CreateWordScreen() {
       };
     });
 
+    setIsLoading(false);
+
     Alert.alert(
       t("common.success"),
       t("games.wordAddedSuccess", { word: newWordObject.word }),
@@ -94,105 +100,107 @@ export default function CreateWordScreen() {
     : t("games.createWordTitle");
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
-      <CommonHeader title={screenTitle} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.flexGrow}
+    <AppLoading isLoading={isLoading}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
       >
-        <ScrollView
-          contentContainerStyle={[
-            styles.container,
-            { backgroundColor: colors.background },
-          ]}
-          keyboardShouldPersistTaps="handled"
+        <CommonHeader title={screenTitle} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.flexGrow}
         >
-          <Text style={[styles.label, { color: colors.textSecondary }]}>
-            {t("games.wordLabel")}
-          </Text>
-          <TextInput
-            style={[
-              styles.textInput,
-              {
-                borderColor: colors.border,
-                color: colors.textPrimary,
-                backgroundColor: colors.card || colors.card,
-              },
+          <ScrollView
+            contentContainerStyle={[
+              styles.container,
+              { backgroundColor: colors.background },
             ]}
-            placeholder={t("games.wordPlaceholder")}
-            placeholderTextColor={colors.textDisabled}
-            value={word}
-            onChangeText={setWord}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-
-          <Text style={[styles.label, { color: colors.textSecondary }]}>
-            {t("games.wordTypeLabel")}
-          </Text>
-          <View
-            style={[
-              styles.pickerContainer,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.card || colors.card,
-              },
-            ]}
+            keyboardShouldPersistTaps="handled"
           >
-            <Picker
-              selectedValue={wordType}
-              onValueChange={(itemValue) => setWordType(itemValue as string)}
-              style={[styles.picker, { color: colors.textPrimary }]}
-              dropdownIconColor={colors.textSecondary}
-              prompt={t("games.selectPrompt")}
-            >
-              {WORD_TYPES.map((type) => (
-                <Picker.Item
-                  key={type.value || "select-type-key"}
-                  label={t(type.labelKey)}
-                  value={type.value}
-                  style={{ fontSize: s(16) }}
-                />
-              ))}
-            </Picker>
-          </View>
-
-          <Text style={[styles.label, { color: colors.textSecondary }]}>
-            {t("games.contentLabel")}
-          </Text>
-          <TextInput
-            style={[
-              styles.textInput,
-              styles.contentInput,
-              {
-                borderColor: colors.border,
-                color: colors.textPrimary,
-                backgroundColor: colors.card || colors.card,
-              },
-            ]}
-            placeholder={t("games.contentPlaceholder")}
-            placeholderTextColor={colors.textDisabled}
-            value={content}
-            onChangeText={setContent}
-            multiline
-            textAlignVertical="top"
-            numberOfLines={5}
-          />
-
-          <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: colors.primary }]}
-            onPress={handleSaveWord}
-          >
-            <MaterialIcons name="save" size={s(20)} color={colors.card} />
-            <Text style={[styles.saveButtonText, { color: colors.card }]}>
-              {t("common.save")}
+            <Text style={[styles.label, { color: colors.textSecondary }]}>
+              {t("games.wordLabel")}
             </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            <TextInput
+              style={[
+                styles.textInput,
+                {
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.card || colors.card,
+                },
+              ]}
+              placeholder={t("games.wordPlaceholder")}
+              placeholderTextColor={colors.textDisabled}
+              value={word}
+              onChangeText={setWord}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            <Text style={[styles.label, { color: colors.textSecondary }]}>
+              {t("games.wordTypeLabel")}
+            </Text>
+            <View
+              style={[
+                styles.pickerContainer,
+                {
+                  borderColor: colors.border,
+                  backgroundColor: colors.card || colors.card,
+                },
+              ]}
+            >
+              <Picker
+                selectedValue={wordType}
+                onValueChange={(itemValue) => setWordType(itemValue as string)}
+                style={[styles.picker, { color: colors.textPrimary }]}
+                dropdownIconColor={colors.textSecondary}
+                prompt={t("games.selectPrompt")}
+              >
+                {WORD_TYPES.map((type) => (
+                  <Picker.Item
+                    key={type.value || "select-type-key"}
+                    label={t(type.labelKey)}
+                    value={type.value}
+                    style={{ fontSize: s(16) }}
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            <Text style={[styles.label, { color: colors.textSecondary }]}>
+              {t("games.contentLabel")}
+            </Text>
+            <TextInput
+              style={[
+                styles.textInput,
+                styles.contentInput,
+                {
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.card || colors.card,
+                },
+              ]}
+              placeholder={t("games.contentPlaceholder")}
+              placeholderTextColor={colors.textDisabled}
+              value={content}
+              onChangeText={setContent}
+              multiline
+              textAlignVertical="top"
+              numberOfLines={5}
+            />
+
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              onPress={handleSaveWord}
+            >
+              <MaterialIcons name="save" size={s(20)} color={colors.card} />
+              <Text style={[styles.saveButtonText, { color: colors.card }]}>
+                {t("common.save")}
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </AppLoading>
   );
 }
 

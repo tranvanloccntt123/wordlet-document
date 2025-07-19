@@ -152,6 +152,7 @@ const GameLoading: React.FC<{
             <GameButtons
               primaryButtonText={t("common.goBack")}
               skipButtonText={t("common.cancel")}
+              skipButtonTextColor="black"
               fontSize={s(15)}
               onPrimaryPress={() => {
                 router.back(); // Proceed with back action

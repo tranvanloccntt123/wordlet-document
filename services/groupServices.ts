@@ -11,7 +11,16 @@ export const updateGroupInfo = async (
   groupId: number,
   updater: Group | Updater<Group | undefined>
 ) => {
-  const newData = setQueryData(getGroupKey(groupId), updater);
+  const newData = await setQueryData(
+    getGroupKey(groupId),
+    updater,
+    async (newData) => {
+      if (newData && newData.words.length >= 25) {
+        return false;
+      }
+      return true;
+    }
+  );
   if (newData) {
     await updateGroup(newData);
   }

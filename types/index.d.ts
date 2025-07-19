@@ -18,6 +18,7 @@ interface Group {
   is_publish?: boolean;
   description?: string;
   series_id?: number;
+  series?: Series;
 }
 
 interface Series {

@@ -5,6 +5,11 @@ import Colors from "@/constants/Colors";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { fetchGroups } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore"; // Import your theme store
+import {
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
+} from "@/styles/fontStyles";
 import { getGroupKey } from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons"; // For icons
 import { router } from "expo-router";
@@ -21,7 +26,7 @@ import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAre
 import { ScaledSheet, s } from "react-native-size-matters"; // Import ScaledSheet and scaling units
 
 const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
-  const { data: item } = useQuery({
+  const { data: item } = useQuery<Group>({
     key: getGroupKey(id),
   });
   const colors = useThemeStore((state) => state.colors);
@@ -64,6 +69,14 @@ const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
             )}
           </View>
           <Text style={[styles.wordCount, { color: colors.textSecondary }]}>
+            {item?.series && (
+              <Text>
+                {item.series.name.length > 20
+                  ? item.series.name.slice(0, 17) + "..."
+                  : item.series.name}{" "}
+                -{" "}
+              </Text>
+            )}
             {item?.words?.length > 1
               ? t("groups.wordCount_other", {
                   count: item.words.length,
@@ -195,6 +208,7 @@ export default function Games() {
             contentContainerStyle={styles.listContentContainer}
             ListEmptyComponent={!isLoadingHistory ? ListEmptyComponent : null}
             onEndReached={() => fetchData()}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
@@ -219,7 +233,7 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
       paddingHorizontal: "16@s",
     },
     listContentContainer: {
-      paddingBottom: "20@ms", // Add padding at the bottom of the list
+      paddingBottom: "105@ms", // Add padding at the bottom of the list
     },
     groupItem: {
       flexDirection: "row",
@@ -228,7 +242,7 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
       paddingVertical: "15@ms",
       paddingHorizontal: "15@ms",
       borderRadius: "10@s",
-      marginBottom: "12@ms",
+      marginTop: "16@s",
       // backgroundColor and borderColor applied via inline style
     },
     groupInfo: {
@@ -247,7 +261,10 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
       // color applied via inline style
     },
     wordCount: {
-      fontSize: "14@s",
+      ...getAppFontStyle({
+        fontFamily: FontFamilies.NunitoRegular,
+        fontSizeKey: FontSizeKeys.caption,
+      }),
       // color applied via inline style
     },
     hotBadge: {

@@ -14,7 +14,7 @@ import {
 // Ensure you replace 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com' with your actual Web Client ID
 GoogleSignin.configure({
   webClientId:
-    "2622477593-j0j4skanjgpn8fcu6lqr7kv63mvsf9s6.apps.googleusercontent.com",
+    "2622477593-v84a1utgl4aln0jjnq8bt71tfqiksdck.apps.googleusercontent.com",
   scopes: ["https://www.googleapis.com/auth/drive.readonly"], // what API you want to access on behalf of the user, default is email and profile
 });
 
@@ -38,10 +38,10 @@ export const signInWithGoogle =
         };
       }
 
+      await supabase.signInWithGoogle(idToken);
+
       // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-      await supabase.signInWithGoogle(idToken);
 
       // Sign-in the user with the credential
       const userCredential = await auth().signInWithCredential(

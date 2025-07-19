@@ -9,10 +9,15 @@ import * as supabase from "@/services/supabase";
 import useAuthStore from "@/store/authStore";
 import { useGoogleFontSetup } from "@/styles/fontStyles";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import {
+  FirebaseAuthTypes,
+  getAuth,
+  onAuthStateChanged,
+} from "@react-native-firebase/auth";
 import messaging from "@react-native-firebase/messaging";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
@@ -26,13 +31,27 @@ SplashScreen.preventAutoHideAsync();
 
 const AppProtected: React.FC = () => {
   const isLogged = useAuthStore((state) => state.isLogged);
+  const [initializing, setInitializing] = useState(true);
+
+  // Handle user state changes
+  function handleAuthStateChanged(_user: FirebaseAuthTypes.User | null) {
+    if (initializing) setInitializing(false);
+  }
+
+  React.useEffect(() => {
+    const subscriber = onAuthStateChanged(getAuth(), handleAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* <Stack.Screen name="get-started" /> */}
-      <Stack.Protected guard={isLogged}>
+      <Stack.Protected guard={initializing}>
+        <Stack.Screen name="get-started" />
+      </Stack.Protected>
+      <Stack.Protected guard={!initializing && isLogged}>
         <Stack.Screen name="(main)" />
       </Stack.Protected>
-      <Stack.Protected guard={!isLogged}>
+      <Stack.Protected guard={!initializing && !isLogged}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
     </Stack>

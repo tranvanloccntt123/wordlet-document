@@ -60,9 +60,10 @@ const useQuery = <T = any>({
   };
 };
 
-export const setQueryData = <T = any>(
+export const setQueryData = async <T = any>(
   key: string,
-  updater?: T | Updater<T | undefined>
+  updater?: T | Updater<T | undefined>,
+  validator?: (data: T | undefined) => Promise<boolean>
 ) => {
   const setData = fetchStore.getState().setData;
   const oldData = fetchStore.getState().fetchData[key]?.data;
@@ -71,6 +72,9 @@ export const setQueryData = <T = any>(
     newData = (updater as Updater<T>)(oldData as T);
   } else {
     newData = updater;
+  }
+  if (validator && !(await validator(newData))) {
+    return;
   }
   setData(key, newData);
   return newData;
