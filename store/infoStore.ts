@@ -22,7 +22,7 @@ interface InfoState {
   fetchCurrentInfo: () => Promise<void>;
 }
 
-const useInfoStore = create<InfoState>()(
+const infoStore = create<InfoState>()(
   immer((set, get) => ({
     info: null,
     isLoading: false,
@@ -54,5 +54,7 @@ const useInfoStore = create<InfoState>()(
     },
   }))
 );
+
+const useInfoStore = infoStore;
 
 export default useInfoStore;

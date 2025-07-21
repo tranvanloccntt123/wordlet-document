@@ -46,6 +46,7 @@ const GameLoading: React.FC<{
   const { t } = useTranslation(); // Initialize useTranslation
   const router = useRouter();
   const navigation = useNavigation();
+ 
   const [challengeVisible, setChallengeVisible] = React.useState(false);
 
   useEffect(() => {

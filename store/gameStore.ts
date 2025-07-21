@@ -8,6 +8,7 @@ import { getGroupKey } from "@/utils/string";
 import { User } from "@supabase/supabase-js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { admobStore } from "./admobStore";
 
 interface GameState {
   user: User | null;
@@ -162,6 +163,7 @@ const useGameStore = create<GameState>()(
       });
     },
     next() {
+      admobStore.getState().setSuggestRewardSuccess(false);
       set((state) => {
         state.currentIndex += 1;
         state.questionStartTime = Date.now();

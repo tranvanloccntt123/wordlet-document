@@ -1,12 +1,13 @@
 import * as Mixpanel from "@/services/mixpanel";
 import { decreaseSuggest } from "@/services/supabase";
+import useAdMobStore from "@/store/admobStore";
 import useEnergyStore from "@/store/energyStore";
 import useGameStore from "@/store/gameStore";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -28,16 +29,23 @@ const SuggestButton: React.FC<{
   const { user, group } = useGameStore();
   const [isSuggestModalVisible, setIsSuggestModalVisible] =
     React.useState(false);
+  const loaded = useAdMobStore((state) => state.suggestRewardedLoaded);
+  const rewarded = useAdMobStore((state) => state.suggestReward);
+  const rewardSuccess = useAdMobStore((state) => state.suggestRewardSuccess);
 
   React.useEffect(() => {
-    checkSuggestAvailable.current = false;
-  }, [currentWord]);
+    if (rewardSuccess) {
+      setIsSuggestModalVisible(true);
+      checkSuggestAvailable.current = true;
+    }
+  }, [rewardSuccess]);
 
   const onPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (!checkSuggestAvailable.current && group?.user_id !== user?.id) {
-      if (suggest === 0) {
+      if (suggest === 0 && !rewardSuccess) {
         //SHOW ADS
+        loaded && rewarded?.show();
         Mixpanel.showAds({ suggest: true });
         return;
       } else {
@@ -53,6 +61,11 @@ const SuggestButton: React.FC<{
     checkSuggestAvailable.current = true;
   };
 
+  const disabled =
+    isCorrect !== null ||
+    !currentWord ||
+    (!checkSuggestAvailable.current && group?.user_id !== user?.id && !loaded);
+
   return (
     !!currentWord && (
       <View>
@@ -61,23 +74,21 @@ const SuggestButton: React.FC<{
           style={[
             styles.suggestButton,
             {
-              borderColor:
-                isCorrect !== null ? colors.textDisabled : colors.primary,
+              borderColor: disabled ? colors.textDisabled : colors.primary,
             },
           ]}
-          disabled={isCorrect !== null || !currentWord}
+          disabled={disabled}
         >
           <MaterialIcons
             name="lightbulb-outline"
             size={s(18)}
-            color={isCorrect !== null ? colors.textDisabled : colors.primary}
+            color={disabled ? colors.textDisabled : colors.primary}
           />
           <Text
             style={[
               styles.suggestButtonText,
               {
-                color:
-                  isCorrect !== null ? colors.textDisabled : colors.primary,
+                color: disabled ? colors.textDisabled : colors.primary,
               },
             ]}
           >
@@ -87,7 +98,11 @@ const SuggestButton: React.FC<{
             <View
               style={[
                 styles.suggestNumberContainer,
-                { backgroundColor: colors.primary },
+                {
+                  backgroundColor: disabled
+                    ? colors.textDisabled
+                    : colors.primary,
+                },
               ]}
             >
               <Text style={[styles.suggestNumberText, { color: colors.card }]}>
