@@ -9,17 +9,17 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 const WORD_TYPES = [
   { labelKey: "games.wordType.select", value: "" },
@@ -51,16 +51,28 @@ export default function CreateWordScreen() {
 
   const handleSaveWord = async () => {
     if (!groupId) {
-      Alert.alert(t("common.error"), t("games.errorNoGroupSelected"));
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("games.errorNoGroupSelected"),
+      });
       return;
     }
     if (!word.trim()) {
-      Alert.alert(t("common.error"), t("games.addWordEmptyError"));
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("games.addWordEmptyError"),
+      });
       return;
     }
 
     if (!content.trim()) {
-      Alert.alert(t("common.error"), t("games.addContentEmptyError"));
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("games.addContentEmptyError"),
+      });
       return;
     }
 
@@ -78,21 +90,20 @@ export default function CreateWordScreen() {
       source: "manual",
     };
 
-    await updateGroupInfo(parseInt(groupId || "0"), (oldData) => {
-      if (!oldData) return oldData;
-      return {
-        ...oldData,
-        words: [...(oldData?.words || []), newWordObject],
-      };
-    });
+    await updateGroupInfo(
+      parseInt(groupId || "0"),
+      (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          words: [...(oldData?.words || []), newWordObject],
+        };
+      },
+      newWordObject.word
+    );
 
     setIsLoading(false);
-
-    Alert.alert(
-      t("common.success"),
-      t("games.wordAddedSuccess", { word: newWordObject.word }),
-      [{ text: t("common.ok"), onPress: () => router.back() }]
-    );
+    router.back();
   };
 
   const screenTitle = groupName

@@ -11,12 +11,11 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   FlatList,
   Pressable,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -27,6 +26,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 const GROUP_LIMIT = getSericesConfig().MAX_GROUPS;
 
@@ -155,10 +155,11 @@ const GroupManagementScreen = () => {
 
   const addGroup = async () => {
     if (atGroupLimit) {
-      Alert.alert(
-        t("groups.limitReachedTitle"),
-        t("groups.limitReachedMessage", { limit: GROUP_LIMIT })
-      );
+      Toast.show({
+        type: "error",
+        text1: t("groups.limitReachedTitle"),
+        text2: t("groups.limitReachedMessage", { limit: GROUP_LIMIT }),
+      });
       return;
     }
     addAnim.value = withTiming(1, { duration: 500 });

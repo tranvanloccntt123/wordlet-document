@@ -9,6 +9,7 @@ import messaging from "@react-native-firebase/messaging";
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import React from "react";
+import Toast from "react-native-toast-message";
 
 async function setupFIAM() {
   try {
@@ -91,7 +92,16 @@ const NotificationWrapper: React.FC<{ children: React.ReactNode }> = ({
     );
     const notificationListener = Notifications.addNotificationReceivedListener(
       (notification) => {
-        console.log("EXPO NOTIFICATIONS: ", notification);
+        Toast.show({
+          type: "word",
+          text1: notification?.request?.content?.title || "Notification",
+          text2: notification?.request?.content?.body || "",
+          onPress: () => {
+            if (notification?.request?.content?.data?.screen) {
+              router.navigate(notification.request.content.data.screen as any)
+            }
+          },
+        });
       }
     );
     const unsubscribeBackground = messaging().onNotificationOpenedApp(

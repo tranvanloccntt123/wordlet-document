@@ -118,7 +118,7 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
               if (r.data) {
                 setQueryData(getReportOnGroupKey(group?.id || 0), r.data);
                 Toast.show({
-                  type: "error",
+                  type: "report",
                   text1: t("groups.reportBtnTxt"),
                   text2: t("groups.reportSuccess"),
                 });

@@ -36,6 +36,20 @@ const MainLayout = () => {
             }}
           />
           <Stack.Screen name="leaderboard" />
+          <Stack.Screen
+            name="logout"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+            }}
+          />
+          <Stack.Screen
+            name="delete-account"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+            }}
+          />
         </Stack>
         <EnergyModal />
       </NotificationWrapper>

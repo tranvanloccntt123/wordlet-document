@@ -34,12 +34,24 @@ const groups = {
   editContentForTitle: 'Chỉnh Sửa Nội Dung cho "{{wordName}}"',
   limitReachedTitle: "Đã Đạt Giới Hạn Nhóm",
   limitReachedMessage: "Bạn chỉ có thể tạo tối đa {{limit}} nhóm.",
+  limitWordTitle: "Đã Đạt Giới Hạn Từ Vựng",
+  limitWordMessage: "Bạn chỉ có thể thêm tối đa {{limit}} từ cho mỗi nhóm.",
   publishDescription: "Xuất bản để chia sẻ nhóm này đến với mọi người.",
   publishDescription2:
     "🍿 Top 100 nhóm có nhiều người dùng hoàn thành, sẽ được nhận thưởng từ hệ thống.",
   publishLimit: "Bạn cần ít nhất 10 từ để xuất bản một nhóm.",
   reportSuccess: "Báo cáo vi phạm đã được gửi.",
   reportBtnTxt: "Báo cáo nhóm",
+  missingName: "Vui lòng nhập tên cho nhóm.",
+  noWordDetail:
+    "Không tìm thấy chi tiết từ nào để thêm vào nhóm mới. Vui lòng quay lại và thử lại.",
+  noTarget: "Vui lòng chọn định nghĩa cho từ trước khi thêm vào nhóm.",
+  noWord: "Không tải được từ nào",
+  cannotAddWord:
+    "Không thể thêm vào nhóm vì không có thông tin chi tiết về từ.",
+  createFailed: "Tạo không thành công",
+  groupExistsName:
+    "Một nhóm có tên {{trimmedGroupName}} đã tồn tại. Vui lòng chọn một tên khác.",
 };
 
 export default groups;

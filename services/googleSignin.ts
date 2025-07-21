@@ -15,7 +15,10 @@ import {
 GoogleSignin.configure({
   webClientId:
     "2622477593-v84a1utgl4aln0jjnq8bt71tfqiksdck.apps.googleusercontent.com",
-  scopes: ["https://www.googleapis.com/auth/drive.readonly"], // what API you want to access on behalf of the user, default is email and profile
+  scopes: [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
+  ], // what API you want to access on behalf of the user, default is email and profile
 });
 
 export const signInWithGoogle =

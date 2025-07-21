@@ -1,5 +1,6 @@
 import { setQueryData } from "@/hooks/useQuery";
 import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
+import Toast from "react-native-toast-message";
 import {
   createGroup,
   deleteGroup,
@@ -9,13 +10,19 @@ import {
 
 export const updateGroupInfo = async (
   groupId: number,
-  updater: Group | Updater<Group | undefined>
+  updater: Group | Updater<Group | undefined>,
+  newWord?: string
 ) => {
   const newData = await setQueryData(
     getGroupKey(groupId),
     updater,
     async (newData) => {
       if (newData && newData.words.length >= 25) {
+        Toast.show({
+          type: "limit",
+          text1: "Limit title",
+          text2: "Limit Description, it is inside the toast config",
+        });
         return false;
       }
       return true;
@@ -23,6 +30,12 @@ export const updateGroupInfo = async (
   );
   if (newData) {
     await updateGroup(newData);
+    if (newWord) {
+      Toast.show({
+        type: "addWordSuccess",
+        text1: newWord,
+      });
+    }
   }
 };
 

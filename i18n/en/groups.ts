@@ -34,12 +34,24 @@ const groups = {
   editContentForTitle: 'Edit Content for "{{wordName}}"',
   limitReachedTitle: "Group Limit Reached",
   limitReachedMessage: "You can only create up to {{limit}} groups.",
+  limitWordTitle: "Word Limit Reached",
+  limitWordMessage: "You can only add up to {{limit}} words per group.",
   publishDescription: "Publish to share this group with everyone.",
   publishDescription2:
     "🍿 Top 100 groups with the most completed users will receive rewards from the system.",
   publishLimit: "You need at least 10 words to publish a group.",
   reportSuccess: "Report of violation has been sent.",
   reportBtnTxt: "Report Group",
+  missingName: "Please enter a name for the group.",
+  noWordDetail:
+    "No word details found to add to the new group. Please go back and try again.",
+  noTarget:
+    "Please select a definition for the word before adding it to a group.",
+  noWord: "No Word Loaded",
+  cannotAddWord: "Cannot add to group as word details are not available.",
+  createFailed: "Creation Failed",
+  groupExistsName:
+    "A group with the name {{trimmedGroupName}} already exists. Please choose a different name.",
 };
 
 export default groups;

@@ -2,7 +2,9 @@ import { formatDate } from "@/utils/date";
 import messaging from "@react-native-firebase/messaging";
 import * as Notifications from "expo-notifications";
 import { openDatabaseAsync } from "expo-sqlite";
-import { Alert, Platform } from "react-native";
+import { t } from "i18next";
+import { Platform } from "react-native";
+import Toast from "react-native-toast-message";
 import { updateFCMToken } from "./supabase";
 
 export const registerForPushNotificationsAsync = async () => {
@@ -24,10 +26,14 @@ export const registerForPushNotificationsAsync = async () => {
   }
 
   if (finalStatus !== "granted") {
-    Alert.alert(
-      "Enable Notifications",
-      "To receive updates and alerts, please enable notifications in your device settings."
-    );
+    Toast.show({
+      type: "error",
+      text1: t("settings.enableNotification", "Enable Notifications"),
+      text2: t(
+        "settings.enableNotificationMessage",
+        "To receive updates and alerts, please enable notifications in your device settings."
+      ),
+    });
     return;
   }
 

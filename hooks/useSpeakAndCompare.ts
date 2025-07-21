@@ -7,13 +7,14 @@ import {
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  Alert,
   InteractionManager,
   PermissionsAndroid,
-  Platform,
+  Platform
 } from "react-native";
 import { useSharedValue, withTiming } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 
 const useSpeakAndCompare = () => {
   const playerLoss = useAudioPlayer(AppAudio.LOSS);
@@ -33,6 +34,8 @@ const useSpeakAndCompare = () => {
   const [similarity, setSimilarity] = useState<number>(0);
 
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
+
+  const { t } = useTranslation();
 
   const feedback = React.useMemo(() => {
     if (spokenText === "" || !currentWord.current) return [];
@@ -239,10 +242,11 @@ const useSpeakAndCompare = () => {
     }
     const hasPermission = await requestMicrophonePermission();
     if (!hasPermission) {
-      Alert.alert(
-        "Permission Denied",
-        "Microphone permission is required to use this feature. Please enable it in your device settings."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("settings.permissionDenied"),
+        text2: t("settings.microDenied"),
+      });
       return;
     }
     const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();

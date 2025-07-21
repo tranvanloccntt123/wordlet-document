@@ -9,9 +9,11 @@ import { playWord } from "@/utils/voice";
 import { MaterialIcons } from "@expo/vector-icons"; // Or your preferred icon library
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback } from "react"; // Added useCallback
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native"; // Added Alert
+import { useTranslation } from "react-i18next";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native"; // Added Alert
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters"; // Import s for scaling
+import Toast from "react-native-toast-message";
 
 interface WordDetailCardProps {
   wordData: WordStore;
@@ -73,6 +75,7 @@ const WordDetailScreen = () => {
     source?: string;
     groupId?: string;
   }>();
+  const { t } = useTranslation();
   const { word: wordToSearch, source: wordSource } = params;
   const { data: wordDetails, isLoading } = useQuery<WordStore>({
     key: getWordKey(wordToSearch || ""),
@@ -106,10 +109,11 @@ const WordDetailScreen = () => {
         },
       });
     } else {
-      Alert.alert(
-        "No Word Loaded",
-        "Cannot add to group as word details are not available."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("groups.noWord"),
+        text2: t("groups.cannotAddWord"),
+      });
     }
   }, [wordDetails]);
 

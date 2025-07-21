@@ -9,7 +9,6 @@ import { router, useFocusEffect } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   FlatList,
   Pressable,
   Text,
@@ -25,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 const SerieItem: React.FC<{
   serieId: number;
@@ -197,10 +197,11 @@ const MySeries = () => {
               }}
               onPress={() => {
                 if (atGroupLimit) {
-                  Alert.alert(
-                    t("groups.limitReachedTitle"),
-                    t("groups.limitReachedMessage", { limit: 5 })
-                  );
+                  Toast.show({
+                    type: "error",
+                    text1: t("groups.limitReachedTitle"),
+                    text2: t("groups.limitReachedMessage", { limit: 5 }),
+                  });
                   return;
                 }
                 addAnim.value = withTiming(1, { duration: 500 });

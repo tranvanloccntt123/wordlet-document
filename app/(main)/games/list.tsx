@@ -195,20 +195,15 @@ export default function SelectGameScreen() {
         <CommonHeader
           title={groupName || ""}
           rightActionElement={
-            <TouchableOpacity onPress={onOpenMenu} style={styles.headerButton}>
+            <TouchableOpacity
+              onPress={onOpenMenu}
+              style={[styles.headerButton, { backgroundColor: colors.card }]}
+            >
               <MaterialIcons
                 name="more-vert"
-                size={s(24)}
+                size={s(18)}
                 color={colors.textPrimary}
               />
-            </TouchableOpacity>
-          }
-        />
-        <FlatList
-          data={GAME_CATEGORIES}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={
-            <>
               {isAuthor && (
                 <View
                   style={[
@@ -220,13 +215,21 @@ export default function SelectGameScreen() {
                     },
                   ]}
                 >
-                  <Text style={[styles.publishStatusTxt, { color: "black" }]}>
+                  {/* <Text style={[styles.publishStatusTxt, { color: "black" }]}>
                     {group.is_publish
                       ? t("common.published")
                       : t("common.pending")}
-                  </Text>
+                  </Text> */}
                 </View>
               )}
+            </TouchableOpacity>
+          }
+        />
+        <FlatList
+          data={GAME_CATEGORIES}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={
+            <>
               {!!group?.description && (
                 <View style={{ marginTop: vs(16) }}>
                   <Text
@@ -514,6 +517,11 @@ const styles = ScaledSheet.create({
   },
   headerButton: {
     padding: "5@s",
+    width: "30@s",
+    height: "30@s",
+    borderRadius: "30@s",
+    alignItems: "center",
+    justifyContent: "center",
   },
   listContentContainer: {
     paddingTop: "10@ms",
@@ -666,10 +674,13 @@ const styles = ScaledSheet.create({
   },
   publicStatusContainer: {
     marginLeft: "16@s",
-    paddingHorizontal: "16@s",
-    paddingVertical: "8@s",
+    width: "8@s",
+    height: "8@s",
     borderRadius: "100@s",
     alignSelf: "flex-start",
+    position: "absolute",
+    top: "0@s",
+    right: "0@s",
   },
   publishStatusTxt: {
     ...getAppFontStyle({

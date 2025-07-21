@@ -13,12 +13,11 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Modal,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
@@ -36,7 +35,6 @@ export default function LoginScreen() {
     } catch (error: any) {
       if (error.code !== "cancelled") {
         mixpanel.track("Sign In Error", error);
-        Alert.alert("Error", "An unexpected error occurred during sign-in.");
         setIsErrorVisible(true);
       }
     } finally {

@@ -2,7 +2,6 @@ import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert, // Import Dimensions
   Keyboard,
   Text,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import {
 import { TextInput } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import { s, ScaledSheet } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 interface EditGroupModalProps {
   onClose: () => void;
@@ -44,10 +44,11 @@ const Content: React.FC<{
       onSave(group.id, name.trim());
       triggerAnimatedClose();
     } else {
-      Alert.alert(
-        t("common.invalidNameTitle"),
-        t("common.groupNameEmptyError")
-      );
+      Toast.show({
+        type: "error",
+        text1: t("common.invalidNameTitle"),
+        text2: t("common.groupNameEmptyError"),
+      });
     }
   };
 

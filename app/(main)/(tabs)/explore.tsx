@@ -1,6 +1,5 @@
 import AppAudio from "@/assets/audio";
 import { DB_DIR } from "@/services/downloadDb";
-import { signOutGoogle } from "@/services/googleSignin";
 import useLanguageStore from "@/store/languageStore"; // Import the language store
 import useThemeStore from "@/store/themeStore";
 import {
@@ -14,13 +13,7 @@ import * as FileSystem from "expo-file-system"; // Import FileSystem
 import { useRouter } from "expo-router"; // Corrected: useRouter should be imported from expo-router
 // import * as Sharing from "expo-sharing"; // Import Sharing
 import AppLoading from "@/components/AppLoading";
-import * as Mixpanel from "@/services/mixpanel";
-import * as supabase from "@/services/supabase";
-import { deleteAccount } from "@/services/supabase";
-import useAuthStore from "@/store/authStore";
-import useFetchStore from "@/store/fetchStore";
 import useNotificationStore from "@/store/notificationStore";
-import useSpellStore from "@/store/spellStore";
 import * as Haptics from "expo-haptics";
 import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
@@ -43,11 +36,9 @@ const SettingsScreen = () => {
   const { colors } = useThemeStore();
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { reset } = useSpellStore();
   const testSoundPlayer = useAudioPlayer(AppAudio.CORRECT); // Using an existing sound for testing
   const setIsSwappingTheme = useThemeStore((state) => state.setIsSwappingTheme);
   const isSwappingTheme = useThemeStore((state) => state.isSwappingTheme);
-  const clearFetch = useFetchStore((state) => state.clear);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -65,7 +56,6 @@ const SettingsScreen = () => {
     clearAllNotifications,
   } = useNotificationStore();
   const currentTheme = useThemeStore((state) => state.theme);
-  const setIsLogged = useAuthStore((state) => state.setIsLogged);
 
   // Use the language store
   const { language: currentLanguage, setLanguage } = useLanguageStore();
@@ -108,74 +98,17 @@ const SettingsScreen = () => {
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Alert.alert(
-      t("settings.logoutTitle", "Logout"),
-      t("settings.logoutConfirmation", "Are you sure you want to logout?"),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("settings.logoutButton", "Logout"),
-          onPress: async () => {
-            try {
-              setIsLoading(true);
-              setIsLogged(false);
-              await supabase.signOut();
-              await signOutGoogle();
-              reset();
-              Mixpanel.logout();
-              setIsLoading(false);
-            } catch (e) {
-              setIsLoading(false);
-            } finally {
-              clearFetch();
-            }
-          }, // Call signOutGoogle on confirmation
-          style: "destructive",
-        },
-      ]
-    );
+    router.navigate("/logout");
+    return;
   };
 
   const handleDelete = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Alert.alert(
-      t("settings.deleteAccount", "Delete Account"),
-      t(
-        "settings.deleteAccountConfirmation",
-        "Are you sure you want to delete your account?"
-      ),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("common.delete", "Delete"),
-          onPress: async () => {
-            try {
-              setIsLoading(true);
-              await deleteAccount();
-              await supabase.signOut();
-              await signOutGoogle();
-              reset();
-              setIsLoading(false);
-            } catch (e) {
-              setIsLoading(false);
-            }
-          }, // Call signOutGoogle on confirmation
-          style: "destructive",
-        },
-      ]
-    );
+    router.navigate("/delete-account");
+    return;
   };
 
   const handleToggleTheme = () => {
-    if (isSwappingTheme) return;
-    // toggleTheme();
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsSwappingTheme(true);
   };
 
@@ -218,7 +151,7 @@ const SettingsScreen = () => {
       content: payload,
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 15,
+        seconds: 1,
         repeats: false, // Show once per word for this scheduling session
       },
     });
@@ -482,7 +415,7 @@ const styles = ScaledSheet.create({
   },
   container: {
     flex: 1,
-    padding: "15@ms",
+    paddingHorizontal: "15@ms",
   },
   settingItem: {
     flexDirection: "row",

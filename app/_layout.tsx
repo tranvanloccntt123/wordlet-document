@@ -3,6 +3,7 @@ import "react-native-reanimated";
 
 import RemoteConfigWrapper from "@/components/RemoteConfigWrapper";
 import SwapThemeWrapper from "@/components/SwapThemeWrapper";
+import toastConfig from "@/components/ToastConfig";
 import i18next from "@/i18n";
 import { migrateDbIfNeeded } from "@/services/migrateDbIfNeed";
 import * as supabase from "@/services/supabase";
@@ -83,7 +84,7 @@ export default function RootLayout() {
               <SwapThemeWrapper>
                 <I18nextProvider i18n={i18next}>
                   <AppProtected />
-                  <Toast />
+                  <Toast config={toastConfig} />
                 </I18nextProvider>
               </SwapThemeWrapper>
             </BottomSheetModalProvider>

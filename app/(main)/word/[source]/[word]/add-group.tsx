@@ -13,7 +13,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -21,10 +20,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, ms, s, vs } from "react-native-size-matters";
+import Toast from "react-native-toast-message";
 
 const GROUP_LIMIT = getSericesConfig().MAX_GROUPS;
 
@@ -154,22 +154,28 @@ const AddGroupScreen = () => {
     // Logic for creating a NEW group
     const trimmedGroupName = groupName.trim();
     if (!trimmedGroupName) {
-      Alert.alert("Missing Name", "Please enter a name for the group.");
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("groups.missingName"),
+      });
       return;
     }
 
     if (!wordToAdd) {
-      Alert.alert(
-        "Error",
-        "No word details found to add to the new group. Please go back and try again."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("groups.noWordDetail"),
+      });
       return;
     }
     if (!selectedDefinitionText) {
-      Alert.alert(
-        "Definition Required",
-        "Please select a definition for the word before adding it to a group."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("groups.noTarget"),
+      });
       return;
     }
 
@@ -193,10 +199,11 @@ const AddGroupScreen = () => {
         );
       } else {
         // createGroup returned null, likely because the group name already exists
-        Alert.alert(
-          "Creation Failed",
-          `A group with the name "${trimmedGroupName}" already exists. Please choose a different name.`
-        );
+        Toast.show({
+          type: "error",
+          text1: t("groups.createFailed"),
+          text2: t("groups.groupExistsName", { trimmedGroupName }),
+        });
       }
     } catch (e) {}
     await delay(500);
@@ -208,17 +215,19 @@ const AddGroupScreen = () => {
   const handleAddToExistingGroup = async (groupId: number) => {
     // Logic for adding to an EXISTING group
     if (!wordToAdd) {
-      Alert.alert(
-        "Error",
-        "No word details found to add. Please go back and try again."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("games.noWordDetail"),
+      });
       return;
     }
     if (!selectedDefinitionText) {
-      Alert.alert(
-        "Definition Required",
-        "Please select a definition for the word."
-      );
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("games.noTarget"),
+      });
       return;
     }
 
@@ -231,14 +240,15 @@ const AddGroupScreen = () => {
     }
     newContent += selectedDefinitionText;
     const modifiedWord: WordStore = { ...wordToAdd, content: newContent };
-    await updateGroupInfo(groupId, (oldData) =>
-      oldData
-        ? { ...oldData, words: [...oldData.words, modifiedWord] }
-        : oldData
+    await updateGroupInfo(
+      groupId,
+      (oldData: Group | undefined) =>
+        oldData
+          ? { ...oldData, words: [...oldData.words, modifiedWord] }
+          : oldData,
+      modifiedWord.word
     );
-    await delay(500);
     setIsSubmitting(false);
-    await delay(200);
     router.back(); // Navigate back after adding
   };
 
@@ -310,7 +320,11 @@ const AddGroupScreen = () => {
                 </View>
               )}
               {!!params.groupId && (
-                <View>
+                <View
+                  onLayout={(event) => {
+                    formContainerY.current = event.nativeEvent.layout.y;
+                  }}
+                >
                   <TouchableOpacity
                     style={[
                       styles.button,
@@ -420,7 +434,7 @@ const createStyles = (
     safeArea: { flex: 1, backgroundColor: colors.background },
     safeAreaContent: { flex: 1 }, // Added to give SafeAreaView flex: 1
     keyboardAvoidingView: { flex: 1 }, // Ensure KeyboardAvoidingView takes available space
-    container: { flex: 1, paddingHorizontal: s(20), paddingTop: vs(10) },
+    container: { flex: 1, paddingHorizontal: s(20) },
     formContainer: { flex: 1, paddingTop: vs(20) }, // Reduced top padding slightly
     label: {
       fontSize: ms(16),
