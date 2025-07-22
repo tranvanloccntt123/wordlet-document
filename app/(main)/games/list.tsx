@@ -1,5 +1,6 @@
 import AppAudio from "@/assets/audio";
 import AppLoading from "@/components/AppLoading";
+import WordletBanner from "@/components/Banner";
 import CommonHeader from "@/components/CommonHeader";
 import CountdownModal from "@/components/CountdownModal";
 import GroupExpandMenu from "@/components/GroupExpandMenu";
@@ -177,8 +178,11 @@ export default function SelectGameScreen() {
     });
   };
 
+  const isChallent =
+    !isLoading && !!info && !!group && info.user_id !== group.user_id;
+
   React.useEffect(() => {
-    if (!isLoading && !!info && !!group && info.user_id !== group.user_id) {
+    if (isChallent) {
       setTimeout(() => {
         setChallengeVisible(true);
       }, 100);
@@ -214,13 +218,7 @@ export default function SelectGameScreen() {
                         : colors.accent,
                     },
                   ]}
-                >
-                  {/* <Text style={[styles.publishStatusTxt, { color: "black" }]}>
-                    {group.is_publish
-                      ? t("common.published")
-                      : t("common.pending")}
-                  </Text> */}
-                </View>
+                ></View>
               )}
             </TouchableOpacity>
           }
@@ -381,7 +379,7 @@ export default function SelectGameScreen() {
               )}
             </>
           }
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const isDisabled = getGameDisabledState(item.id);
             const itemOpacity = isDisabled ? 0.5 : 1;
             const iconColor = isDisabled ? colors.textDisabled : colors.primary;
@@ -396,47 +394,50 @@ export default function SelectGameScreen() {
               : colors.textSecondary;
 
             return (
-              <TouchableOpacity
-                style={[
-                  styles.gameItem,
-                  { backgroundColor: colors.card, opacity: itemOpacity },
-                ]}
-                onPress={() =>
-                  group.user_id === info?.user_id
-                    ? handleSelectGameType(item.id, t(item.titleKey))
-                    : energyCheck(() => {
-                        handleSelectGameType(item.id, t(item.titleKey));
-                      })
-                }
-                disabled={isDisabled}
-              >
-                <MaterialIcons
-                  name={item.icon}
-                  size={s(30)}
-                  color={iconColor}
-                  style={styles.gameIcon}
-                />
-                <View style={styles.gameTextContainer}>
-                  <Text style={[styles.gameTitle, { color: titleColor }]}>
-                    {t(item.titleKey)}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.gameDescription,
-                      { color: descriptionColor },
-                    ]}
-                  >
-                    {t(item.descriptionKey)} {/* Translate description */}
-                  </Text>
-                </View>
-                <MaterialIcons
-                  name="chevron-right"
-                  size={s(24)}
-                  color={chevronColor}
+              <>
+                <TouchableOpacity
+                  style={[
+                    styles.gameItem,
+                    { backgroundColor: colors.card, opacity: itemOpacity },
+                  ]}
+                  onPress={() =>
+                    group.user_id === info?.user_id
+                      ? handleSelectGameType(item.id, t(item.titleKey))
+                      : energyCheck(() => {
+                          handleSelectGameType(item.id, t(item.titleKey));
+                        })
+                  }
+                  disabled={isDisabled}
                 >
-                  {/* Removed duplicate chevron icon definition */}
-                </MaterialIcons>
-              </TouchableOpacity>
+                  <MaterialIcons
+                    name={item.icon}
+                    size={s(30)}
+                    color={iconColor}
+                    style={styles.gameIcon}
+                  />
+                  <View style={styles.gameTextContainer}>
+                    <Text style={[styles.gameTitle, { color: titleColor }]}>
+                      {t(item.titleKey)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.gameDescription,
+                        { color: descriptionColor },
+                      ]}
+                    >
+                      {t(item.descriptionKey)} {/* Translate description */}
+                    </Text>
+                  </View>
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={s(24)}
+                    color={chevronColor}
+                  >
+                    {/* Removed duplicate chevron icon definition */}
+                  </MaterialIcons>
+                </TouchableOpacity>
+                {index === 1 && isChallent && <WordletBanner />}
+              </>
             );
           }}
           contentContainerStyle={styles.listContentContainer}
@@ -543,7 +544,7 @@ const styles = ScaledSheet.create({
     alignItems: "center",
     padding: "15@ms",
     borderRadius: "10@s",
-    marginBottom: "12@ms",
+    marginVertical: "8@ms",
     marginHorizontal: "16@s",
   },
   gameIcon: {

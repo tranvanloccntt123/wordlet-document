@@ -1,4 +1,5 @@
 import useAdMobStore from "@/store/admobStore";
+import useEnergyStore from "@/store/energyStore";
 import useInfoStore from "@/store/infoStore";
 import {
   getAdvertisingId,
@@ -15,9 +16,6 @@ const RewardManager: React.FC = () => {
   const rewarded = useAdMobStore((state) => state.reward);
   const suggestRewarded = useAdMobStore((state) => state.suggestReward);
   const userInfo = useInfoStore((state) => state.info);
-  const suggestRewardedLoaded = useAdMobStore(
-    (state) => state.suggestRewardedLoaded
-  );
   const setSuggestRewardedSuccess = useAdMobStore(
     (state) => state.setSuggestRewardSuccess
   );
@@ -27,13 +25,42 @@ const RewardManager: React.FC = () => {
   const setSuggestRewardedLoaded = useAdMobStore(
     (state) => state.setSuggestRewardedLoaded
   );
+  const setRewardedLoaded = useAdMobStore((state) => state.setRewardLoaded);
+  const fetchEnergy = useEnergyStore((state) => state.fetchEnergy);
 
   React.useEffect(() => {
     if (!status || !userInfo) return;
     if (!rewarded) {
       setRewarded(userInfo.user_id);
     } else {
+      const unsubscribeLoaded = rewarded.addAdEventListener(
+        RewardedAdEventType.LOADED,
+        () => {
+          setRewardedLoaded(true);
+        }
+      );
+      const unsubscribeEarned = rewarded.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        (reward) => {
+          //Refresh energy
+          setTimeout(() => {
+            //Confirm server increases the energy
+            fetchEnergy();
+          }, 500);
+          //
+          setRewardedLoaded(false);
+          setRewarded(userInfo.user_id);
+        }
+      );
+
+      // Start loading the rewarded ad straight away
       rewarded.load();
+
+      // Unsubscribe from events on unmount
+      return () => {
+        unsubscribeLoaded();
+        unsubscribeEarned();
+      };
     }
   }, [status, rewarded, userInfo]);
 
@@ -51,7 +78,7 @@ const RewardManager: React.FC = () => {
       const unsubscribeEarned = suggestRewarded.addAdEventListener(
         RewardedAdEventType.EARNED_REWARD,
         (reward) => {
-          console.log("User earned reward of ", reward);
+          setSuggestRewardedLoaded(false);
           setSuggestRewardedSuccess(true);
           setSuggestRewarded(userInfo.user_id);
         }

@@ -32,6 +32,7 @@ import Svg, {
 } from "react-native-svg";
 import { captureRef } from "react-native-view-shot";
 import AppLoading from "./AppLoading";
+import WordletBanner from "./Banner";
 import EmptyHistoryList from "./EmptyHistoryList";
 
 const PAGE_SIZE = 10;
@@ -83,7 +84,7 @@ const HistoryDisplayItem: React.FC<{ item: GameHistory }> = ({ item }) => {
         style={[
           styles.itemContentContainer,
           {
-            backgroundColor: colors.card  ,
+            backgroundColor: colors.card,
           },
         ]}
       >
@@ -284,6 +285,11 @@ const HistoryDisplayList: React.FC<{
           )}
         </View>
         <HistoryDisplayItem item={item} />
+        {historyList.length === 1 || (historyList.length > 1 && index === 1) ? (
+          <WordletBanner />
+        ) : (
+          <></>
+        )}
       </View>
     );
   };

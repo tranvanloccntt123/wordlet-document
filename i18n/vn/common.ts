@@ -34,6 +34,7 @@ const common = {
   confirm: "Xác nhận",
   series: "Danh sách",
   retry: "Thử lại",
+  letCharge: "Sạc",
 };
 
 export default common;

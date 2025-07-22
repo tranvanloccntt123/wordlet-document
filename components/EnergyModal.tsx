@@ -1,9 +1,10 @@
+import useAdMobStore from "@/store/admobStore";
 import useEnergyStore from "@/store/energyStore";
 import useThemeStore from "@/store/themeStore";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,6 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { ScaledSheet, ms, s } from "react-native-size-matters";
+import GameButtons from "./GameButtons";
 
 const duration = 700;
 
@@ -22,10 +24,7 @@ const AnimatedEnergyIcon = () => {
 
   React.useEffect(() => {
     scaleAnim.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration }),
-        withTiming(0.5, { duration })
-      ),
+      withSequence(withTiming(1, { duration }), withTiming(0.5, { duration })),
       -1
     );
   }, []);
@@ -38,13 +37,15 @@ const AnimatedEnergyIcon = () => {
   });
 
   return (
-    <Animated.View style={containerStyle}>
-      <FontAwesome
-        name="flash"
-        size={s(100)}
-        color={colors.warning} // Using warning color for energy, adjust as needed
-      />
-    </Animated.View>
+    <View style={{ paddingTop: s(50), paddingBottom: s(15) }}>
+      <Animated.View style={containerStyle}>
+        <FontAwesome
+          name="flash"
+          size={s(100)}
+          color={colors.warning} // Using warning color for energy, adjust as needed
+        />
+      </Animated.View>
+    </View>
   );
 };
 
@@ -53,6 +54,8 @@ const EnergyModal: React.FC = () => {
   const { colors } = useThemeStore();
   const { t } = useTranslation();
   const styles = createStyles(colors);
+  const isLoaded = useAdMobStore((state) => state.rewardLoaded);
+  const reward = useAdMobStore((state) => state.reward);
 
   return (
     <Modal
@@ -68,14 +71,20 @@ const EnergyModal: React.FC = () => {
           <Text style={styles.messageText}>
             {t("common.energyModalMessage")}
           </Text>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={() => setIsVisible(false)}
-          >
-            <Text style={[styles.buttonText, { color: colors.card }]}>
-              {t("common.ok")}
-            </Text>
-          </TouchableOpacity>
+          <GameButtons
+            fontSize={s(15)}
+            primaryButtonText={t("common.letCharge")}
+            skipButtonText={t("common.goBack")}
+            skipButtonTextColor="black"
+            onPrimaryPress={() => {
+              if (!isLoaded) return;
+              reward?.show();
+              setIsVisible(false);
+            }}
+            onSkipPress={() => {
+              setIsVisible(false);
+            }}
+          />
         </View>
       </View>
     </Modal>

@@ -3,6 +3,7 @@ import HomePlay from "@/components/HomePlay";
 import PremiumBadge from "@/components/PremiumBadge";
 import RemoteConfigComponentWrapper from "@/components/RemoteConfigComponentWrapper";
 import SpellRandom from "@/components/SpellRandom";
+import { NORMAL_ENERGY, PERMIUM_ENERGY } from "@/constants";
 import useEnergyStore from "@/store/energyStore";
 import useInfoStore from "@/store/infoStore";
 import useSpellStore from "@/store/spellStore";
@@ -24,6 +25,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s, scale } from "react-native-size-matters";
 
@@ -31,34 +37,70 @@ const EnergyView = () => {
   const { colors } = useThemeStore();
   const { energy, fetchEnergy, isLoading } = useEnergyStore();
   const { info } = useInfoStore();
+
+  const percentAnim = useSharedValue(0);
+
+  const containerHeight = useSharedValue(0);
+
   React.useEffect(() => {
     fetchEnergy();
   }, []);
+
+  React.useEffect(() => {
+    percentAnim.value = withTiming(
+      energy / (info?.is_premium ? PERMIUM_ENERGY : NORMAL_ENERGY),
+      { duration: 500 }
+    );
+  }, [energy, info]);
+
+  const overlayStyle = useAnimatedStyle(() => {
+    return {
+      height: containerHeight.value * percentAnim.value,
+    };
+  });
+
   return (
-    <View
-      style={[
-        styles.energyContainer,
-        { backgroundColor: info?.is_premium ? "#FFD700" : colors.shadow },
-      ]}
-    >
-      <MaterialCommunityIcons
-        name="flash" // Bolt icon
-        size={s(22)}
-        color={colors.warning} // Using warning color for energy, adjust as needed
-      />
-      {!isLoading && (
-        <Text
+    <View>
+      <View
+        style={[
+          styles.energyContainer,
+          {
+            backgroundColor:
+              (info?.is_premium ? "#FFD700" : colors.shadow) + "50",
+          },
+        ]}
+        onLayout={(event) => {
+          containerHeight.value = event.nativeEvent.layout.height;
+        }}
+      >
+        <Animated.View
           style={[
-            styles.energyText,
-            { color: info?.is_premium ? "black" : colors.textPrimary },
+            styles.energyOverlay,
+            {
+              backgroundColor: info?.is_premium ? "#FFD700" : colors.shadow,
+            },
+            overlayStyle,
           ]}
-        >
-          {energy || "AD"}
-        </Text>
-      )}
-      {isLoading && (
-        <ActivityIndicator size={"small"} color={colors.textPrimary} />
-      )}
+        />
+        <MaterialCommunityIcons
+          name="flash" // Bolt icon
+          size={s(22)}
+          color={colors.accent} // Using warning color for energy, adjust as needed
+        />
+        {!isLoading && (
+          <Text
+            style={[
+              styles.energyText,
+              { color: info?.is_premium ? "black" : colors.textPrimary },
+            ]}
+          >
+            {energy || "AD"}
+          </Text>
+        )}
+        {isLoading && (
+          <ActivityIndicator size={"small"} color={colors.textPrimary} />
+        )}
+      </View>
       {info?.is_premium && (
         <View style={styles.premiumBadgeIcon}>
           <PremiumBadge size={scale(30)} />
@@ -165,6 +207,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: "10@s", // Add some padding to the energy display
     height: "50@s",
     borderRadius: "45@s",
+    overflow: "hidden",
   },
   energyText: {
     ...getAppFontStyle({
@@ -190,6 +233,13 @@ const styles = ScaledSheet.create({
         rotate: "45deg",
       },
     ],
+  },
+  energyOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderRadius: "100@s",
   },
 });
 

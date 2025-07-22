@@ -1,3 +1,4 @@
+import WordletBanner from "@/components/Banner";
 import CommonHeader from "@/components/CommonHeader"; // Import CommonHeader
 import IntroLoading from "@/components/IntroLoading";
 import { SEARCH_LIMIT } from "@/constants";
@@ -157,7 +158,12 @@ export default function Games() {
   const styles = createStyles(colors); // Create styles with theme colors
 
   const renderItem = React.useCallback(
-    ({ item }: { item: number }) => <GroupListItem id={item} />,
+    ({ item, index }: { item: number; index: number }) => (
+      <>
+        <GroupListItem id={item} />
+        {index === 1 && <WordletBanner />}
+      </>
+    ),
     [colors, t] // Added colors and t to dependencies
   );
 
@@ -230,7 +236,7 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
       flex: 1,
     },
     contentContainer: {
-      paddingHorizontal: "16@s",
+      // paddingHorizontal: "16@s",
     },
     listContentContainer: {
       paddingBottom: "105@ms", // Add padding at the bottom of the list
@@ -242,7 +248,8 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
       paddingVertical: "15@ms",
       paddingHorizontal: "15@ms",
       borderRadius: "10@s",
-      marginTop: "16@s",
+      marginVertical: "8@s",
+      marginHorizontal: "16@s",
       // backgroundColor and borderColor applied via inline style
     },
     groupInfo: {

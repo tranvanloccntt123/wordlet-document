@@ -34,6 +34,7 @@ const common = {
   confirm: "Confirm",
   series: "Series",
   retry: "retry",
+  letCharge: "Let Charge",
 };
 
 export default common;

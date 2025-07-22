@@ -17,7 +17,7 @@ export const clearUserInfoFetching = () => {
 export const fetchUserGameHistory = async (
   limit: number = 10,
   lastCreatedAt?: string // Pass the 'created_at' of the last fetched item
-): Promise<PostgrestSingleResponse<GameHistory>> => {
+): Promise<PostgrestSingleResponse<GameHistory[]>> => {
   if (!supabase) {
     throw new Error("Supabase client not initialized");
   }
@@ -42,7 +42,7 @@ export const fetchUserGameHistory = async (
 
   const response = await query;
 
-  return response as PostgrestSingleResponse<GameHistory>;
+  return response as PostgrestSingleResponse<GameHistory[]>;
 };
 
 const fetchUpdateFCMToken = async (token: string) => {

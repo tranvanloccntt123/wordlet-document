@@ -8,6 +8,8 @@ interface AdMobState {
   suggestReward: RewardedAd | null;
   suggestRewardedLoaded: boolean;
   suggestRewardSuccess: boolean;
+  rewardLoaded: boolean;
+  setRewardLoaded: (_: boolean) => void;
   setSuggestRewardSuccess: (_: boolean) => void;
   setSuggestRewardedLoaded: (_: boolean) => void;
   setStatus: (_: boolean) => void;
@@ -30,6 +32,12 @@ export const admobStore = create<AdMobState, any>( // Added 'any' for middleware
     suggestReward: null,
     suggestRewardedLoaded: false,
     suggestRewardSuccess: false,
+    rewardLoaded: false,
+    setRewardLoaded(loaded) {
+      set((state) => {
+        state.rewardLoaded = loaded;
+      });
+    },
     setSuggestRewardSuccess: (success) => {
       set((state) => {
         state.suggestRewardSuccess = success;

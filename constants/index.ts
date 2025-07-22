@@ -47,4 +47,6 @@ export const SEARCH_LIMIT = 10;
 
 export const TIME_LIMIT_MS = 60000;
 
-export const GROUP_LIMIT = 4; // Define the group limit
+export const PERMIUM_ENERGY = 100;
+
+export const NORMAL_ENERGY = 10;
