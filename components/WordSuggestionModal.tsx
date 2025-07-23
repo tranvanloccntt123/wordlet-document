@@ -117,6 +117,7 @@ const WordSuggestionModal: React.FC<WordSuggestionModalProps> = ({
       transparent={true}
       visible={isVisible}
       onRequestClose={onClose}
+      statusBarTranslucent={true}
     >
       <TouchableOpacity
         style={styles.modalOverlay}

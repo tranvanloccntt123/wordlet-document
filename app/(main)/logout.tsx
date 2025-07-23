@@ -1,19 +1,19 @@
 import GameButtons from "@/components/GameButtons";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Text, View } from "react-native";
 import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { s, ScaledSheet } from "react-native-size-matters";
 
@@ -23,6 +23,7 @@ import * as Mixpanel from "@/services/mixpanel";
 import * as supabase from "@/services/supabase";
 import useAuthStore from "@/store/authStore";
 import useFetchStore from "@/store/fetchStore";
+import useOnboardingStore from "@/store/onboardingStore";
 import useSpellStore from "@/store/spellStore";
 import { router } from "expo-router";
 
@@ -33,6 +34,9 @@ const Logout: React.FC = () => {
   const contentAnim = useSharedValue(0);
   const colors = useThemeStore((state) => state.colors);
   const setIsLogged = useAuthStore((state) => state.setIsLogged);
+  const setHasSeenOnboarding = useOnboardingStore(
+    (state) => state.setHasSeenOnboarding
+  );
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -125,6 +129,7 @@ const Logout: React.FC = () => {
                 Mixpanel.logout();
                 setIsLoading(false);
                 setIsLogged(false);
+                setHasSeenOnboarding(false);
               } catch (e) {
                 setIsLoading(false);
               } finally {

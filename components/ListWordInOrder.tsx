@@ -249,6 +249,7 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
         transparent={true}
         visible={isEditModalVisible}
         onRequestClose={() => setIsEditModalVisible(false)}
+        statusBarTranslucent={true}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>

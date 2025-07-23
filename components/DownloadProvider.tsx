@@ -183,6 +183,7 @@ const DownloadAlert: React.FC<object> = () => {
       animationType="slide"
       visible={isShowDownloadVisible && segments[0] === "(main)"}
       onRequestClose={() => {}}
+      statusBarTranslucent={true}
     >
       <View style={styles.modalOverlay}>
         <View style={[styles.alertContainer, { backgroundColor: "white" }]}>

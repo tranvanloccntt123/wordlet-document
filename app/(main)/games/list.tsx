@@ -471,6 +471,7 @@ export default function SelectGameScreen() {
           visible={challengeVisible}
           transparent={true}
           animationType="fade"
+          statusBarTranslucent={true}
         >
           <View style={[styles.alertModalContainer]}>
             <View style={styles.alertContentContainer}>

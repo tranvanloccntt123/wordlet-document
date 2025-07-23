@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { BannerAdSize } from "react-native-google-mobile-ads";
 import { ScaledSheet, ms, s, verticalScale } from "react-native-size-matters";
 import Svg, {
   Defs,
@@ -285,8 +286,8 @@ const HistoryDisplayList: React.FC<{
           )}
         </View>
         <HistoryDisplayItem item={item} />
-        {historyList.length === 1 || (historyList.length > 1 && index === 1) ? (
-          <WordletBanner />
+        {index === 0 ? (
+          <WordletBanner banner={BannerAdSize.INLINE_ADAPTIVE_BANNER} />
         ) : (
           <></>
         )}

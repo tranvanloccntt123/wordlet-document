@@ -50,6 +50,13 @@ const MainLayout = () => {
               animation: "fade",
             }}
           />
+          <Stack.Screen
+            name="onboarding"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+            }}
+          />
         </Stack>
         <EnergyModal />
       </NotificationWrapper>

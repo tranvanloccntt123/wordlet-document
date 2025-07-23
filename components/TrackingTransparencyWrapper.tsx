@@ -27,6 +27,9 @@ const RewardManager: React.FC = () => {
   );
   const setRewardedLoaded = useAdMobStore((state) => state.setRewardLoaded);
   const fetchEnergy = useEnergyStore((state) => state.fetchEnergy);
+  const increaseEnergyAfterReward = useEnergyStore(
+    (state) => state.increaseEnergyAfterReward
+  );
 
   React.useEffect(() => {
     if (!status || !userInfo) return;
@@ -42,11 +45,13 @@ const RewardManager: React.FC = () => {
       const unsubscribeEarned = rewarded.addAdEventListener(
         RewardedAdEventType.EARNED_REWARD,
         (reward) => {
+          //increase energy in local
+          increaseEnergyAfterReward();
           //Refresh energy
           setTimeout(() => {
             //Confirm server increases the energy
-            fetchEnergy();
-          }, 500);
+            fetchEnergy(true);
+          }, 200);
           //
           setRewardedLoaded(false);
           setRewarded(userInfo.user_id);

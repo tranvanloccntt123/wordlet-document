@@ -58,7 +58,12 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   };
 
   return (
-    <Modal transparent={true} animationType="none" visible={visible}>
+    <Modal
+      transparent={true}
+      animationType="none"
+      visible={visible}
+      statusBarTranslucent={true}
+    >
       <TouchableWithoutFeedback onPress={handleClose}>
         <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
           <View style={[styles.container, { backgroundColor: colors.card }]}>

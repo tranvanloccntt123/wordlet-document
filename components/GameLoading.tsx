@@ -46,7 +46,7 @@ const GameLoading: React.FC<{
   const { t } = useTranslation(); // Initialize useTranslation
   const router = useRouter();
   const navigation = useNavigation();
- 
+
   const [challengeVisible, setChallengeVisible] = React.useState(false);
 
   useEffect(() => {
@@ -139,7 +139,12 @@ const GameLoading: React.FC<{
         />
         {children}
       </SafeAreaView>
-      <Modal visible={challengeVisible} transparent={true} animationType="fade">
+      <Modal
+        visible={challengeVisible}
+        transparent={true}
+        statusBarTranslucent={true}
+        animationType="fade"
+      >
         <View style={[styles.alertModalContainer]}>
           <View style={styles.alertContentContainer}>
             <Rive

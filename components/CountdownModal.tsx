@@ -131,6 +131,7 @@ const CountdownModal: React.FC<CountdownModalProps> = ({
       transparent={true}
       animationType="fade"
       visible={visible}
+      statusBarTranslucent={true}
       onRequestClose={onClose} // Allows closing via Android back button
     >
       <View style={styles.overlay}>

@@ -11,6 +11,7 @@ interface EnergyState {
   fetchEnergy: (isRefresh?: boolean) => Promise<any>;
   isVisible: boolean;
   setIsVisible: (_: boolean) => void;
+  increaseEnergyAfterReward: () => void;
 }
 
 export const energyStore = create<EnergyState>()(
@@ -18,6 +19,12 @@ export const energyStore = create<EnergyState>()(
     energy: 0,
     suggest: 0,
     isLoading: false,
+    isVisible: false,
+    increaseEnergyAfterReward() {
+      set((state) => {
+        state.energy += 2;
+      });
+    },
     setSuggest(suggest) {
       set((state) => {
         state.suggest = suggest;
@@ -54,7 +61,6 @@ export const energyStore = create<EnergyState>()(
         });
       }
     },
-    isVisible: false,
     setIsVisible(isVisible) {
       set((state) => {
         state.isVisible = isVisible;

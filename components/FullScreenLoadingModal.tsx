@@ -22,6 +22,7 @@ const FullScreenLoadingModal: React.FC<FullScreenLoadingModalProps> = ({
       transparent={true}
       animationType={animationType}
       visible={visible}
+      statusBarTranslucent={true}
       onRequestClose={() => {
         // Optional: handle back button press during loading
       }}

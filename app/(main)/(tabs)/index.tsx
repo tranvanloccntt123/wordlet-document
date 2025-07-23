@@ -6,6 +6,7 @@ import SpellRandom from "@/components/SpellRandom";
 import { NORMAL_ENERGY, PERMIUM_ENERGY } from "@/constants";
 import useEnergyStore from "@/store/energyStore";
 import useInfoStore from "@/store/infoStore";
+import useOnboardingStore from "@/store/onboardingStore";
 import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
 import { commonStyles } from "@/styles/commonStyles";
@@ -15,7 +16,8 @@ import {
   getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
-import { useRouter } from "expo-router";
+import dayjs from "dayjs";
+import { router, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -33,10 +35,12 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s, scale } from "react-native-size-matters";
 
+
 const EnergyView = () => {
   const { colors } = useThemeStore();
   const { energy, fetchEnergy, isLoading } = useEnergyStore();
   const { info } = useInfoStore();
+  const isShowOnboarding = useOnboardingStore(state => state.hasSeenOnboarding)
 
   const percentAnim = useSharedValue(0);
 
@@ -48,10 +52,16 @@ const EnergyView = () => {
 
   React.useEffect(() => {
     percentAnim.value = withTiming(
-      energy / (info?.is_premium ? PERMIUM_ENERGY : NORMAL_ENERGY),
+      Math.min(energy / (info?.is_premium ? PERMIUM_ENERGY : NORMAL_ENERGY), 1),
       { duration: 500 }
     );
   }, [energy, info]);
+
+  React.useEffect(() => {
+    if (info && !isShowOnboarding && dayjs(info.created_at).isSame(dayjs(), "day")) {
+      router.navigate("/onboarding");
+    }
+  }, [info, isShowOnboarding]);
 
   const overlayStyle = useAnimatedStyle(() => {
     return {

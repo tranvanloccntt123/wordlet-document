@@ -11,8 +11,10 @@ import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
+import { BannerAdSize } from "react-native-google-mobile-ads";
 import { ScaledSheet, s } from "react-native-size-matters"; // Import s and ms
 import Svg, { Circle } from "react-native-svg"; // Import Svg and Circle
+import WordletBanner from "./Banner";
 
 interface CircularProgressBarSvgProps {
   progress: number; // 0-100
@@ -129,6 +131,15 @@ const SpellRandom = () => {
 
   return (
     <View style={styles.cardContainer}>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <WordletBanner banner={BannerAdSize.BANNER} />
+      </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.title, { color: colors.textSecondary }]}>
           {t("home.practicePronunciation")}
@@ -198,7 +209,6 @@ const styles = ScaledSheet.create({
       fontFamily: FontFamilies.NunitoBold,
       fontSizeKey: FontSizeKeys.caption,
     }),
-    // marginRight: "5@s", // If using an icon
   },
   cardLabelContainer: {
     flex: 1, // Takes up available space, pushing score to the right

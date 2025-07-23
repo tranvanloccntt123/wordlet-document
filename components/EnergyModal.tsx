@@ -62,6 +62,7 @@ const EnergyModal: React.FC = () => {
       transparent={true}
       animationType="fade"
       visible={isVisible}
+      statusBarTranslucent={true}
       onRequestClose={() => setIsVisible(false)} // Handle Android back button
     >
       <View style={styles.overlay}>
