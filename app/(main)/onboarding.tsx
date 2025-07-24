@@ -1,5 +1,6 @@
 import GameButtons from "@/components/GameButtons";
 import useOnboardingStore from "@/store/onboardingStore";
+import useThemeStore from "@/store/themeStore";
 import {
   Nunito_400Regular,
   Nunito_700Bold,
@@ -9,6 +10,7 @@ import {
   Canvas,
   Group,
   Image,
+  interpolateColors,
   LinearGradient,
   Paragraph,
   Rect,
@@ -18,13 +20,17 @@ import {
   useImage,
   vec,
 } from "@shopify/react-native-skia";
-import { router } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Dimensions, View } from "react-native";
-import {
+import { BackHandler, Dimensions, View } from "react-native";
+import Animated, {
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withTiming,
@@ -37,6 +43,8 @@ const { width, height } = Dimensions.get("window");
 const WelcomeScreen = () => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const router = useRouter();
+  const navigation = useNavigation();
   const customFontMgr = useFonts({
     Nunito: [Nunito_400Regular, Nunito_700Bold, Nunito_900Black],
   });
@@ -49,13 +57,19 @@ const WelcomeScreen = () => {
   const cloud5 = useImage(require("@/assets/images/cloud5.png"));
   const sun = useImage(require("@/assets/images/sun.png"));
 
+  const getStartAnim = useSharedValue(1);
+
   const cloud2Anim = useSharedValue(1);
 
   const cloud3Anim = useSharedValue(0.8);
 
   const cloud4Anim = useSharedValue(1);
 
+  const cloud5Anim = useSharedValue(1);
+
   const sunAnim = useSharedValue(1.2);
+
+  const colors = useThemeStore((state) => state.colors);
 
   React.useEffect(() => {
     cloud2Anim.value = withRepeat(
@@ -79,6 +93,13 @@ const WelcomeScreen = () => {
       ),
       -1
     );
+    cloud5Anim.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: 1800 }),
+        withTiming(1, { duration: 1800 })
+      ),
+      -1
+    );
     sunAnim.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 1500 }),
@@ -86,6 +107,7 @@ const WelcomeScreen = () => {
       ),
       -1
     );
+    getStartAnim.value = withDelay(100, withTiming(0, { duration: 1500 }));
     setHasSeenOnboarding(true);
   }, []);
 
@@ -117,30 +139,112 @@ const WelcomeScreen = () => {
   }, [customFontMgr]);
 
   const cloud1Transform = useDerivedValue(() => {
-    return [{ scale: cloud2Anim.value }];
+    return [
+      { scale: cloud2Anim.value },
+      { translateX: interpolate(getStartAnim.value, [0, 1], [0, -width]) },
+    ];
   });
 
   const cloud3Transform = useDerivedValue(() => {
-    return [{ scale: cloud3Anim.value }];
+    return [
+      { scale: cloud3Anim.value },
+      { translateX: interpolate(getStartAnim.value, [0, 1], [0, -width]) },
+    ];
   });
 
   const cloud4Transform = useDerivedValue(() => {
-    return [{ scale: cloud4Anim.value }];
+    return [
+      { scale: cloud4Anim.value },
+      { translateX: interpolate(getStartAnim.value, [0, 1], [0, width]) },
+    ];
+  });
+
+  const cloud5Transform = useDerivedValue(() => {
+    return [
+      { scale: cloud5Anim.value },
+      { translateX: interpolate(getStartAnim.value, [0, 1], [0, width]) },
+    ];
   });
 
   const sunTransform = useDerivedValue(() => {
     return [{ scale: cloud2Anim.value }];
   });
 
+  const sunOpacity = useDerivedValue(() => {
+    return interpolate(getStartAnim.value, [0, 1], [1, 0]);
+  });
+
+  const labelTransform = useDerivedValue(() => {
+    return [
+      { translateY: interpolate(getStartAnim.value, [0, 1], [0, height]) },
+    ];
+  });
+
+  const gradientColors = useDerivedValue(() => {
+    return [
+      interpolateColors(
+        getStartAnim.value,
+        [0, 1],
+        ["#4682B4", colors.background]
+      ),
+      interpolateColors(
+        getStartAnim.value,
+        [0, 1],
+        ["#87CEEB", colors.background]
+      ),
+      interpolateColors(
+        getStartAnim.value,
+        [0, 1],
+        ["#B0E0E6", colors.background]
+      ),
+    ];
+  });
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(getStartAnim.value, [0, 0.5, 1], [1, 1, 0]),
+    };
+  });
+
+  // Handle hardware back button (Android)
+  const onBackPress = () => {
+    getStartAnim.value = withTiming(
+      1,
+      {
+        duration: 500,
+      },
+      (finished) => {
+        if (finished) {
+          runOnJS(router.back)();
+        }
+      }
+    );
+    return true; // Prevent default back action
+  };
+
+  React.useEffect(() => {
+    // Add BackHandler listener for Android
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress
+    );
+
+    // Clean up listeners on unmount
+    return () => {
+      // unsubscribe();
+      subscription.remove();
+    };
+  }, [navigation, router]);
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, containerStyle]}>
       <Canvas style={styles.canvas}>
         {/* Sky background color */}
         <Rect x={0} y={0} width={width} height={height}>
           <LinearGradient
             start={vec(0, height)}
             end={vec(width, 0)}
-            colors={["#4682B4", "#87CEEB", "#B0E0E6"]}
+            colors={gradientColors}
           />
         </Rect>
         <Group>
@@ -152,6 +256,7 @@ const WelcomeScreen = () => {
               height={300}
               image={sun}
               fit="contain"
+              opacity={sunOpacity}
             />
           </Group>
           <Group transform={cloud1Transform} origin={vec(500 / 2, 500 / 2)}>
@@ -184,20 +289,25 @@ const WelcomeScreen = () => {
               fit="contain"
             />
           </Group>
-          <Image
-            x={width / 2}
-            y={height / 5}
-            width={300}
-            height={300}
-            image={cloud5}
-            fit="contain"
-          />
-          <Paragraph
-            paragraph={paragraph}
-            x={16}
-            y={height / 2}
-            width={width - 16}
-          />
+          <Group transform={cloud5Transform} origin={vec(150, 150)}>
+            <Image
+              x={width / 2}
+              y={height / 5}
+              width={300}
+              height={300}
+              image={cloud5}
+              fit="contain"
+            />
+          </Group>
+          <Group transform={labelTransform}>
+            <Paragraph
+              paragraph={paragraph}
+              x={16}
+              y={height - insets.bottom - vs(200)}
+              width={width - 16}
+              opacity={sunOpacity}
+            />
+          </Group>
         </Group>
       </Canvas>
       <View style={[styles.buttonContainer, { bottom: insets.bottom }]}>
@@ -205,11 +315,21 @@ const WelcomeScreen = () => {
           hideSkipButton={true}
           primaryButtonText={t("common.letGo")}
           onPrimaryPress={() => {
-            router.back();
+            getStartAnim.value = withTiming(
+              1,
+              {
+                duration: 500,
+              },
+              (finished) => {
+                if (finished) {
+                  runOnJS(router.back)();
+                }
+              }
+            );
           }}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
