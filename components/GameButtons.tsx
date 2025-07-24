@@ -12,6 +12,7 @@ import { ScaledSheet } from "react-native-size-matters";
 
 interface GameButtonsProps {
   hidePrimaryButton?: boolean;
+  hideSkipButton?: boolean;
   primaryButtonDisabled?: boolean;
   skipButtonDisabled?: boolean;
   onPrimaryPress?: () => void;
@@ -63,6 +64,7 @@ const createStyles = (colors: typeof Colors.dark | typeof Colors.light) =>
 
 const GameButtons: React.FC<GameButtonsProps> = ({
   hidePrimaryButton = false,
+  hideSkipButton = false,
   primaryButtonDisabled = false,
   skipButtonDisabled = false,
   onPrimaryPress,
@@ -101,29 +103,31 @@ const GameButtons: React.FC<GameButtonsProps> = ({
           </TouchableOpacity>
         </View>
       )}
-      <View style={{ flex: 1 }}>
-        <TouchableOpacity
-          style={[
-            styles.actionButton,
-            styles.skipButton,
-            { opacity: skipButtonDisabled ? 0.5 : 1 },
-          ]}
-          onPress={onSkipPress}
-          disabled={skipButtonDisabled}
-        >
-          <Text
+      {!hideSkipButton && (
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
             style={[
-              styles.actionButtonText,
-              skipButtonTextColor
-                ? { color: skipButtonTextColor }
-                : styles.skipButtonText,
-              fontSize ? { fontSize } : undefined,
+              styles.actionButton,
+              styles.skipButton,
+              { opacity: skipButtonDisabled ? 0.5 : 1 },
             ]}
+            onPress={onSkipPress}
+            disabled={skipButtonDisabled}
           >
-            {skipButtonText || t("common.skip")}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text
+              style={[
+                styles.actionButtonText,
+                skipButtonTextColor
+                  ? { color: skipButtonTextColor }
+                  : styles.skipButtonText,
+                fontSize ? { fontSize } : undefined,
+              ]}
+            >
+              {skipButtonText || t("common.skip")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

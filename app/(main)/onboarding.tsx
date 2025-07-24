@@ -1,91 +1,219 @@
-import { Nunito_900Black } from "@expo-google-fonts/nunito";
+import GameButtons from "@/components/GameButtons";
+import useOnboardingStore from "@/store/onboardingStore";
 import {
-    Canvas,
-    Circle,
-    Group,
-    Text as SkiaText,
-    useFont,
+  Nunito_400Regular,
+  Nunito_700Bold,
+  Nunito_900Black,
+} from "@expo-google-fonts/nunito";
+import {
+  Canvas,
+  Group,
+  Image,
+  LinearGradient,
+  Paragraph,
+  Rect,
+  Skia,
+  TextAlign,
+  useFonts,
+  useImage,
+  vec,
 } from "@shopify/react-native-skia";
-import React, { useEffect } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Dimensions, View } from "react-native";
 import {
-    useSharedValue,
-    withDelay,
-    withSequence,
-    withSpring,
-    withTiming,
+  useDerivedValue,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { s, ScaledSheet, vs } from "react-native-size-matters";
 
 const { width, height } = Dimensions.get("window");
-const CIRCLE_RADIUS = 50;
-const PARTICLE_COUNT = 20;
 
 const WelcomeScreen = () => {
-  const fontSize = 32;
-  const font = useFont(Nunito_900Black, fontSize);
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const customFontMgr = useFonts({
+    Nunito: [Nunito_400Regular, Nunito_700Bold, Nunito_900Black],
+  });
+  const setHasSeenOnboarding = useOnboardingStore(
+    (state) => state.setHasSeenOnboarding
+  );
+  const cloud2 = useImage(require("@/assets/images/cloud2.png"));
+  const cloud3 = useImage(require("@/assets/images/cloud3.png"));
+  const cloud4 = useImage(require("@/assets/images/cloud4.png"));
+  const cloud5 = useImage(require("@/assets/images/cloud5.png"));
+  const sun = useImage(require("@/assets/images/sun.png"));
 
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-    x: useSharedValue(Math.random() * width),
-    y: useSharedValue(Math.random() * height),
-    scale: useSharedValue(0),
-  }));
+  const cloud2Anim = useSharedValue(1);
 
-  useEffect(() => {
-    scale.value = withSpring(1, { damping: 10, stiffness: 100 });
-    opacity.value = withTiming(1, { duration: 1000 });
+  const cloud3Anim = useSharedValue(0.8);
 
-    particles.forEach((particle, index) => {
-      particle.scale.value = withSequence(
-        withDelay(index * 50, withTiming(1, { duration: 500 })),
-        withDelay(1000 + index * 50, withTiming(0, { duration: 500 }))
-      );
-      particle.x.value = withTiming(Math.random() * width, { duration: 1500 });
-      particle.y.value = withTiming(Math.random() * height, { duration: 1500 });
-    });
+  const cloud4Anim = useSharedValue(1);
+
+  const sunAnim = useSharedValue(1.2);
+
+  React.useEffect(() => {
+    cloud2Anim.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: 1200 }),
+        withTiming(1, { duration: 1200 })
+      ),
+      -1
+    );
+    cloud3Anim.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1700 }),
+        withTiming(0.8, { duration: 1700 })
+      ),
+      -1
+    );
+    cloud4Anim.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: 1800 }),
+        withTiming(1, { duration: 1800 })
+      ),
+      -1
+    );
+    sunAnim.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1500 }),
+        withTiming(1.1, { duration: 1500 })
+      ),
+      -1
+    );
+    setHasSeenOnboarding(true);
   }, []);
+
+  const paragraph = React.useMemo(() => {
+    // Are the font loaded already?
+    if (!customFontMgr) {
+      return null;
+    }
+    const paragraphStyle = {
+      textAlign: TextAlign.Center,
+    };
+    const textStyle = {
+      color: Skia.Color("black"),
+      fontFamilies: ["Nunito"],
+      fontSize: s(25),
+    };
+    return Skia.ParagraphBuilder.Make(paragraphStyle, customFontMgr)
+      .pushStyle({ ...textStyle, fontStyle: { weight: 900 } })
+      .addText(t("home.welcome"))
+      .pushStyle({
+        ...textStyle,
+        fontSize: s(15),
+        color: Skia.Color("black"),
+        fontStyle: { weight: 400 },
+      })
+      .addText(`\n${t("home.welcomeMessage")}`)
+      .pop()
+      .build();
+  }, [customFontMgr]);
+
+  const cloud1Transform = useDerivedValue(() => {
+    return [{ scale: cloud2Anim.value }];
+  });
+
+  const cloud3Transform = useDerivedValue(() => {
+    return [{ scale: cloud3Anim.value }];
+  });
+
+  const cloud4Transform = useDerivedValue(() => {
+    return [{ scale: cloud4Anim.value }];
+  });
+
+  const sunTransform = useDerivedValue(() => {
+    return [{ scale: cloud2Anim.value }];
+  });
 
   return (
     <View style={styles.container}>
       <Canvas style={styles.canvas}>
-        {particles.map((particle, index) => (
-          <Group key={index}>
-            <Circle
-              cx={particle.x}
-              cy={particle.y}
-              r={CIRCLE_RADIUS * particle.scale.value}
-              color={`hsl(${Math.random() * 360}, 70%, 50%)`}
+        {/* Sky background color */}
+        <Rect x={0} y={0} width={width} height={height}>
+          <LinearGradient
+            start={vec(0, height)}
+            end={vec(width, 0)}
+            colors={["#4682B4", "#87CEEB", "#B0E0E6"]}
+          />
+        </Rect>
+        <Group>
+          <Group transform={sunTransform} origin={vec(300 / 2, 300 / 2)}>
+            <Image
+              x={(width - 300) / 2}
+              y={vs(50)}
+              width={300}
+              height={300}
+              image={sun}
+              fit="contain"
             />
           </Group>
-        ))}
-        <Group
-          transform={[
-            { translateX: width / 2 - 150 },
-            { translateY: height / 2 - 50 },
-          ]}
-        >
-          <SkiaText
-            x={0}
-            y={0}
-            text="Welcome to Onboard"
-            color="#333"
-            font={font}
+          <Group transform={cloud1Transform} origin={vec(500 / 2, 500 / 2)}>
+            <Image
+              x={-width / 2}
+              y={0}
+              width={500}
+              height={500}
+              image={cloud2}
+              fit="contain"
+            />
+          </Group>
+          <Group transform={cloud3Transform} origin={vec(400 / 2, 400 / 2)}>
+            <Image
+              x={0}
+              y={height / 5}
+              width={400}
+              height={400}
+              image={cloud3}
+              fit="contain"
+            />
+          </Group>
+          <Group transform={cloud4Transform} origin={vec(250 / 2, 250 / 2)}>
+            <Image
+              x={width / 2}
+              y={0}
+              width={250}
+              height={250}
+              image={cloud4}
+              fit="contain"
+            />
+          </Group>
+          <Image
+            x={width / 2}
+            y={height / 5}
+            width={300}
+            height={300}
+            image={cloud5}
+            fit="contain"
           />
-          <SkiaText
-            x={0}
-            y={60}
-            text="My Application for Learn English Word"
-            color="#666"
-            font={font}
+          <Paragraph
+            paragraph={paragraph}
+            x={16}
+            y={height / 2}
+            width={width - 16}
           />
         </Group>
       </Canvas>
+      <View style={[styles.buttonContainer, { bottom: insets.bottom }]}>
+        <GameButtons
+          hideSkipButton={true}
+          primaryButtonText={t("common.letGo")}
+          onPrimaryPress={() => {
+            router.back();
+          }}
+        />
+      </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f4f8",
@@ -111,6 +239,11 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginTop: 10,
+  },
+  buttonContainer: {
+    position: "absolute",
+    left: "15@s",
+    right: "15@s",
   },
 });
 

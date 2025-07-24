@@ -5,6 +5,8 @@ const home = {
   searchWord: "Tìm kiếm từ...",
   play: "Chơi",
   practicePronunciation: "Luyện tập phát âm",
+  welcome: "Chào mừng bạn đến với Wordlet",
+  welcomeMessage: "Ngày đầu đăng nhập bạn sẽ nhận được 20 năng lượng",
 };
 
 export default home;

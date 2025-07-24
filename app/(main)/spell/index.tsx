@@ -1,3 +1,4 @@
+import WordletBanner from "@/components/Banner";
 import CommonHeader from "@/components/CommonHeader"; // Import CommonHeader
 import useThemeStore from "@/store/themeStore";
 import {
@@ -9,6 +10,7 @@ import { router, useLocalSearchParams } from "expo-router"; // Import router and
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
+import { BannerAdSize } from "react-native-google-mobile-ads";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, vs } from "react-native-size-matters";
 import YoutubePlayer from "react-native-youtube-iframe";
@@ -29,6 +31,7 @@ const SpellCharactor = () => {
       <CommonHeader title={params.spell || ""} />
       <View style={{ justifyContent: "space-between", flex: 1 }}>
         <View style={styles.youtubeContainer}>
+          <WordletBanner banner={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
           <YoutubePlayer
             height={vs(200)}
             width={vs(290)}

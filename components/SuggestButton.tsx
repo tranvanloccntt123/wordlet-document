@@ -1,4 +1,3 @@
-import * as Mixpanel from "@/services/mixpanel";
 import { decreaseSuggest } from "@/services/supabase";
 import useAdMobStore from "@/store/admobStore";
 import useEnergyStore from "@/store/energyStore";
@@ -46,7 +45,6 @@ const SuggestButton: React.FC<{
       if (suggest === 0 && !rewardSuccess) {
         //SHOW ADS
         loaded && rewarded?.show();
-        Mixpanel.showAds({ suggest: true });
         return;
       } else {
         // Only allow suggestion if answer not submitted
@@ -64,7 +62,7 @@ const SuggestButton: React.FC<{
   const disabled =
     isCorrect !== null ||
     !currentWord ||
-    (!checkSuggestAvailable.current && group?.user_id !== user?.id && !loaded);
+    (group?.user_id !== user?.id && !suggest && !loaded);
 
   return (
     !!currentWord && (

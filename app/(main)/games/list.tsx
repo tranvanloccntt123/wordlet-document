@@ -8,6 +8,7 @@ import ListWordInOrder from "@/components/ListWordInOrder";
 import RecentGroups from "@/components/RecentGroups";
 import { TIME_LIMIT_MS } from "@/constants";
 import useQuery from "@/hooks/useQuery";
+import mixpanel from "@/services/mixpanel";
 import { fetchGroupDetail } from "@/services/supabase";
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
@@ -187,9 +188,20 @@ export default function SelectGameScreen() {
         setChallengeVisible(true);
       }, 100);
     }
-  }, [isLoading, info, group]);
+  }, [isChallent]);
 
   const isAuthor = !!info && !!group && info.user_id === group.user_id;
+
+  React.useEffect(() => {
+    if (isChallent) {
+      const timeout = setTimeout(() => {
+        mixpanel.track("View Group", { groupId: group.id });
+      }, 1500);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [isChallent]);
 
   return (
     <AppLoading isLoading={isLoading}>
@@ -223,6 +235,7 @@ export default function SelectGameScreen() {
             </TouchableOpacity>
           }
         />
+        {isChallent && <WordletBanner />}
         <FlatList
           data={GAME_CATEGORIES}
           keyExtractor={(item) => item.id}
@@ -436,7 +449,6 @@ export default function SelectGameScreen() {
                     {/* Removed duplicate chevron icon definition */}
                   </MaterialIcons>
                 </TouchableOpacity>
-                {index === 1 && isChallent && <WordletBanner />}
               </>
             );
           }}

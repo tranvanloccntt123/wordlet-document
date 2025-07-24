@@ -1,3 +1,4 @@
+import * as Mixpanel from "@/services/mixpanel";
 import useAdMobStore from "@/store/admobStore";
 import useEnergyStore from "@/store/energyStore";
 import useInfoStore from "@/store/infoStore";
@@ -55,6 +56,7 @@ const RewardManager: React.FC = () => {
           //
           setRewardedLoaded(false);
           setRewarded(userInfo.user_id);
+          Mixpanel.showAds({ category: "INCREASE_ENERGY", ...reward });
         }
       );
 
@@ -86,6 +88,7 @@ const RewardManager: React.FC = () => {
           setSuggestRewardedLoaded(false);
           setSuggestRewardedSuccess(true);
           setSuggestRewarded(userInfo.user_id);
+          Mixpanel.showAds({ category: "SUGGEST", ...reward });
         }
       );
 
