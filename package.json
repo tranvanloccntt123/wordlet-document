@@ -87,7 +87,8 @@
     "xpath": "^0.0.34",
     "zustand": "^5.0.4",
     "expo-background-task": "~0.2.8",
-    "expo-crypto": "~14.1.5"
+    "expo-crypto": "~14.1.5",
+    "expo-secure-store": "~14.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
