@@ -43,8 +43,8 @@ const Logout: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    contentAnim.value = withSpring(1, { duration: 500 });
-  }, []);
+    contentAnim.value = withSpring(isLoading ? 0 : 1, { duration: 500 });
+  }, [isLoading]);
 
   const contentContainerStyle = useAnimatedStyle(() => {
     return {

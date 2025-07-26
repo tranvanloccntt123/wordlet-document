@@ -304,7 +304,7 @@ const WelcomeScreen = () => {
               paragraph={paragraph}
               x={16}
               y={height - insets.bottom - vs(200)}
-              width={width - 16}
+              width={width - 32}
               opacity={sunOpacity}
             />
           </Group>

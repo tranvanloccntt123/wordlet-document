@@ -86,7 +86,8 @@
     "xmldom": "^0.6.0",
     "xpath": "^0.0.34",
     "zustand": "^5.0.4",
-    "expo-background-task": "~0.2.8"
+    "expo-background-task": "~0.2.8",
+    "expo-crypto": "~14.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

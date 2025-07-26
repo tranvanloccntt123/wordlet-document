@@ -10,6 +10,8 @@ import "react-native-url-polyfill/auto";
 
 export let supabase: SupabaseClient<any, "public", any> | null = null;
 
+export let supabaseSocial: SupabaseClient<any, "public", any> | null = null;
+
 export const wordSupabase = createClient(
   "https://opsqmhzjheeewhlxektw.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wc3FtaHpqaGVlZXdobHhla3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwODk2NTIsImV4cCI6MjA2NDY2NTY1Mn0.CziF4JMt4995pi6894ephT07DLsfpz4_lHbK1YVte6s"
