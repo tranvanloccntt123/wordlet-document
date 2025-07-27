@@ -97,10 +97,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile file('@tranvanloc__english-directory.jks')
+            storePassword 'b6e21f7efb019f8726a63819af4c98b7'
+            keyAlias 'a0ea4d507de084d690e3007d1c36c566'
+            keyPassword '20fb89be68b42dcb5999cbc359923c1f'
         }
     }
     buildTypes {

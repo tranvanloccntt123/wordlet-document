@@ -156,3 +156,7 @@ export const getSerieDetailKey = (seriesId: number) => `SERIES_${seriesId}`;
 
 export const getGroupsInSeries = (seriesId: number) =>
   `SERIES_GROUP_${seriesId}`;
+
+export const getPostKey = (postId: number): string => `POST_${postId}`;
+
+export const getPostListKey = (): string => `POST_LIST`;

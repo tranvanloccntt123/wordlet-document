@@ -23,3 +23,9 @@ export const formatScore = (score: number): string => {
   }
   return score.toString();
 };
+
+const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
+
+export function isValidUrl(string: string) {
+  return urlRegex.test(string);
+}

@@ -154,3 +154,20 @@ type ReportGroup = {
   description: string;
   created_at: string;
 };
+
+type SocialUser = {
+  id: number;
+  user_id: string;
+  created_at: string;
+  name: string;
+  avatar: string;
+  wordlet_user_id: string;
+};
+
+type Post = {
+  id: string;
+  content: string;
+  created_at: string;
+  params: Record<string, any>;
+  user_info?: SocialUser
+};

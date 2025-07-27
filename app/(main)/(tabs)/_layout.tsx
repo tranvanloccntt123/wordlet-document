@@ -2,6 +2,7 @@ import { HapticTab } from "@/components/HapticTab";
 import useLanguageStore from "@/store/languageStore"; // Import the new language store
 import useThemeStore from "@/store/themeStore";
 import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Tabs } from "expo-router";
 import React, { useEffect } from "react"; // Import useEffect
 import { useTranslation } from "react-i18next"; // Import useTranslation
@@ -36,6 +37,15 @@ export default function TabLayout() {
           title: "",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="home" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen 
+        name="new-feed"
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="newspaper-variant-multiple"  size={28} color={color} />
           ),
         }}
       />

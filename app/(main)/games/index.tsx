@@ -17,6 +17,7 @@ import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   FlatList,
   RefreshControl,
   Text,
@@ -99,8 +100,7 @@ const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
 
 export default function Games() {
   const [supabaseData, setSupabaseData] = React.useState<number[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] =
-    React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false);
   const canLoadMore = React.useRef<boolean>(true);
   const currentOffset = React.useRef("");
@@ -108,7 +108,7 @@ export default function Games() {
   const { t } = useTranslation(); // Specify namespaces
 
   const fetchData = async (isRefresh: boolean = false) => {
-    if ((isLoadingHistory && !isRefresh) || !canLoadMore.current) {
+    if ((isLoading && !isRefresh) || (!canLoadMore.current && !isRefresh)) {
       return;
     }
 
@@ -117,7 +117,7 @@ export default function Games() {
       currentOffset.current = ""; // Reset offset for refresh
       canLoadMore.current = true; // Allow loading more after refresh
     } else {
-      setIsLoadingHistory(true);
+      setIsLoading(true);
     }
 
     try {
@@ -133,7 +133,9 @@ export default function Games() {
       } else {
         newItems.map((g) => setQueryData(getGroupKey(g.id), g));
         setSupabaseData((prevData) =>
-          isRefresh ? newItems : [...prevData, ...newItems.map((v) => v.id)]
+          isRefresh
+            ? newItems.map((v) => v.id)
+            : [...prevData, ...newItems.map((v) => v.id)]
         );
         currentOffset.current = newItems[newItems.length - 1].created_at;
         if (newItems.length < SEARCH_LIMIT) canLoadMore.current = false;
@@ -142,7 +144,7 @@ export default function Games() {
       console.error("Failed to fetch group:", e);
       canLoadMore.current = false; // Stop trying if error
     } finally {
-      setIsLoadingHistory(false);
+      setIsLoading(false);
       if (isRefresh) setIsRefreshing(false);
     }
   };
@@ -201,7 +203,7 @@ export default function Games() {
   );
 
   return (
-    <IntroLoading isLoading={isLoadingHistory && !supabaseData.length}>
+    <IntroLoading isLoading={isLoading && !supabaseData.length}>
       <SafeAreaView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
@@ -209,10 +211,10 @@ export default function Games() {
         <View style={styles.contentContainer}>
           <FlatList
             data={supabaseData}
-            keyExtractor={(item) => `${item}`}
+            keyExtractor={(item, index) => `GROUP_${index}`}
             renderItem={renderItem}
             contentContainerStyle={styles.listContentContainer}
-            ListEmptyComponent={!isLoadingHistory ? ListEmptyComponent : null}
+            ListEmptyComponent={!isLoading ? ListEmptyComponent : null}
             onEndReached={() => fetchData()}
             showsVerticalScrollIndicator={false}
             refreshControl={
@@ -221,6 +223,13 @@ export default function Games() {
                 onRefresh={handleRefresh}
                 tintColor={colors.primary}
               />
+            }
+            ListFooterComponent={
+              <View>
+                {isLoading && (
+                  <ActivityIndicator size={"large"} color={colors.primary} />
+                )}
+              </View>
             }
           />
         </View>

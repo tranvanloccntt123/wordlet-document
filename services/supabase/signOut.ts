@@ -1,5 +1,12 @@
 import { SUPABASE_FUNCTION } from "@/constants/Supabase";
-import { clearUserFetching, getUsers, supabase } from "./client";
+import {
+  clearSocialUserFetching,
+  clearUserFetching,
+  getSocialUsers,
+  getUsers,
+  supabase,
+  supabaseSocial,
+} from "./client";
 import { clearEnergyFetching } from "./energy";
 import { clearOwnerGroupFetching } from "./group";
 import { clearPlayerRankFetching } from "./leaderBoard";
@@ -15,7 +22,12 @@ export const deleteAccount = async () => {
         body: { userId: user?.id },
       }
     );
-
+    try {
+      const socialUser = await getSocialUsers();
+      await supabaseSocial!.functions.invoke(SUPABASE_FUNCTION.DELETE_USER, {
+        body: { userId: socialUser?.id },
+      });
+    } catch {}
     return response;
   } catch (e) {
     throw e;
@@ -31,4 +43,6 @@ export const signOut = () =>
     clearFCMFetching();
     clearPlayerRankFetching();
     clearUserInfoFetching();
+    //SOCIAL
+    clearSocialUserFetching();
   });

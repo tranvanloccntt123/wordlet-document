@@ -29,3 +29,8 @@ export const SUPABASE_FUNCTION = {
   DECREASE_SUGGEST: "decrease_suggest",
   DELETE_USER: "delete-user",
 };
+
+export const SUPABASE_SOCIAL_TABLE = {
+  USER_INFO: "user_info",
+  POST: "post",
+};
