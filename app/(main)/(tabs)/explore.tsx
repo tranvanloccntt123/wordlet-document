@@ -1,5 +1,4 @@
 import AppAudio from "@/assets/audio";
-import { DB_DIR } from "@/services/downloadDb";
 import useLanguageStore from "@/store/languageStore"; // Import the language store
 import useThemeStore from "@/store/themeStore";
 import {
@@ -9,18 +8,14 @@ import {
 } from "@/styles/fontStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayer } from "expo-audio";
-import * as FileSystem from "expo-file-system"; // Import FileSystem
 import { useRouter } from "expo-router"; // Corrected: useRouter should be imported from expo-router
 // import * as Sharing from "expo-sharing"; // Import Sharing
 import AppLoading from "@/components/AppLoading";
 import useNotificationStore from "@/store/notificationStore";
 import * as Haptics from "expo-haptics";
-import * as Notifications from "expo-notifications";
-import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import {
-  Alert, // Import Alert
   Keyboard,
   Linking,
   ScrollView, // Import Platform
@@ -41,10 +36,6 @@ const SettingsScreen = () => {
   const isSwappingTheme = useThemeStore((state) => state.isSwappingTheme);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
-  const [isSharingDB, setIsSharingDB] = React.useState<boolean>(false);
-
-  const [dbList, setDbList] = React.useState<string[]>([]);
 
   // Local state for the TextInput
   const [inputValue, setInputValue] = useState("");
@@ -121,45 +112,6 @@ const SettingsScreen = () => {
 
   // Display language based on the store's state
   const currentLanguageDisplay = currentLanguage.startsWith("vn") ? "VN" : "EN";
-
-  const handleExportDatabase = async () => {
-    setIsSharingDB(!isSharingDB);
-    try {
-      if (!dbList.length) {
-        const dbs = await FileSystem.readDirectoryAsync(DB_DIR);
-        setDbList(dbs);
-      }
-    } catch (error: any) {
-      Alert.alert(
-        t("settings.exportError"),
-        error.message || t("common.unknownError")
-      );
-    }
-  };
-
-  const handleTestNotification = async () => {
-    const payload = {
-      title: "Test",
-      body: "Test Notification",
-      data: {
-        word: "Test",
-        groupId: "0",
-        screen: `/word/${encodeURIComponent("extra_mtb_ev.db")}/test/detail`,
-      }, // Optional: useful for handling notification tap
-    };
-    await Notifications.scheduleNotificationAsync({
-      content: payload,
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 1,
-        repeats: false, // Show once per word for this scheduling session
-      },
-    });
-  };
-
-  const shareDB = async (db: string) => {
-    Sharing.shareAsync(`${DB_DIR}/${db}`);
-  };
 
   return (
     <AppLoading isLoading={isLoading}>
@@ -303,7 +255,7 @@ const SettingsScreen = () => {
             {__DEV__ && (
               <TouchableOpacity
                 style={[styles.settingItem, { backgroundColor: colors.card }]}
-                onPress={handleExportDatabase}
+                onPress={() => router.navigate("/dev")}
               >
                 <MaterialIcons
                   name="save-alt" // Icon for export/download
@@ -314,57 +266,11 @@ const SettingsScreen = () => {
                 <Text
                   style={[styles.settingText, { color: colors.textPrimary }]}
                 >
-                  Export DB (DEV)
+                  Go To Dev
                 </Text>
                 <View style={styles.placeholder} />
               </TouchableOpacity>
             )}
-
-            {/* Handle Test Notification */}
-            {__DEV__ && (
-              <TouchableOpacity
-                style={[styles.settingItem, { backgroundColor: colors.card }]}
-                onPress={handleTestNotification}
-              >
-                <MaterialIcons
-                  name="notifications" // Icon for export/download
-                  size={s(22)}
-                  color={colors.warning} // Use a distinct color for dev features
-                  style={styles.icon}
-                />
-                <Text
-                  style={[styles.settingText, { color: colors.textPrimary }]}
-                >
-                  Test Notifications
-                </Text>
-                <View style={styles.placeholder} />
-              </TouchableOpacity>
-            )}
-            {__DEV__ &&
-              isSharingDB &&
-              dbList.map((db) => (
-                <TouchableOpacity
-                  key={db}
-                  style={[
-                    styles.settingItem,
-                    { backgroundColor: colors.card, marginLeft: s(40) },
-                  ]}
-                  onPress={() => shareDB(db)}
-                >
-                  <MaterialIcons
-                    name="save-alt" // Icon for export/download
-                    size={s(22)}
-                    color={colors.warning} // Use a distinct color for dev features
-                    style={styles.icon}
-                  />
-                  <Text
-                    style={[styles.settingText, { color: colors.textPrimary }]}
-                  >
-                    Export DB {db}
-                  </Text>
-                  <View style={styles.placeholder} />
-                </TouchableOpacity>
-              ))}
             {/* Logout Button */}
             <TouchableOpacity
               style={[
