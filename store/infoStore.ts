@@ -1,4 +1,4 @@
-import { getUserInfo } from "@/services/supabase";
+import { getUserInfo, getUserSocialInfo } from "@/services/supabase";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -16,6 +16,7 @@ export interface GameSpecificData {
 
 interface InfoState {
   info: UserInfo | null;
+  socialInfo: SocialUser | null;
   history: GameHistory[];
   isLoading: boolean;
   addGameResult: (result: GameHistory) => void;
@@ -25,6 +26,7 @@ interface InfoState {
 const infoStore = create<InfoState>()(
   immer((set, get) => ({
     info: null,
+    socialInfo: null,
     isLoading: false,
     history: [] as GameHistory[], // Explicitly type history here for immer
     totalScore: 0, // Initialize totalScore
@@ -43,6 +45,12 @@ const infoStore = create<InfoState>()(
         if (!!userInfo) {
           set((state) => {
             state.info = userInfo;
+          });
+        }
+        const { data: socialInfo } = await getUserSocialInfo();
+        if (!!socialInfo) {
+          set((state) => {
+            state.socialInfo = socialInfo;
           });
         }
       } catch (e) {

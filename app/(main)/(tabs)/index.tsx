@@ -16,7 +16,6 @@ import {
   getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
-import dayjs from "dayjs";
 import { router, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -35,12 +34,13 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s, scale } from "react-native-size-matters";
 
-
 const EnergyView = () => {
   const { colors } = useThemeStore();
   const { energy, fetchEnergy, isLoading } = useEnergyStore();
-  const { info } = useInfoStore();
-  const isShowOnboarding = useOnboardingStore(state => state.hasSeenOnboarding)
+  const { info, socialInfo } = useInfoStore();
+  const isShowOnboarding = useOnboardingStore(
+    (state) => state.hasSeenOnboarding
+  );
 
   const percentAnim = useSharedValue(0);
 
@@ -58,10 +58,10 @@ const EnergyView = () => {
   }, [energy, info]);
 
   React.useEffect(() => {
-    if (info && !isShowOnboarding && dayjs(info.created_at).isSame(dayjs(), "day")) {
+    if (socialInfo && !socialInfo.categories && !isShowOnboarding) {
       router.navigate("/onboarding");
     }
-  }, [info, isShowOnboarding]);
+  }, [socialInfo, isShowOnboarding]);
 
   const overlayStyle = useAnimatedStyle(() => {
     return {

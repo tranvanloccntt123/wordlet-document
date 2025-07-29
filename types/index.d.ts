@@ -162,6 +162,7 @@ type SocialUser = {
   name: string;
   avatar: string;
   wordlet_user_id: string;
+  categories: string;
 };
 
 type Post = {
@@ -169,5 +170,5 @@ type Post = {
   content: string;
   created_at: string;
   params: Record<string, any>;
-  user_info?: SocialUser
+  user_info?: SocialUser;
 };

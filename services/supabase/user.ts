@@ -1,6 +1,10 @@
-import { SUPABASE_SCHEMA, SUPABASE_TABLE } from "@/constants/Supabase";
+import {
+  SUPABASE_SCHEMA,
+  SUPABASE_SOCIAL_TABLE,
+  SUPABASE_TABLE,
+} from "@/constants/Supabase";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { getUsers, supabase } from "./client";
+import { getSocialUsers, getUsers, supabase, supabaseSocial } from "./client";
 
 let fcmFetching: any = null;
 
@@ -87,5 +91,19 @@ export const getUserInfo = async () => {
   }
   const response = await userFetching;
   clearUserInfoFetching();
+  return response;
+};
+
+export const getUserSocialInfo = async () => {
+  const user = await getSocialUsers();
+  if (!user) {
+    throw "User not found";
+  }
+  const response = await supabaseSocial!
+    .schema(SUPABASE_SCHEMA)
+    .from(SUPABASE_SOCIAL_TABLE.USER_INFO)
+    .select("*")
+    .eq("id", user?.id)
+    .single();
   return response;
 };

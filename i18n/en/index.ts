@@ -1,3 +1,4 @@
+import categories from "./categories";
 import common from "./common";
 import gameOver from "./gameOver";
 import games from "./games";
@@ -25,5 +26,6 @@ export default {
     login,
     series,
     post,
+    categories,
   },
 };
