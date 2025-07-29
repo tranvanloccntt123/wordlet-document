@@ -19,7 +19,7 @@ const DAY_ABBREVIATIONS = ["S", "M", "T", "W", "T", "F", "S"];
 const CalendarStreak = () => {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
-  const { currentStreak, streakHistory } = useStreakStore(); // Get streak data
+  const { currentStreak, streakHistory, fetchStreak } = useStreakStore(); // Get streak data
   const today = new Date();
   const todayFormatted = useMemo(() => formatDate(today), [today]);
 
@@ -43,6 +43,10 @@ const CalendarStreak = () => {
       };
     });
   }, [today, todayFormatted, streakHistory]);
+
+  React.useEffect(() => {
+    fetchStreak();
+  }, []);
 
   return (
     <View style={[styles.streakContainer, { backgroundColor: colors.card }]}>

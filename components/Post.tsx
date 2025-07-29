@@ -1,12 +1,13 @@
 import useQuery from "@/hooks/useQuery";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { formatDate } from "@/utils/date";
 import { getPostKey } from "@/utils/string";
+import { MaterialIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
 import React from "react";
@@ -29,18 +30,27 @@ const Post: React.FC<{ postId: number }> = ({ postId }) => {
     !!item && (
       <View style={[styles.container]}>
         <View style={styles.headerContainer}>
-          <Image
-            source={{ uri: item?.user_info?.avatar }}
-            style={styles.avatar}
-          />
-          <View>
-            <Text style={[styles.name, { color: colors.textPrimary }]}>
-              {item?.user_info?.name}
-            </Text>
-            <Text style={[styles.date, { color: colors.textDisabled }]}>
-              {formatDate(new Date(item?.created_at))}
-            </Text>
+          <View style={{ flexDirection: "row", gap: s(8) }}>
+            <Image
+              source={{ uri: item?.user_info?.avatar }}
+              style={styles.avatar}
+            />
+            <View>
+              <Text style={[styles.name, { color: colors.textPrimary }]}>
+                {item?.user_info?.name}
+              </Text>
+              <Text style={[styles.date, { color: colors.textDisabled }]}>
+                {formatDate(new Date(item?.created_at))}
+              </Text>
+            </View>
           </View>
+          <TouchableOpacity style={[styles.headerButton]}>
+            <MaterialIcons
+              name="more-vert"
+              size={s(18)}
+              color={colors.textPrimary}
+            />
+          </TouchableOpacity>
         </View>
         <View
           style={[
@@ -116,13 +126,10 @@ const Post: React.FC<{ postId: number }> = ({ postId }) => {
           </View>
         )}
         <View
-          style={[
-            styles.footerContainer,
-            { backgroundColor: colors.card, borderTopColor: colors.shadow },
-          ]}
+          style={[styles.footerContainer, { backgroundColor: colors.card }]}
         >
           <TouchableOpacity
-            style={[styles.footerButton, { backgroundColor: colors.shadow }]}
+            style={[styles.footerButton, { backgroundColor: colors.border }]}
           >
             <AntDesign name="like2" size={s(18)} color={colors.textPrimary} />
           </TouchableOpacity>
@@ -146,6 +153,7 @@ const styles = ScaledSheet.create({
     marginBottom: "8@s",
     gap: "8@s",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   contentContainer: {
     width: "100%",
@@ -194,7 +202,6 @@ const styles = ScaledSheet.create({
     justifyContent: "flex-end",
     paddingHorizontal: "16@s",
     paddingVertical: "8@s",
-    borderTopWidth: 1,
   },
   footerButton: {
     width: "30@s",
@@ -202,5 +209,14 @@ const styles = ScaledSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: "30@s",
+  },
+  headerButton: {
+    padding: "5@s",
+    width: "30@s",
+    height: "30@s",
+    borderRadius: "30@s",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-end",
   },
 });

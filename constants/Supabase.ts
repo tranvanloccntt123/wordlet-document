@@ -18,6 +18,8 @@ export const SUPABASE_TABLE = {
   VOWEL_PERCENT: "vowel_percent",
   SERIES: "series",
   REPORT: "report",
+  USER_STREAKS: "user_streaks",
+  STREAK_DAYS: "streak_days",
 };
 
 export const SUPABASE_FUNCTION = {

@@ -1,3 +1,4 @@
+import useInfoStore from "@/store/infoStore";
 import React from "react";
 import { Platform } from "react-native";
 import {
@@ -13,16 +14,19 @@ const adUnitId = __DEV__
 const WordletBanner: React.FC<{ banner?: BannerAdSize | string }> = ({
   banner,
 }) => {
+  const { info, isLoading } = useInfoStore();
   const bannerRef = React.useRef<BannerAd>(null);
   useForeground(() => {
     Platform.OS === "ios" && bannerRef.current?.load();
   });
   return (
-    <BannerAd
-      ref={bannerRef}
-      unitId={adUnitId}
-      size={banner ?? BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-    />
+    (!isLoading || !info?.is_premium) && (
+      <BannerAd
+        ref={bannerRef}
+        unitId={adUnitId}
+        size={banner ?? BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+      />
+    )
   );
 };
 

@@ -115,6 +115,7 @@ const LeaderboardScreen = () => {
       const { data: userRankData } = await getUserPlayerRank();
       return userRankData;
     },
+    delayTime: 200,
   });
 
   const { data: top100Players, isLoading: isTop100PlayersLoading } = useQuery({
@@ -123,6 +124,7 @@ const LeaderboardScreen = () => {
       const { data } = await fetchLeaderboardRanks(100, 0);
       return data || [];
     },
+    delayTime: 200,
   });
 
   const renderItem = ({ item, index }: { item: PlayerRank; index: number }) =>

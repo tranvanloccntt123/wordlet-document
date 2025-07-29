@@ -20,6 +20,7 @@ import Svg, {
 
 import IntroLoading from "@/components/IntroLoading";
 import { getQueryData } from "@/hooks/useQuery";
+import mixpanel from "@/services/mixpanel";
 import { getFormattedDate, getGroupKey } from "@/utils/string";
 import { useAudioPlayer } from "expo-audio";
 import { router, useLocalSearchParams } from "expo-router";
@@ -107,6 +108,12 @@ const GameOverScreen: React.FC<object> = () => {
         if (r.data?.data?.[0]) {
           setEnergy(r.data.data[0].energy);
         }
+        if (r.error) {
+          mixpanel.track("Game Error", { error: r.error });
+        }
+      })
+      .catch((e) => {
+        mixpanel.track("Game Error", { error: e });
       })
       .finally(() => {
         playerWinner.seekTo(0);
@@ -224,7 +231,7 @@ const GameOverScreen: React.FC<object> = () => {
               }
               const history: GameHistory = {
                 id: Number(params?.historyId || "0"),
-                score: parseInt(params.score || "0"),
+                score: finalScore,
                 created_at: getFormattedDate(new Date()),
                 message:
                   percent < 10

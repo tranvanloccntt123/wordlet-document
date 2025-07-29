@@ -13,11 +13,13 @@ const useQuery = <T = any>({
   queryFn,
   disableCache,
   gcTime = 300000,
+  delayTime = 0,
 }: {
   key: string;
   queryFn?: () => Promise<T>;
   disableCache?: boolean;
   gcTime?: number;
+  delayTime?: number;
 }) => {
   const fetch = useFetchStore((state) => state.fetch);
   const data = useFetchStore((state) => state.fetchData?.[key]?.data ?? null);
@@ -47,7 +49,13 @@ const useQuery = <T = any>({
   };
 
   React.useEffect(() => {
-    fetchData();
+    if (delayTime) {
+      setTimeout(() => {
+        fetchData();
+      }, delayTime);
+    } else {
+      fetchData();
+    }
   }, []);
 
   return {

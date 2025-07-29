@@ -5,6 +5,7 @@ export * from "./leaderBoard";
 export * from "./report";
 export * from "./series";
 export * from "./signOut";
+export * from "./streak";
 export * from "./user";
 export * from "./vowel";
 

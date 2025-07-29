@@ -1,3 +1,4 @@
+import WordletBanner from "@/components/Banner";
 import Post from "@/components/Post";
 import { SEARCH_LIMIT } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
@@ -19,6 +20,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { BannerAdSize } from "react-native-google-mobile-ads";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet } from "react-native-size-matters";
@@ -106,7 +108,14 @@ const NewFeed = () => {
           ListHeaderComponent={header}
           data={data}
           keyExtractor={(item, index) => `POST-${index}`}
-          renderItem={({ item }) => <Post postId={item} />}
+          renderItem={({ item, index }) => (
+            <>
+              <Post postId={item} />
+              {index === 0 && (
+                <WordletBanner banner={BannerAdSize.INLINE_ADAPTIVE_BANNER} />
+              )}
+            </>
+          )}
           onEndReached={() => fetchData()}
           ListFooterComponent={
             <View>
