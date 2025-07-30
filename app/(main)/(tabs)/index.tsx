@@ -11,25 +11,25 @@ import useSpellStore from "@/store/spellStore";
 import useThemeStore from "@/store/themeStore";
 import { commonStyles } from "@/styles/commonStyles";
 import {
-  FontFamilies,
-  FontSizeKeys,
-  getAppFontStyle,
+    FontFamilies,
+    FontSizeKeys,
+    getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
 import { router, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s, scale } from "react-native-size-matters";
@@ -58,7 +58,7 @@ const EnergyView = () => {
   }, [energy, info]);
 
   React.useEffect(() => {
-    if (socialInfo && !socialInfo.categories && !isShowOnboarding) {
+    if (socialInfo && !socialInfo.goals && !isShowOnboarding) {
       router.navigate("/onboarding");
     }
   }, [socialInfo, isShowOnboarding]);

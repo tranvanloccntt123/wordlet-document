@@ -1,4 +1,6 @@
 export const categories = {
+  goalTitle: "Mục tiêu",
+  interestsTitle: "Sơ thích",
   goals: {
     fluent_speaking: {
       title: "Nói Lưu loát",

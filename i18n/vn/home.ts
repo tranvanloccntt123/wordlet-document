@@ -6,7 +6,9 @@ const home = {
   play: "Chơi",
   practicePronunciation: "Luyện tập phát âm",
   welcome: "Chào mừng bạn đến với Wordlet",
-  welcomeMessage: "Ngày đầu đăng nhập bạn sẽ nhận được 20 năng lượng",
+  welcomeMessage:
+    "Vui lòng chọn những mục dưới đây, chúng tôi sẽ dựa vào những lựa chọn này để tối ưu trải nghiệm của bạn trên Wordlet.",
 };
 
 export default home;
+                                                                                                                 

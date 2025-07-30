@@ -35,6 +35,7 @@ const common = {
   series: "Series",
   retry: "retry",
   letCharge: "Let Charge",
+  continue: "Continue",
 };
 
 export default common;

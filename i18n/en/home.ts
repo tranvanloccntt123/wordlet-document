@@ -6,7 +6,7 @@ const home = {
   play: "Play",
   practicePronunciation: "Practice Pronunciation",
   welcome: "Welcome to Wordlet",
-  welcomeMessage: "On your first login day you will receive 20 energy",
+  welcomeMessage: "Please select the items below, we will use these choices to optimize your experience on Wordlet.",
 };
 
 export default home;

@@ -1,4 +1,6 @@
 export const categories = {
+  goalTitle: "Goals",
+  interestsTitle: "Interests",
   goals: {
     fluent_speaking: {
       title: "Fluent Speaking",

@@ -157,12 +157,12 @@ type ReportGroup = {
 
 type SocialUser = {
   id: number;
-  user_id: string;
   created_at: string;
   name: string;
   avatar: string;
   wordlet_user_id: string;
-  categories: string;
+  goals: string;
+  interests: string;
 };
 
 type Post = {

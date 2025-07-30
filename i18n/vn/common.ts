@@ -35,6 +35,7 @@ const common = {
   series: "Danh sách",
   retry: "Thử lại",
   letCharge: "Sạc",
+  continue: "Tiếp tục",
 };
 
 export default common;

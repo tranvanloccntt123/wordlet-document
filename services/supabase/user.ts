@@ -107,3 +107,23 @@ export const getUserSocialInfo = async () => {
     .single();
   return response;
 };
+
+export const updateUserSocialInfo = async (data: {
+  wordlet_user_id?: string;
+  goals?: string;
+  interests?: string;
+}) => {
+  //Ignore name and avatar
+  const user = await getSocialUsers();
+  if (!user) {
+    throw "User not found";
+  }
+  const response = await supabaseSocial!
+    .schema(SUPABASE_SCHEMA)
+    .from(SUPABASE_SOCIAL_TABLE.USER_INFO)
+    .update(data)
+    .eq("id", user?.id)
+    .select("*");
+
+  return response;
+};
