@@ -85,7 +85,6 @@ export const getUsers = async (): Promise<User | null> => {
   }
   const response = await userFetching;
   cachedUser = response;
-  clearUserFetching();
   return response;
 };
 

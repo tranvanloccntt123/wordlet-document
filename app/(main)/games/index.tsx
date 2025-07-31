@@ -30,6 +30,7 @@ import {
 } from "react-native"; // Import necessary components
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, s } from "react-native-size-matters"; // Import ScaledSheet and scaling units
+import Rive from "rive-react-native";
 
 const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
   const { data: item } = useQuery<Group>({
@@ -119,25 +120,32 @@ const ListHeaderComponent: React.FC = () => {
 
   const styles = createStyles(colors); // Create styles with theme colors
 
-  return !isLoading && !groups?.length && (
-    <View style={{padding: s(16)}}>
-      <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>
-        {t("groups.noGroup")}
-      </Text>
-      <TouchableOpacity
-        style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
-        onPress={() => router.push("/series")} // Navigate to groups screen
-      >
-        <MaterialIcons
-          name="add"
-          size={s(20)}
-          color={colors.card} // White or light color for text on primary background
+  return (
+    !isLoading &&
+    !groups?.length && (
+      <View style={{ padding: s(16) }}>
+        <Rive
+          resourceName={"search_rive"}
+          style={{ width: s(200), height: s(200), alignSelf: "center" }}
         />
-        <Text style={[styles.emptyStateButtonText, { color: colors.card }]}>
-          {t("common.create")}
+        <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>
+          {t("groups.noGroup")}
         </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
+          onPress={() => router.push("/series")} // Navigate to groups screen
+        >
+          <MaterialIcons
+            name="add"
+            size={s(20)}
+            color={colors.card} // White or light color for text on primary background
+          />
+          <Text style={[styles.emptyStateButtonText, { color: colors.card }]}>
+            {t("common.create")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    )
   );
 };
 

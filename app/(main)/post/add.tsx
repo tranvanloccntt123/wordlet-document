@@ -3,27 +3,27 @@ import GameButtons from "@/components/GameButtons";
 import { createPost } from "@/services/supabase/post";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { isValidUrl } from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
 import BottomSheet, {
-    BottomSheetBackdrop,
-    BottomSheetFlatList,
+  BottomSheetBackdrop,
+  BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
@@ -126,7 +126,7 @@ const AddPost = () => {
                 onPrimaryPress={() => {
                   setIsLoading(true);
                   createPost(
-                    value.trim().replace(/\n+/g, "\n").replace(/^\n/g, ""),
+                    value.trim().replace(/\n+/g, "\n"),
                     {
                       links,
                     }

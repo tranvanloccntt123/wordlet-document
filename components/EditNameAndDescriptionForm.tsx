@@ -2,21 +2,27 @@ import AppLoading from "@/components/AppLoading";
 import GameButtons from "@/components/GameButtons";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { BackHandler, Text, TextInput, View } from "react-native";
+import {
+  BackHandler,
+  Text,
+  TextInput,
+  TouchableNativeFeedback,
+  View,
+} from "react-native";
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withDelay,
-    withTiming,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
@@ -92,105 +98,123 @@ const EditNameAndDescriptionForm: React.FC<{
     };
   }, [navigation, router]);
 
+  const descriptionRef = React.useRef<TextInput>(null);
+
   return (
     <AppLoading isLoading={isLoading}>
-      <View style={{ flex: 1 }}>
-        <Animated.View
-          style={[
-            styles.background,
-            {
-              backgroundColor: colors.primaryDark,
-              left: parseFloat(params.x || "0") - s(11),
-              top: parseFloat(params.y || "0") - s(11),
-            },
-            backgroundStyle,
-          ]}
-        ></Animated.View>
-        <Animated.View style={[{ flex: 1 }, contentStyle]}>
-          <SafeAreaView style={styles.container}>
-            <Text style={styles.createGroupText}>{title}</Text>
-            <View>
-              <Animated.View
+      <TouchableNativeFeedback
+        onPress={() => {
+          descriptionRef.current?.blur();
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Animated.View
+            style={[
+              styles.background,
+              {
+                backgroundColor: colors.primaryDark,
+                left: parseFloat(params.x || "0") - s(11),
+                top: parseFloat(params.y || "0") - s(11),
+              },
+              backgroundStyle,
+            ]}
+          ></Animated.View>
+          <Animated.View style={[{ flex: 1 }, contentStyle]}>
+            <SafeAreaView style={styles.container}>
+              <Text style={styles.createGroupText}>{title}</Text>
+              <View>
+                <Animated.View
+                  style={[
+                    styles.inputContainer,
+                    {
+                      backgroundColor: colors.shadow,
+                      borderColor: !!errorName.length
+                        ? colors.warning
+                        : "white",
+                    },
+                  ]}
+                >
+                  <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.input}
+                    placeholder={t("groups.enterGroupName")}
+                  />
+                </Animated.View>
+                {!!errorName.length && (
+                  <Text style={[styles.errorText, { color: colors.warning }]}>
+                    *{errorName}
+                  </Text>
+                )}
+              </View>
+              <View
                 style={[
-                  styles.inputContainer,
-                  {
-                    backgroundColor: colors.shadow,
-                    borderColor: !!errorName.length ? colors.warning : "white",
-                  },
+                  styles.descriptionContainer,
+                  { backgroundColor: colors.shadow },
                 ]}
               >
                 <TextInput
-                  value={name}
-                  onChangeText={setName}
+                  value={description}
+                  onChangeText={setDescription}
                   style={styles.input}
-                  placeholder={t("groups.enterGroupName")}
+                  placeholder={t("groups.enterGroupDescription")}
+                  multiline={true}
+                  textAlign="left"
+                  verticalAlign="top"
+                  textAlignVertical="top"
+                  maxLength={200}
+                  ref={descriptionRef}
                 />
-              </Animated.View>
-              {!!errorName.length && (
-                <Text style={[styles.errorText, { color: colors.warning }]}>
-                  *{errorName}
-                </Text>
-              )}
-            </View>
-            <View
-              style={[
-                styles.descriptionContainer,
-                { backgroundColor: colors.shadow },
-              ]}
-            >
-              <TextInput
-                value={description}
-                onChangeText={setDescription}
-                style={styles.input}
-                placeholder={t("groups.enterGroupDescription")}
-                multiline={true}
-                textAlign="left"
-                verticalAlign="top"
-                textAlignVertical="top"
-                maxLength={200}
-              />
-            </View>
-            <GameButtons
-              primaryButtonText={t("common.save")}
-              skipButtonText={t("common.cancel")}
-              skipButtonTextColor={"white"}
-              onPrimaryPress={async () => {
-                Haptics.notificationAsync(
-                  Haptics.NotificationFeedbackType.Success
-                );
-                if (name.trim() === "") {
-                  setErrorName(t("common.groupNameEmptyError"));
-                  return;
+              </View>
+              <GameButtons
+                primaryButtonText={t("common.save")}
+                skipButtonText={t("common.cancel")}
+                skipButtonTextColor={"white"}
+                primaryButtonDisabled={
+                  initDescription.trim() === description.trim() &&
+                  initName.trim() === name.trim()
                 }
-                setIsLoading(true);
-                await onSubmit(name, description);
-                setIsLoading(false);
-                contentAnim.value = withTiming(0, { duration: 180 });
-                backgroundAnim.value = withDelay(
-                  200,
-                  withTiming(0, { duration: 400 }, (finished) => {
-                    if (finished) {
-                      runOnJS(router.back)();
-                    }
-                  })
-                );
-              }}
-              onSkipPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-                contentAnim.value = withTiming(0, { duration: 180 });
-                backgroundAnim.value = withDelay(
-                  200,
-                  withTiming(0, { duration: 400 }, (finished) => {
-                    if (finished) {
-                      runOnJS(router.back)();
-                    }
-                  })
-                );
-              }}
-            />
-          </SafeAreaView>
-        </Animated.View>
-      </View>
+                onPrimaryPress={async () => {
+                  Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                  );
+                  if (name.trim() === "") {
+                    setErrorName(t("common.groupNameEmptyError"));
+                    return;
+                  }
+                  setIsLoading(true);
+                  await onSubmit(
+                    name.trim().replace(/\n+/g, "\n"),
+                    description.trim().replace(/\n+/g, "\n")
+                  );
+                  setIsLoading(false);
+                  contentAnim.value = withTiming(0, { duration: 180 });
+                  backgroundAnim.value = withDelay(
+                    200,
+                    withTiming(0, { duration: 400 }, (finished) => {
+                      if (finished) {
+                        runOnJS(router.back)();
+                      }
+                    })
+                  );
+                }}
+                onSkipPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                  contentAnim.value = withTiming(0, { duration: 180 });
+                  backgroundAnim.value = withDelay(
+                    200,
+                    withTiming(0, { duration: 400 }, (finished) => {
+                      if (finished) {
+                        runOnJS(router.back)();
+                      }
+                    })
+                  );
+                }}
+              />
+            </SafeAreaView>
+          </Animated.View>
+        </View>
+      </TouchableNativeFeedback>
     </AppLoading>
   );
 };

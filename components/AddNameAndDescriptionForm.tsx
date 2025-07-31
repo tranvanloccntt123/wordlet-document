@@ -10,7 +10,7 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TextInput, View } from "react-native";
+import { Text, TextInput, TouchableNativeFeedback, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -43,86 +43,100 @@ const AddNameAndDescriptionForm: React.FC<{
     };
   });
 
+  const descriptionRef = React.useRef<TextInput>(null);
+
   return (
     <AppLoading isLoading={isLoading}>
-      <View style={{ flex: 1, backgroundColor: colors.primary }}>
-        <Animated.View style={[{ flex: 1 }, containerStyle]}>
-          <SafeAreaView style={styles.container}>
-            <Text style={styles.createGroupText}>{title}</Text>
-            <View>
-              <Animated.View
+      <TouchableNativeFeedback
+        onPress={() => {
+          descriptionRef.current?.blur();
+        }}
+      >
+        <View style={{ flex: 1, backgroundColor: colors.primary }}>
+          <Animated.View style={[{ flex: 1 }, containerStyle]}>
+            <SafeAreaView style={styles.container}>
+              <Text style={styles.createGroupText}>{title}</Text>
+              <View>
+                <Animated.View
+                  style={[
+                    styles.inputContainer,
+                    {
+                      backgroundColor: colors.shadow,
+                      borderColor: !!errorName.length
+                        ? colors.warning
+                        : "white",
+                    },
+                  ]}
+                >
+                  <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.input}
+                    placeholder={t("groups.enterGroupName")}
+                  />
+                </Animated.View>
+                {!!errorName.length && (
+                  <Text style={[styles.errorText, { color: colors.warning }]}>
+                    *{errorName}
+                  </Text>
+                )}
+              </View>
+              <View
                 style={[
-                  styles.inputContainer,
-                  {
-                    backgroundColor: colors.shadow,
-                    borderColor: !!errorName.length ? colors.warning : "white",
-                  },
+                  styles.descriptionContainer,
+                  { backgroundColor: colors.shadow },
                 ]}
               >
                 <TextInput
-                  value={name}
-                  onChangeText={setName}
+                  value={description}
+                  onChangeText={setDescription}
                   style={styles.input}
-                  placeholder={t("groups.enterGroupName")}
+                  placeholder={t("groups.enterGroupDescription")}
+                  multiline={true}
+                  textAlign="left"
+                  verticalAlign="top"
+                  textAlignVertical="top"
+                  maxLength={200}
+                  ref={descriptionRef}
                 />
-              </Animated.View>
-              {!!errorName.length && (
-                <Text style={[styles.errorText, { color: colors.warning }]}>
-                  *{errorName}
-                </Text>
-              )}
-            </View>
-            <View
-              style={[
-                styles.descriptionContainer,
-                { backgroundColor: colors.shadow },
-              ]}
-            >
-              <TextInput
-                value={description}
-                onChangeText={setDescription}
-                style={styles.input}
-                placeholder={t("groups.enterGroupDescription")}
-                multiline={true}
-                textAlign="left"
-                verticalAlign="top"
-                textAlignVertical="top"
-                maxLength={200}
-              />
-            </View>
-            <GameButtons
-              primaryButtonText={t("common.create")}
-              skipButtonText={t("common.cancel")}
-              skipButtonTextColor={"white"}
-              onPrimaryPress={async () => {
-                try {
-                  Haptics.notificationAsync(
-                    Haptics.NotificationFeedbackType.Success
-                  );
-                  if (name.trim() === "") {
-                    setErrorName(t("common.groupNameEmptyError"));
-                    return;
-                  }
-                  setIsLoading(true);
-                  await onSubmit(name, description);
-                  setIsLoading(false);
+              </View>
+              <GameButtons
+                primaryButtonText={t("common.create")}
+                skipButtonText={t("common.cancel")}
+                skipButtonTextColor={"white"}
+                onPrimaryPress={async () => {
+                  try {
+                    Haptics.notificationAsync(
+                      Haptics.NotificationFeedbackType.Success
+                    );
+                    if (name.trim() === "") {
+                      setErrorName(t("common.groupNameEmptyError"));
+                      return;
+                    }
+                    setIsLoading(true);
+                    await onSubmit(
+                      name,
+                      description.trim().replace(/\n+/g, "\n")
+                    );
+                    setIsLoading(false);
+                    containerAnim.value = withTiming(0, { duration: 200 });
+                    setTimeout(() => {
+                      router.back();
+                    }, 250);
+                  } catch {}
+                }}
+                onSkipPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
                   containerAnim.value = withTiming(0, { duration: 200 });
                   setTimeout(() => {
                     router.back();
                   }, 250);
-                } catch {}
-              }}
-              onSkipPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-                containerAnim.value = withTiming(0, { duration: 200 });
-                setTimeout(() => {
-                  router.back();
-                }, 250);
-              }}
-            />
-          </SafeAreaView>
-        </Animated.View>
-      </View>
+                }}
+              />
+            </SafeAreaView>
+          </Animated.View>
+        </View>
+      </TouchableNativeFeedback>
     </AppLoading>
   );
 };

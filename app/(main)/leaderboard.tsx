@@ -115,7 +115,7 @@ const LeaderboardScreen = () => {
       const { data: userRankData } = await getUserPlayerRank();
       return userRankData;
     },
-    delayTime: 200,
+    delayTime: 400,
   });
 
   const { data: top100Players, isLoading: isTop100PlayersLoading } = useQuery({
