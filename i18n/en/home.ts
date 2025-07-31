@@ -6,7 +6,10 @@ const home = {
   play: "Play",
   practicePronunciation: "Practice Pronunciation",
   welcome: "Welcome to Wordlet",
-  welcomeMessage: "Please select the items below, we will use these choices to optimize your experience on Wordlet.",
+  welcomeMessage:
+    "Please select the items below, we will use these choices to optimize your experience on Wordlet.",
+  activities: "Activities",
+  setting: "Setting",
 };
 
 export default home;

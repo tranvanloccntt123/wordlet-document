@@ -8,6 +8,8 @@ const home = {
   welcome: "Chào mừng bạn đến với Wordlet",
   welcomeMessage:
     "Vui lòng chọn những mục dưới đây, chúng tôi sẽ dựa vào những lựa chọn này để tối ưu trải nghiệm của bạn trên Wordlet.",
+  activities: "Hoạt động",
+  setting: "Cài đặt",
 };
 
 export default home;

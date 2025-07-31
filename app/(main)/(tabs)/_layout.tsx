@@ -2,9 +2,11 @@ import { HapticTab } from "@/components/HapticTab";
 import useLanguageStore from "@/store/languageStore"; // Import the new language store
 import useThemeStore from "@/store/themeStore";
 import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
 import React, { useEffect } from "react"; // Import useEffect
 import { useTranslation } from "react-i18next"; // Import useTranslation
+import { s, vs } from "react-native-size-matters";
 
 export default function TabLayout() {
   const { colors } = useThemeStore();
@@ -35,7 +37,11 @@ export default function TabLayout() {
         options={{
           title: "",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="home" size={28} color={color} />
+            <MaterialIcons
+              name="home"
+              size={Math.min(s(22), vs(22))}
+              color={color}
+            />
           ),
         }}
       />
@@ -49,20 +55,15 @@ export default function TabLayout() {
         }}
       />`` */}
       <Tabs.Screen
-        name="history"
-        options={{
-          title: "",
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="timeline" size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="explore"
         options={{
           title: "",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="settings" size={28} color={color} />
+            <FontAwesome6
+              name="user"
+              size={Math.min(s(18), vs(18))}
+              color={color}
+            />
           ),
         }}
       />

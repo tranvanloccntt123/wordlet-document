@@ -28,6 +28,7 @@ const MainLayout = () => {
           <Stack.Screen name="spell" />
           <Stack.Screen name="word" />
           <Stack.Screen name="search" />
+          <Stack.Screen name="settings" />
           <Stack.Screen
             name="game-over"
             options={{
