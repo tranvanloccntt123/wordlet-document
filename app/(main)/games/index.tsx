@@ -4,14 +4,18 @@ import IntroLoading from "@/components/IntroLoading";
 import { SEARCH_LIMIT } from "@/constants";
 import Colors from "@/constants/Colors";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import { fetchGroups } from "@/services/supabase";
+import { fetchGroups, getOwnerSeries } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore"; // Import your theme store
 import {
   FontFamilies,
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
-import { getGroupKey } from "@/utils/string";
+import {
+  getGroupKey,
+  getOwnerSeriesKey,
+  getSerieDetailKey,
+} from "@/utils/string";
 import { MaterialIcons } from "@expo/vector-icons"; // For icons
 import { router } from "expo-router";
 import React from "react";
@@ -95,6 +99,45 @@ const GroupListItem: React.FC<{ id: number }> = ({ id }) => {
         />
       </TouchableOpacity>
     )
+  );
+};
+
+const ListHeaderComponent: React.FC = () => {
+  const { t } = useTranslation();
+  const { data: groups, isLoading } = useQuery<number[]>({
+    key: getOwnerSeriesKey(),
+    async queryFn() {
+      const { error, data } = await getOwnerSeries();
+      if (!error && !!data) {
+        data.map((serie) => setQueryData(getSerieDetailKey(serie.id), serie));
+        return data.map((v) => v.id);
+      }
+      return [];
+    },
+  });
+  const colors = useThemeStore((state) => state.colors); // Get theme colors
+
+  const styles = createStyles(colors); // Create styles with theme colors
+
+  return !isLoading && !groups?.length && (
+    <View style={{padding: s(16)}}>
+      <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>
+        {t("groups.noGroup")}
+      </Text>
+      <TouchableOpacity
+        style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
+        onPress={() => router.push("/series")} // Navigate to groups screen
+      >
+        <MaterialIcons
+          name="add"
+          size={s(20)}
+          color={colors.card} // White or light color for text on primary background
+        />
+        <Text style={[styles.emptyStateButtonText, { color: colors.card }]}>
+          {t("common.create")}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -186,7 +229,7 @@ export default function Games() {
         </Text>
         <TouchableOpacity
           style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
-          onPress={() => router.push("/groups")} // Navigate to groups screen
+          onPress={() => router.push("/series")} // Navigate to groups screen
         >
           <MaterialIcons
             name="add"
@@ -217,6 +260,11 @@ export default function Games() {
             ListEmptyComponent={!isLoading ? ListEmptyComponent : null}
             onEndReached={() => fetchData()}
             showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+              !isLoading && !!supabaseData.length ? (
+                <ListHeaderComponent />
+              ) : null
+            }
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}

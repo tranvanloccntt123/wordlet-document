@@ -2,7 +2,7 @@ import { getIPA } from "@/constants/RemoteConfig";
 import { getQueryData } from "@/hooks/useQuery";
 import * as Mixpanel from "@/services/mixpanel";
 import { fetchWordsByKeywordList } from "@/services/searchDb";
-import { createNewGame, fetchGroupDetail, getUsers } from "@/services/supabase";
+import { fetchGroupDetail, getUsers } from "@/services/supabase";
 import { shuffleArray } from "@/utils/array";
 import { getGroupKey } from "@/utils/string";
 import { User } from "@supabase/supabase-js";
@@ -99,19 +99,8 @@ const useGameStore = create<GameState>()(
             groupData = storeData;
           }
           if (groupData) {
-            // const { data: gameData, error: gameError } = await createNewGame(
-            //   groupId
-            // );
-            // if (gameError || !gameData.data.length) {
-            //   set((state) => {
-            //     state.isLoadError = true;
-            //     state.isLoading = false;
-            //   });
-            //   return;
-            // }
             set((state) => {
               state.group = groupData;
-              // state.history = gameData.data[0];
               state.shuffledWords = shuffleArray([...groupData.words]);
               state.scores = Array.from(
                 { length: groupData.words.length },
@@ -134,17 +123,8 @@ const useGameStore = create<GameState>()(
             tmpShuffleWords,
             "extra_mtb_ev.db"
           );
-          const { data: gameData, error: gameError } = await createNewGame();
-          if (gameError || !gameData.data.length) {
-            set((state) => {
-              state.isLoadError = true;
-              state.isLoading = false;
-            });
-            return;
-          }
           set((state) => {
             state.group = null;
-            state.history = gameData.data[0];
             state.shuffledWords = shuffleArray([...listWords]).slice(0, 10);
             state.scores = Array.from({ length: 10 }, (_, i) => 0);
             state.isLoading = false;

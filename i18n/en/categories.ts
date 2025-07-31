@@ -3,19 +3,19 @@ export const categories = {
   interestsTitle: "Interests",
   goals: {
     fluent_speaking: {
-      title: "Fluent Speaking",
+      title: "Speaking",
       description: "Speak English naturally.",
     },
     exam_success: {
-      title: "Exam Success",
+      title: "Exam",
       description: "Ace IELTS, TOEFL, TOEIC.",
     },
     work_english: {
-      title: "Work English",
+      title: "Work",
       description: "Business English for success.",
     },
     travel_talk: {
-      title: "Travel Talk",
+      title: "Travel",
       description: "Phrases for travel.",
     },
     daily_chats: {
@@ -23,15 +23,15 @@ export const categories = {
       description: "Everyday conversation skills.",
     },
     clear_pronunciation: {
-      title: "Clear Pronunciation",
+      title: "Pronunciation",
       description: "Sound like a native.",
     },
     easy_writing: {
-      title: "Easy Writing",
+      title: "Writing",
       description: "Write emails and essays.",
     },
     academic_boost: {
-      title: "Academic Boost",
+      title: "Academic",
       description: "Improve academic English.",
     },
   },
@@ -45,35 +45,35 @@ export const categories = {
       description: "English through songs.",
     },
     food_talk: {
-      title: "Food Talk",
+      title: "Food",
       description: "Discuss food and recipes.",
     },
     sports_cheer: {
-      title: "Sports Cheer",
+      title: "Sports",
       description: "Sports terms and cheers.",
     },
     gaming_terms: {
-      title: "Gaming Terms",
+      title: "Gaming",
       description: "English for gamers.",
     },
     travel_tales: {
-      title: "Travel Tales",
+      title: "Travel",
       description: "Learn via travel stories.",
     },
     pop_trends: {
-      title: "Pop Trends",
+      title: "Trends",
       description: "Explore trends and media.",
     },
     fitness_words: {
-      title: "Fitness Words",
+      title: "Fitness",
       description: "English for fitness.",
     },
     art_speak: {
-      title: "Art Speak",
+      title: "Art",
       description: "Art and creativity terms.",
     },
     tech_lingo: {
-      title: "Tech Lingo",
+      title: "Tech",
       description: "Tech and social media terms.",
     },
   },

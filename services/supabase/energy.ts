@@ -68,17 +68,3 @@ export const decreaseSuggest = async () => {
   );
   return response;
 };
-
-export const createNewGame = async (groupId?: number) => {
-  try {
-    const response = await supabase!.functions.invoke(
-      SUPABASE_FUNCTION.NEW_GAME,
-      {
-        body: { groupId },
-      }
-    );
-    return response;
-  } catch (e) {
-    throw e;
-  }
-};

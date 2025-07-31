@@ -14,7 +14,7 @@ import {
   BackHandler,
   Modal,
   Text,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";

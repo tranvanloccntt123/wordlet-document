@@ -54,7 +54,7 @@ const MainLayout = () => {
             name="onboarding"
             options={{
               presentation: "transparentModal",
-              animation: "fade",
+              animation: "none",
             }}
           />
         </Stack>

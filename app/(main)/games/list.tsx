@@ -8,7 +8,6 @@ import ListWordInOrder from "@/components/ListWordInOrder";
 import RecentGroups from "@/components/RecentGroups";
 import { TIME_LIMIT_MS } from "@/constants";
 import useQuery from "@/hooks/useQuery";
-import mixpanel from "@/services/mixpanel";
 import { fetchGroupDetail } from "@/services/supabase";
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
@@ -194,11 +193,11 @@ export default function SelectGameScreen() {
 
   React.useEffect(() => {
     if (isChallent) {
-      const timeout = setTimeout(() => {
-        mixpanel.track("View Group", { groupId: group.id });
-      }, 1500);
+      // const timeout = setTimeout(() => {
+      //   mixpanel.track("View Group", { groupId: group.id });
+      // }, 1500);
       return () => {
-        clearTimeout(timeout);
+        // clearTimeout(timeout);
       };
     }
   }, [isChallent]);

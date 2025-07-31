@@ -52,6 +52,8 @@ const groups = {
   createFailed: "Tạo không thành công",
   groupExistsName:
     "Một nhóm có tên {{trimmedGroupName}} đã tồn tại. Vui lòng chọn một tên khác.",
+  noGroup:
+    "Bạn chưa tạo nhóm từ vựng nào, hãy bắt đầu với nhóm của mình trước nhé.",
 };
 
 export default groups;

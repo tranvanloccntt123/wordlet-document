@@ -3,41 +3,41 @@ export const categories = {
   interestsTitle: "Sơ thích",
   goals: {
     fluent_speaking: {
-      title: "Nói Lưu loát",
+      title: "Lưu loát",
       description: "Nói tiếng Anh tự nhiên.",
     },
     exam_success: {
-      title: "Thi Cử Thành công",
+      title: "Thi Cử",
       description: "Vượt IELTS, TOEFL, TOEIC.",
     },
     work_english: {
-      title: "Tiếng Anh Công việc",
+      title: "Công việc",
       description: "Tiếng Anh cho sự nghiệp.",
     },
     travel_talk: {
-      title: "Giao tiếp Du lịch",
+      title: "Du lịch",
       description: "Cụm từ cho du lịch.",
     },
     daily_chats: {
-      title: "Hội thoại Hàng ngày",
+      title: "Hàng ngày",
       description: "Kỹ năng hội thoại thường ngày.",
     },
     clear_pronunciation: {
-      title: "Phát âm Chuẩn",
+      title: "Phát âm",
       description: "Nói giống người bản xứ.",
     },
     easy_writing: {
-      title: "Viết Dễ dàng",
+      title: "Viết",
       description: "Viết email và bài luận.",
     },
     academic_boost: {
-      title: "Nâng cao Học thuật",
+      title: "Học thuật",
       description: "Cải thiện tiếng Anh học thuật.",
     },
   },
   interests: {
     movie_quotes: {
-      title: "Trích dẫn Phim",
+      title: "Trích dẫn",
       description: "Học qua câu thoại phim.",
     },
     music_lyrics: {
@@ -45,35 +45,35 @@ export const categories = {
       description: "Tiếng Anh qua bài hát.",
     },
     food_talk: {
-      title: "Nói về Ẩm thực",
+      title: "Ẩm thực",
       description: "Nói về món ăn, công thức.",
     },
     sports_cheer: {
-      title: "Cổ vũ Thể thao",
+      title: "Thể thao",
       description: "Từ vựng và cổ vũ thể thao.",
     },
     gaming_terms: {
-      title: "Thuật ngữ Game",
+      title: "Game",
       description: "Tiếng Anh cho game thủ.",
     },
     travel_tales: {
-      title: "Chuyện Du lịch",
+      title: "Du lịch",
       description: "Học qua chuyện du lịch.",
     },
     pop_trends: {
-      title: "Xu hướng Đại chúng",
+      title: "Xu hướng",
       description: "Khám phá xu hướng, truyền thông.",
     },
     fitness_words: {
-      title: "Từ vựng Thể dục",
+      title: "Thể dục",
       description: "Tiếng Anh cho thể dục.",
     },
     art_speak: {
-      title: "Nói về Nghệ thuật",
+      title: "Nghệ thuật",
       description: "Từ vựng nghệ thuật, sáng tạo.",
     },
     tech_lingo: {
-      title: "Biệt ngữ Công nghệ",
+      title: "Công nghệ",
       description: "Thuật ngữ công nghệ, mạng xã hội.",
     },
   },
