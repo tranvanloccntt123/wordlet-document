@@ -21,6 +21,7 @@ interface InfoState {
   isLoading: boolean;
   addGameResult: (result: GameHistory) => void;
   fetchCurrentInfo: () => Promise<void>;
+  clearData: () => void;
 }
 
 const infoStore = create<InfoState>()(
@@ -59,6 +60,13 @@ const infoStore = create<InfoState>()(
           state.isLoading = false;
         });
       }
+    },
+    clearData() {
+      set((state) => {
+        state.info = null;
+        state.history = [];
+        state.socialInfo = null;
+      });
     },
   }))
 );

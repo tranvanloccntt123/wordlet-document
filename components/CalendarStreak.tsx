@@ -16,7 +16,9 @@ import { s, ScaledSheet } from "react-native-size-matters";
 
 const DAY_ABBREVIATIONS = ["S", "M", "T", "W", "T", "F", "S"];
 
-const CalendarStreak = () => {
+const CalendarStreak: React.FC<{ hideRankButton?: boolean }> = ({
+  hideRankButton,
+}) => {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { currentStreak, streakHistory, fetchStreak } = useStreakStore(); // Get streak data
@@ -60,16 +62,18 @@ const CalendarStreak = () => {
               {t("home.dayStreak")}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => router.push("/leaderboard")}
-            style={{}}
-          >
-            <Ionicons
-              name="trophy-outline"
-              size={s(24)}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
+          {!hideRankButton && (
+            <TouchableOpacity
+              onPress={() => router.push("/leaderboard")}
+              style={{}}
+            >
+              <Ionicons
+                name="trophy-outline"
+                size={s(24)}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.daysOfWeekContainer}>
           {daysData.map((dayData) => (

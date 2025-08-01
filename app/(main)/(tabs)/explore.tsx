@@ -1,3 +1,4 @@
+import WordletImage from "@/assets/images";
 import CalendarStreak from "@/components/CalendarStreak";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
@@ -18,7 +19,7 @@ import { s, ScaledSheet, vs } from "react-native-size-matters";
 
 const SettingsScreen = () => {
   const { colors } = useThemeStore();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const info = useInfoStore((state) => state.info);
 
   return (
@@ -26,11 +27,34 @@ const SettingsScreen = () => {
       <SafeAreaView
         style={{ flex: 1, paddingVertical: s(16), paddingHorizontal: s(16) }}
       >
-        <View style={[styles.avatarContainer]}>
-          <Image
-            source={{ uri: info?.avatar }}
-            style={{ flex: 1, resizeMode: "contain" }}
-          />
+        <View
+          style={[
+            styles.avatarContainer,
+            {
+              borderColor: colors.textDisabled,
+            },
+          ]}
+        >
+          <Image source={{ uri: info?.avatar }} style={styles.avatar} />
+          <View
+            style={[
+              styles.profileBadge,
+              {
+                backgroundColor: info?.is_premium
+                  ? colors.premium || "#FFD700"
+                  : colors.border,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.profileBadgeText,
+                { color: info?.is_premium ? "black" : colors.textPrimary },
+              ]}
+            >
+              {info?.is_premium ? "Pre" : "Free"}
+            </Text>
+          </View>
         </View>
         <Text style={[styles.name, { color: colors.textPrimary }]}>
           {info?.name}
@@ -80,9 +104,30 @@ const SettingsScreen = () => {
             </Text>
           </View>
         </TouchableOpacity>
-        <View style={{marginTop: vs(30)}}>
-          <CalendarStreak />
+        <View style={{ marginTop: vs(30) }}>
+          <CalendarStreak hideRankButton={true} />
         </View>
+        <TouchableOpacity
+          style={{ marginTop: vs(8) }}
+          onPress={() => router.navigate("/dev/ai-chat")}
+        >
+          <View
+            style={[
+              styles.settingButtonContainer,
+              { backgroundColor: colors.card },
+            ]}
+          >
+            <Image
+              source={WordletImage.AI_TECHNOLOGY}
+              style={{ width: s(18), height: s(18) }}
+            />
+            <Text
+              style={[styles.settingButtonText, { color: colors.textPrimary }]}
+            >
+              Wordlet AI
+            </Text>
+          </View>
+        </TouchableOpacity>
       </SafeAreaView>
     </View>
   );
@@ -95,10 +140,12 @@ const styles = ScaledSheet.create({
   avatarContainer: {
     width: "80@s",
     height: "80@s",
-    overflow: "hidden",
     borderRadius: "50@s",
     alignSelf: "center",
+    padding: "3@s",
+    borderWidth: "3@s",
   },
+  avatar: { flex: 1, resizeMode: "contain", borderRadius: "50@s" },
   name: {
     alignSelf: "center",
     marginTop: "8@s",
@@ -119,8 +166,23 @@ const styles = ScaledSheet.create({
   settingButtonText: {
     ...getAppFontStyle({
       fontSizeKey: FontSizeKeys.body,
+      fontFamily: FontFamilies.NunitoBlack,
+    }),
+  },
+  profileBadge: {
+    position: "absolute",
+    top: 0,
+    paddingHorizontal: "8@s",
+    paddingVertical: "2@s",
+    borderRadius: "9@s",
+    right: "-10@s",
+  },
+  profileBadgeText: {
+    ...getAppFontStyle({
+      fontSizeKey: FontSizeKeys.caption,
       fontFamily: FontFamilies.NunitoRegular,
     }),
+    fontSize: "8@s",
   },
 });
 

@@ -2,9 +2,9 @@ import CommonHeader from "@/components/CommonHeader";
 import { DB_DIR } from "@/services/downloadDb";
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system"; // Import FileSystem
@@ -63,7 +63,7 @@ const DevScreen = () => {
   };
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={[styles.container]}>
         <CommonHeader title="" />
         <View style={{ flex: 1, paddingHorizontal: s(16) }}>

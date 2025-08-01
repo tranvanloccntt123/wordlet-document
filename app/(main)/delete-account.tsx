@@ -39,6 +39,7 @@ const Logout: React.FC = () => {
   const setHasSeenOnboarding = useOnboardingStore(
     (state) => state.setHasSeenOnboarding
   );
+  const clearInfoData = useInfoStore((state) => state.clearData);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -132,6 +133,7 @@ const Logout: React.FC = () => {
                 Mixpanel.logout();
                 setIsLoading(false);
                 setIsLogged(false);
+                clearInfoData();
                 setHasSeenOnboarding(false);
               } catch (e) {
                 setIsLoading(false);

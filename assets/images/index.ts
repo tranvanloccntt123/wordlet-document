@@ -8,6 +8,7 @@ const WordletImage = {
   CLOUD2: require("./cloud2.png"),
   CLOUD1: require("./cloud1.webp"),
   BANNER1: require("./banner1.jpg"),
+  AI_TECHNOLOGY: require("./ai-technology.png"),
 };
 
 export default WordletImage;

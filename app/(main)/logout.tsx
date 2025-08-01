@@ -23,6 +23,7 @@ import * as Mixpanel from "@/services/mixpanel";
 import * as supabase from "@/services/supabase";
 import useAuthStore from "@/store/authStore";
 import useFetchStore from "@/store/fetchStore";
+import useInfoStore from "@/store/infoStore";
 import useOnboardingStore from "@/store/onboardingStore";
 import useSpellStore from "@/store/spellStore";
 import { router } from "expo-router";
@@ -37,6 +38,7 @@ const Logout: React.FC = () => {
   const setHasSeenOnboarding = useOnboardingStore(
     (state) => state.setHasSeenOnboarding
   );
+  const clearInfoData = useInfoStore((state) => state.clearData);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
@@ -129,6 +131,7 @@ const Logout: React.FC = () => {
                 Mixpanel.logout();
                 setIsLoading(false);
                 setIsLogged(false);
+                clearInfoData();
                 setHasSeenOnboarding(false);
               } catch (e) {
                 setIsLoading(false);

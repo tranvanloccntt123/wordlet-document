@@ -131,7 +131,7 @@ const LeaderboardScreen = () => {
     !([0, 1, 2].includes(index) && item.total_score !== 0) ? (
       <View style={[styles.leaderboardItem, { backgroundColor: colors.card }]}>
         <Text style={[styles.rank, { color: colors.textSecondary }]}>
-          {item.rank}
+          {item.total_score === 0 ? "--" : item.rank}
         </Text>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         <Text style={[styles.name, { color: colors.textPrimary }]}>
@@ -205,7 +205,9 @@ const LeaderboardScreen = () => {
               <Text style={[styles.top100Text, { color: colors.textPrimary }]}>
                 {t("leaderboard.top100")}
               </Text>
-              {TopRanking()}
+              {!!top100Players?.[1] &&
+                top100Players[1].total_score !== 0 &&
+                TopRanking()}
             </View>
           }
           onEndReachedThreshold={0.5}
@@ -233,7 +235,8 @@ const LeaderboardScreen = () => {
               { color: colors.card },
             ]}
           >
-            {t("leaderboard.rank", "Rank")}: {currentUserRank.rank}
+            {t("leaderboard.rank", "Rank")}:{" "}
+            {currentUserRank.total_score === 0 ? "--" : currentUserRank.rank}
           </Text>
           <Text
             style={[
