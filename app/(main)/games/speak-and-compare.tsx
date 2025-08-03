@@ -40,7 +40,6 @@ const SpeakAndCompareScreen = () => {
     stopListening,
     setSpokenText,
     spokenText,
-    similarity,
     error,
     isListening,
     setError,
@@ -48,27 +47,19 @@ const SpeakAndCompareScreen = () => {
     isCalculating,
     nextWord,
     feedback,
+    percent,
   } = useSpeakAndCompare();
 
   React.useEffect(() => {
     nextWord();
   }, [currentIndex]);
 
-  const percent = React.useMemo(() => {
-    if (!feedback.length) return 0;
-    return (
-      (feedback.filter((item) => item.status === "correct").length /
-        feedback.length) *
-      100
-    );
-  }, [feedback]);
-
   const handleNextWord = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
     await stopListening(true);
     setError("");
     setSpokenText("");
-    submitAnswer(percent, 1);
+    submitAnswer(percent || 0, 1);
     next();
   };
 
@@ -149,27 +140,23 @@ const SpeakAndCompareScreen = () => {
                   : error}
               </Text>
             )}
-            {!isListening && !!spokenText && similarity !== null && (
+            {!isListening && !!spokenText && percent !== null && (
               <View style={styles.resultsContainer}>
-                {similarity !== null && (
-                  <>
-                    <Text
-                      style={[
-                        styles.similarityText,
-                        {
-                          color:
-                            percent >= 75
-                              ? colors.success
-                              : percent >= 50
-                              ? colors.warning
-                              : colors.error,
-                        },
-                      ]}
-                    >
-                      {percent.toFixed(0)}%
-                    </Text>
-                  </>
-                )}
+                <Text
+                  style={[
+                    styles.similarityText,
+                    {
+                      color:
+                        percent >= 75
+                          ? colors.success
+                          : percent >= 50
+                          ? colors.warning
+                          : colors.error,
+                    },
+                  ]}
+                >
+                  {percent.toFixed(0)}%
+                </Text>
               </View>
             )}
           </View>

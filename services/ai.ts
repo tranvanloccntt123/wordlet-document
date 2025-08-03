@@ -1,18 +1,18 @@
 import {
-    ContentListUnion,
-    GoogleGenAI,
-    HarmBlockThreshold,
-    HarmCategory,
+  ContentListUnion,
+  GoogleGenAI,
+  HarmBlockThreshold,
+  HarmCategory,
 } from "@google/genai";
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyAADq1wEZmm6m8RhyrVHKMPO_c0iNrX700",
+  apiKey: "AIzaSyBEKeiETgEJWJ_7dkvfi89OZkji1ak3fGw",
 });
 
-export const regexAIChatContent = /\{[a-zA-Z\:\_\s\"\!\;\'\?\,\.]+\}/g;
+export const regexAIChatContent = /\{[a-zA-Z\:\_\s\"\!\;\'\?\,\.\/\\]+\}/g;
 
 const config = {
-  maxOutputTokens: 200,
+  maxOutputTokens: 150,
   safetySettings: [
     {
       category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -34,7 +34,7 @@ const config = {
 };
 const model = "gemini-2.0-flash-lite";
 
-export const initContent: ContentListUnion = [
+export const initContent = (topic: string): ContentListUnion => [
   {
     role: "user",
     parts: [
@@ -42,9 +42,10 @@ export const initContent: ContentListUnion = [
         text: `This thread is for learning English through communication; we are discussing any topic I choose. Please, ask me some questions related to it. We will ask and answer 5 questions, asking questions by question. After the end of the answer fifth please provide feedback to me about my English skills, and how to improve.
             Chat Rule for you:
             Only English
-            Please respond to me in the format:
-            {feedback: "string", question: "string", suggestion: "string"}
-            Let's start with the topic: Interview
+            Please respond to me in the json format:
+            {"feedback": "string", "question": "string", "suggestion": "string"}
+            Let's start with the topic: ${topic}.
+            Level: Entry.
         `,
       },
     ],

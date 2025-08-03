@@ -1,5 +1,4 @@
 import AppAudio from "@/assets/audio";
-import { calculateSimilarityText } from "@/utils/string";
 import { useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import {
@@ -8,13 +7,113 @@ import {
 } from "expo-speech-recognition";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  InteractionManager,
-  PermissionsAndroid,
-  Platform
-} from "react-native";
+import { InteractionManager, PermissionsAndroid, Platform } from "react-native";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+
+const wordTableRoad = (spokenText: string, currentWord: string) => {
+  const currentWordLabel = currentWord.replaceAll("-", " ").split(" ");
+  const spokenTextLabel = spokenText.replaceAll("-", " ").split(" ");
+  const roadTable = Array.from({ length: spokenTextLabel.length }, (_, i) =>
+    Array.from(
+      { length: currentWordLabel.length },
+      (_, i) =>
+        ({
+          feedback: [],
+          percent: 0,
+        } as any)
+    )
+  );
+  let tmpList: Array<{ col: number; row: number }> = [];
+  for (let i = 0; i < roadTable.length; i++) {
+    for (let j = 0; j < roadTable[i].length; j++) {
+      roadTable[i][j] = checkStatusOfResponse(
+        spokenTextLabel[j],
+        currentWordLabel[i]
+      );
+      if (roadTable[i][j] !== 0) {
+        tmpList.push({ col: j, row: i });
+      }
+    }
+  }
+
+  let stackList: Array<{col: number; row: number}> = [];
+
+  console.log(currentWordLabel, spokenTextLabel);
+  console.log([...roadTable].map((v) => v.map((v) => v.percent)));
+  let resultList = currentWordLabel.map((v) =>
+    v.split("").map((c) => ({ char: c, status: "nocheck" }))
+  );
+  // let tmpList: Array<{ col: number; row: number }> = [];
+  // let col = 0;
+  // let row = 0;
+  // while (true) {
+  //   if (row >= roadTable.length) break;
+  //   if (roadTable[row][col].percent > 0) {
+  //     const _tmp = tmpList.filter((v) => v.col < col && v.row < row);
+  //     tmpList = [..._tmp, { col, row }];
+  //   }
+  //   if (col < roadTable[row].length - 1) {
+  //     col++;
+  //   } else {
+  //     row++;
+  //   }
+  // }
+
+  console.log(tmpList);
+};
+
+const checkStatusOfResponse = (spokenText: string, currentWord: string) => {
+  const result: Array<{
+    char: string;
+    status: "correct" | "incorrect" | "missing" | "nocheck";
+  }> = [];
+  if (spokenText === "" || !currentWord) {
+    return {
+      feedback: result,
+      percent: null,
+    };
+  }
+
+  const spokenArray = spokenText.toLowerCase().split("");
+  const targetArray = currentWord.toLowerCase().split("");
+
+  let spokenIndex = 0;
+
+  // Compare characters based on target word
+  targetArray.forEach((char, index) => {
+    if (
+      [".", "!", ",", "'", "’", "?", "-"].includes(spokenArray[spokenIndex])
+    ) {
+      spokenIndex += 1;
+    }
+    if (char === spokenArray[spokenIndex]) {
+      result.push({ char: currentWord[index], status: "correct" });
+      spokenIndex += 1;
+    } else {
+      if ([".", "!", ",", "'", "’", "?", "-"].includes(char)) {
+        result.push({ char: currentWord[index], status: "nocheck" });
+      } else {
+        result.push({
+          char: currentWord[index],
+          status: "incorrect",
+        });
+        spokenIndex += 1;
+      }
+    }
+  });
+
+  const percent = !result.length
+    ? null
+    : (result.filter((item) => item.status === "correct").length /
+        result.filter((i) => i.status !== "nocheck").length) *
+      100;
+
+  return {
+    feedback: result,
+    percent,
+  };
+};
 
 const useSpeakAndCompare = () => {
   const playerLoss = useAudioPlayer(AppAudio.LOSS);
@@ -31,38 +130,19 @@ const useSpeakAndCompare = () => {
 
   const [spokenText, setSpokenText] = useState<string>("");
 
-  const [similarity, setSimilarity] = useState<number>(0);
-
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
 
   const { t } = useTranslation();
 
-  const feedback = React.useMemo(() => {
-    if (spokenText === "" || !currentWord.current) return [];
-    const result: Array<{
-      char: string;
-      status: "correct" | "incorrect" | "missing";
-    }> = [];
-    const spokenArray = spokenText.toLowerCase().split("");
-    const targetArray = currentWord.current.toLowerCase().split("");
-
-    // Compare characters based on target word
-    targetArray.forEach((char, index) => {
-      if (index < spokenArray.length && char === spokenArray[index]) {
-        result.push({ char, status: "correct" });
-      } else {
-        result.push({ char, status: "incorrect" });
-      }
-    });
-
-    return result;
+  const { feedback, percent } = React.useMemo(() => {
+    return checkStatusOfResponse(spokenText, currentWord.current);
   }, [spokenText]);
 
   const startAnimation = useSharedValue(0);
 
   useSpeechRecognitionEvent("start", () => {
     startAnimation.value = withTiming(1, { duration: 100 });
-    setSimilarity(0);
+    transcripts.current = [];
     setIsListening(true);
     setError("");
     setIsCalculating(false);
@@ -73,119 +153,41 @@ const useSpeakAndCompare = () => {
     setIsListening(false);
   });
 
-  const calculateScorePerTranscript = async (transcript: string) => {
-    const listword = currentWord.current.split(" ");
-    let sim = 0;
-    if (currentWord.current.toLowerCase() === transcript.toLowerCase()) {
-      sim = 100;
-    } else {
-      sim = await calculateSimilarityText(
-        currentWord.current.toLowerCase(),
-        transcript.toLowerCase()
-      );
-      // //Current word cached
-      // let _currentWordStore: WordStore[] | null =
-      //   getQueryData(getSearchKey(currentWord.current)) || null;
-
-      // if (_currentWordStore === null) {
-      //   const res = (
-      //     await wordSupabase
-      //       .schema("public")
-      //       .from("fts_words")
-      //       .select("*")
-      //       .in(
-      //         "word",
-      //         listword.map((w) => w.trim()).filter((w) => !!w.length)
-      //       )
-      //   ).data;
-      //   setQueryData(getSearchKey(currentWord.current), res || []);
-      //   _currentWordStore = res || [];
-      // }
-      // //Transcript cached
-      // let _transcriptWordStore: WordStore[] | null =
-      //   getQueryData(getSearchKey(transcript)) || null;
-
-      // if (_transcriptWordStore === null) {
-      //   const res = (
-      //     await wordSupabase
-      //       .schema("public")
-      //       .from("fts_words")
-      //       .select("*")
-      //       .in(
-      //         "word",
-      //         transcript
-      //           .split(" ")
-      //           .map((w) => w.trim())
-      //           .filter((w) => !!w.length)
-      //       )
-      //   ).data;
-      //   setQueryData(getSearchKey(transcript), res || []);
-      //   _transcriptWordStore = res || [];
-      // }
-
-      // for (const word of listword) {
-      //   const wordSim = await calculateSimilarityPercentage(
-      //     word,
-      //     transcript,
-      //     _currentWordStore || [],
-      //     _transcriptWordStore || []
-      //   );
-      //   sim += wordSim;
-      // }
-      // sim = sim / (listword.length || 1);
-    }
-    return sim;
-  };
-
   const calculateScore = async () => {
     if (transcripts.current) {
       setIsCalculating(true);
-      // setSpokenText(transcript.current);
-      const simCalculate: Record<string, number> = {};
+      const simCalculate: Record<
+        string,
+        {
+          feedback: {
+            char: string;
+            status: "correct" | "incorrect" | "missing" | "nocheck";
+          }[];
+          percent: number | null;
+        }
+      > = {};
 
       for (const transcript of transcripts.current) {
-        simCalculate[transcript] = await calculateScorePerTranscript(
-          transcript
+        simCalculate[transcript] = await checkStatusOfResponse(
+          transcript,
+          currentWord.current
         );
-        if (simCalculate[transcript] === 100) break;
+        wordTableRoad(transcript, currentWord.current);
+        if (simCalculate[transcript].percent === 100) break;
       }
 
-      const sim = Math.max(0, ...Object.values(simCalculate));
-
-      setSpokenText(
-        Object.keys(simCalculate).find((k) => simCalculate[k] === sim) || ""
+      const sim = Math.max(
+        0,
+        ...Object.values(simCalculate).map((v) => v.percent || 0)
       );
-      // Helper function to play sound and trigger haptics
-      const playSoundAndHaptics = async (
-        player: ReturnType<typeof useAudioPlayer>, // More specific type if available
-        hapticType: Haptics.NotificationFeedbackType
-      ) => {
-        try {
-          await player.seekTo(0);
-          await player.play();
-          Haptics.notificationAsync(hapticType);
-        } catch (e) {
-          console.error("Error playing sound or triggering haptics:", e);
-        }
-      };
 
       ExpoSpeechRecognitionModule.stop();
 
-      // Ensure player operations and haptics run on the main thread
-      InteractionManager.runAfterInteractions(() => {
-        if (sim > 65) {
-          playSoundAndHaptics(
-            playerCorrect,
-            Haptics.NotificationFeedbackType.Success
-          );
-        } else {
-          playSoundAndHaptics(
-            playerLoss,
-            Haptics.NotificationFeedbackType.Error
-          );
-        }
-      });
-      setSimilarity(sim);
+      setSpokenText(
+        Object.keys(simCalculate).find(
+          (k) => simCalculate[k].percent === sim
+        ) || ""
+      );
       setIsCalculating(false);
     }
   };
@@ -208,7 +210,38 @@ const useSpeakAndCompare = () => {
     setSpokenText("");
   });
 
-  useEffect(() => {}, [spokenText, isListening]);
+  useEffect(() => {
+    // Helper function to play sound and trigger haptics
+    const playSoundAndHaptics = async (
+      player: ReturnType<typeof useAudioPlayer>, // More specific type if available
+      hapticType: Haptics.NotificationFeedbackType
+    ) => {
+      try {
+        await player.seekTo(0);
+        await player.play();
+        Haptics.notificationAsync(hapticType);
+      } catch (e) {
+        console.error("Error playing sound or triggering haptics:", e);
+      }
+    };
+
+    // Ensure player operations and haptics run on the main thread
+    !!feedback.length &&
+      percent !== null &&
+      InteractionManager.runAfterInteractions(() => {
+        if (percent > 65) {
+          playSoundAndHaptics(
+            playerCorrect,
+            Haptics.NotificationFeedbackType.Success
+          );
+        } else {
+          playSoundAndHaptics(
+            playerLoss,
+            Haptics.NotificationFeedbackType.Error
+          );
+        }
+      });
+  }, [percent, feedback]);
 
   const requestMicrophonePermission = async () => {
     if (Platform.OS === "android") {
@@ -281,12 +314,12 @@ const useSpeakAndCompare = () => {
     error,
     spokenText,
     setSpokenText,
-    similarity,
     stopListening,
     setError,
     isCalculating,
-    nextWord: () => setSimilarity(0),
     feedback,
+    percent,
+    nextWord: () => setSpokenText(""),
   };
 };
 
