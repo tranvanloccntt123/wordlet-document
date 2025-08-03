@@ -6,7 +6,7 @@ import {
 } from "@google/genai";
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyBEKeiETgEJWJ_7dkvfi89OZkji1ak3fGw",
+  apiKey: "",
 });
 
 export const regexAIChatContent = /\{[a-zA-Z\:\_\s\"\!\;\'\?\,\.\/\\]+\}/g;
