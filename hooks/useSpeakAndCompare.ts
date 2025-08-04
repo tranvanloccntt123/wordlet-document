@@ -11,56 +11,134 @@ import { InteractionManager, PermissionsAndroid, Platform } from "react-native";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
+interface Position {
+  col: number;
+  row: number;
+}
+
+const ignoreChar = [".", "!", ",", "'", "’", "?", "-"];
+
+function getLongestSortedList(positions: Position[]): Position[] {
+  if (positions.length === 0) return [];
+
+  // Sort positions by row (ascending) and then by col (ascending)
+  const sorted = [...positions].sort((a, b) => {
+    if (a.row !== b.row) {
+      return a.row - b.row; // Lower row first
+    }
+    return a.col - b.col; // Lower col first within same row
+  });
+
+  // dp[i] stores the length of the longest sequence ending at index i
+  const dp: number[] = new Array(sorted.length).fill(1);
+  // prev[i] stores the previous index in the longest sequence ending at i
+  const prev: number[] = new Array(sorted.length).fill(-1);
+
+  // Find the longest increasing subsequence
+  let maxLength = 1;
+  let maxIndex = 0;
+
+  for (let i = 1; i < sorted.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (sorted[i].col > sorted[j].col && sorted[i].row > sorted[j].row) {
+        if (dp[j] + 1 > dp[i]) {
+          dp[i] = dp[j] + 1;
+          prev[i] = j;
+        }
+      }
+    }
+    if (dp[i] > maxLength) {
+      maxLength = dp[i];
+      maxIndex = i;
+    }
+  }
+
+  // Reconstruct the longest sequence
+  const result: Position[] = [];
+  let currentIndex = maxIndex;
+  while (currentIndex !== -1) {
+    result.push(sorted[currentIndex]);
+    currentIndex = prev[currentIndex];
+  }
+
+  return result.reverse(); // Reverse to get the sequence in increasing order
+}
+
 const wordTableRoad = (spokenText: string, currentWord: string) => {
   const currentWordLabel = currentWord.replaceAll("-", " ").split(" ");
   const spokenTextLabel = spokenText.replaceAll("-", " ").split(" ");
-  const roadTable = Array.from({ length: spokenTextLabel.length }, (_, i) =>
-    Array.from(
-      { length: currentWordLabel.length },
-      (_, i) =>
-        ({
-          feedback: [],
-          percent: 0,
-        } as any)
-    )
+  const roadTable: {
+    feedback: {
+      char: string;
+      status: "correct" | "incorrect" | "missing" | "nocheck";
+    }[];
+    percent: number | null;
+  }[][] = Array.from({ length: spokenTextLabel.length }, (_, i) =>
+    Array.from({ length: currentWordLabel.length }, (_, i) => ({
+      feedback: [],
+      percent: 0,
+    }))
   );
-  let tmpList: Array<{ col: number; row: number }> = [];
+  let tmpList: Position[] = [];
   for (let i = 0; i < roadTable.length; i++) {
     for (let j = 0; j < roadTable[i].length; j++) {
       roadTable[i][j] = checkStatusOfResponse(
-        spokenTextLabel[j],
-        currentWordLabel[i]
+        spokenTextLabel[i],
+        currentWordLabel[j]
       );
-      if (roadTable[i][j] !== 0) {
+      if (roadTable[i][j].percent !== 0) {
         tmpList.push({ col: j, row: i });
       }
     }
   }
 
-  let stackList: Array<{col: number; row: number}> = [];
+  const finalList = getLongestSortedList(tmpList);
 
-  console.log(currentWordLabel, spokenTextLabel);
-  console.log([...roadTable].map((v) => v.map((v) => v.percent)));
-  let resultList = currentWordLabel.map((v) =>
-    v.split("").map((c) => ({ char: c, status: "nocheck" }))
-  );
-  // let tmpList: Array<{ col: number; row: number }> = [];
-  // let col = 0;
-  // let row = 0;
-  // while (true) {
-  //   if (row >= roadTable.length) break;
-  //   if (roadTable[row][col].percent > 0) {
-  //     const _tmp = tmpList.filter((v) => v.col < col && v.row < row);
-  //     tmpList = [..._tmp, { col, row }];
-  //   }
-  //   if (col < roadTable[row].length - 1) {
-  //     col++;
-  //   } else {
-  //     row++;
-  //   }
-  // }
+  let feedbackList = currentWordLabel.map((word) => {
+    const list = word.split("").map((v) => ({
+      char: v,
+      status: ignoreChar.includes(v.toLowerCase()) ? "nocheck" : "incorrect",
+    }));
+    list.push({
+      char: " ",
+      status: "nocheck",
+    });
+    return list;
+  });
 
-  console.log(tmpList);
+  if (finalList.length) {
+    finalList.forEach((i) => {
+      feedbackList[i.col] = [
+        ...roadTable[i.row][i.col].feedback,
+        {
+          char: " ",
+          status: "nocheck",
+        },
+      ];
+    });
+  }
+
+  const list = feedbackList.flatMap((v) => v);
+
+  if (list[list.length - 1].char === " ") list.pop();
+
+  return list as {
+    char: string;
+    status: "correct" | "incorrect" | "missing" | "nocheck";
+  }[];
+};
+
+const getPercent = (
+  result: Array<{
+    char: string;
+    status: "correct" | "incorrect" | "missing" | "nocheck";
+  }>
+) => {
+  return !result.length
+    ? null
+    : (result.filter((item) => item.status === "correct").length /
+        result.filter((i) => i.status !== "nocheck").length) *
+        100;
 };
 
 const checkStatusOfResponse = (spokenText: string, currentWord: string) => {
@@ -82,16 +160,14 @@ const checkStatusOfResponse = (spokenText: string, currentWord: string) => {
 
   // Compare characters based on target word
   targetArray.forEach((char, index) => {
-    if (
-      [".", "!", ",", "'", "’", "?", "-"].includes(spokenArray[spokenIndex])
-    ) {
+    if (ignoreChar.includes(spokenArray[spokenIndex])) {
       spokenIndex += 1;
     }
     if (char === spokenArray[spokenIndex]) {
       result.push({ char: currentWord[index], status: "correct" });
       spokenIndex += 1;
     } else {
-      if ([".", "!", ",", "'", "’", "?", "-"].includes(char)) {
+      if (ignoreChar.includes(char)) {
         result.push({ char: currentWord[index], status: "nocheck" });
       } else {
         result.push({
@@ -103,11 +179,7 @@ const checkStatusOfResponse = (spokenText: string, currentWord: string) => {
     }
   });
 
-  const percent = !result.length
-    ? null
-    : (result.filter((item) => item.status === "correct").length /
-        result.filter((i) => i.status !== "nocheck").length) *
-      100;
+  const percent = getPercent(result);
 
   return {
     feedback: result,
@@ -134,9 +206,14 @@ const useSpeakAndCompare = () => {
 
   const { t } = useTranslation();
 
-  const { feedback, percent } = React.useMemo(() => {
-    return checkStatusOfResponse(spokenText, currentWord.current);
-  }, [spokenText]);
+  const [feedback, setFeedback] = React.useState<
+    {
+      char: string;
+      status: "correct" | "incorrect" | "missing" | "nocheck";
+    }[]
+  >([]);
+
+  const [percent, setPercent] = React.useState<number | null>(null);
 
   const startAnimation = useSharedValue(0);
 
@@ -168,11 +245,12 @@ const useSpeakAndCompare = () => {
       > = {};
 
       for (const transcript of transcripts.current) {
-        simCalculate[transcript] = await checkStatusOfResponse(
-          transcript,
-          currentWord.current
-        );
-        wordTableRoad(transcript, currentWord.current);
+        const feedback = wordTableRoad(transcript, currentWord.current);
+        const percent = getPercent(feedback);
+        simCalculate[transcript] = {
+          feedback,
+          percent,
+        };
         if (simCalculate[transcript].percent === 100) break;
       }
 
@@ -180,6 +258,10 @@ const useSpeakAndCompare = () => {
         0,
         ...Object.values(simCalculate).map((v) => v.percent || 0)
       );
+
+      Object.values(simCalculate).forEach((v) => {
+        v.percent === sim && setFeedback(v.feedback) && setPercent(v.percent);
+      });
 
       ExpoSpeechRecognitionModule.stop();
 
@@ -298,6 +380,8 @@ const useSpeakAndCompare = () => {
       // Not supported on Android 12 and below.
       continuous: true,
     });
+    setFeedback([]);
+    setPercent(null);
   };
 
   const stopListening = async (isSkip: boolean = false) => {
@@ -319,7 +403,11 @@ const useSpeakAndCompare = () => {
     isCalculating,
     feedback,
     percent,
-    nextWord: () => setSpokenText(""),
+    nextWord: () => {
+      setSpokenText("");
+      setFeedback([]);
+      setPercent(null);
+    },
   };
 };
 
