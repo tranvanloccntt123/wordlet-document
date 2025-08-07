@@ -1,8 +1,8 @@
 import { getIPA } from "@/constants/RemoteConfig";
 import { getQueryData } from "@/hooks/useQuery";
 import * as Mixpanel from "@/services/mixpanel";
-import { fetchWordsByKeywordList } from "@/services/searchDb";
 import { fetchGroupDetail, getUsers } from "@/services/supabase";
+import { fetchWordsByKeywordList } from "@/services/supabase/searchDb";
 import { shuffleArray } from "@/utils/array";
 import { getGroupKey } from "@/utils/string";
 import { User } from "@supabase/supabase-js";

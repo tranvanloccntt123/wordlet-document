@@ -1,7 +1,9 @@
+import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
 import GameButtons from "@/components/GameButtons";
-import { AIChatTopic } from "@/constants/topic";
 import useSpeakAndCompare from "@/hooks/useSpeakAndCompare";
+import { fetchConversation } from "@/services/supabase";
+import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
   FontFamilies,
@@ -18,7 +20,12 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
 import { RiveRef } from "rive-react-native";
-// <FontAwesome name="volume-up" size={24} color="black" />
+
+const joinCategories = (user: SocialUser) => {
+  let goals = user.goals.split(",");
+  let interest = user.interests.split(",");
+  return [...goals, ...interest];
+};
 
 const ChatItem: React.FC<{
   item: {
@@ -112,7 +119,6 @@ const ChatItem: React.FC<{
 const AIChat = () => {
   const colors = useThemeStore((state) => state.colors);
   const [isWordPlaying, setIsWordPlaying] = React.useState<boolean>(false);
-  const [selectedTopic, setSelectedTopic] = React.useState<number>(-1);
   const [data, setData] = React.useState<
     {
       role: "user" | "model";
@@ -120,6 +126,12 @@ const AIChat = () => {
       feedback?: { char: string; status: string }[];
     }[]
   >([]);
+
+  const [conversations, setConversations] = React.useState<Conversation[]>([]);
+
+  const [conversation, setConversation] = React.useState<Conversation>();
+
+  const socialInfo = useInfoStore((state) => state.socialInfo);
 
   const recordRef = React.useRef<RiveRef>(null);
 
@@ -155,7 +167,7 @@ const AIChat = () => {
   const next = () => {
     if (
       indexCommunication.current >=
-      AIChatTopic[selectedTopic].conversation.timeline.length
+      (conversation?.conversation?.timeline.length || 0)
     ) {
       //break;
       router.back();
@@ -167,21 +179,18 @@ const AIChat = () => {
       {
         role: "model",
         content:
-          AIChatTopic[selectedTopic].conversation.timeline[
-            indexCommunication.current
-          ]?.dialogue,
+          conversation?.conversation.timeline[indexCommunication.current]
+            ?.dialogue,
         translate:
-          AIChatTopic[selectedTopic].conversation.timeline[
-            indexCommunication.current
-          ]?.translate,
+          conversation?.conversation.timeline[indexCommunication.current]
+            ?.translate,
       },
     ];
     setData([...(_data as any)]);
     setIsWordPlaying(true);
     playWord(
-      AIChatTopic[selectedTopic].conversation.timeline[
-        indexCommunication.current
-      ].dialogue,
+      conversation?.conversation.timeline[indexCommunication.current]
+        .dialogue || "",
       "extra_mtb_ev.db"
     )
       .then(() => {
@@ -190,11 +199,11 @@ const AIChat = () => {
           {
             role: "user",
             content:
-              AIChatTopic[selectedTopic].conversation.timeline[
+              conversation?.conversation.timeline[
                 indexCommunication.current + 1
               ].dialogue,
             translate:
-              AIChatTopic[selectedTopic].conversation.timeline[
+              conversation?.conversation.timeline[
                 indexCommunication.current + 1
               ]?.translate,
           },
@@ -208,27 +217,24 @@ const AIChat = () => {
   };
 
   React.useEffect(() => {
-    if (selectedTopic !== -1) {
+    if (!!conversation) {
       const _data = [
         ...data,
         {
           role: "model",
           content:
-            AIChatTopic[selectedTopic].conversation.timeline[
-              indexCommunication.current
-            ].dialogue,
+            conversation?.conversation.timeline[indexCommunication.current]
+              .dialogue,
           translate:
-            AIChatTopic[selectedTopic].conversation.timeline[
-              indexCommunication.current
-            ]?.translate,
+            conversation?.conversation.timeline[indexCommunication.current]
+              ?.translate,
         },
       ];
       setData([...(_data as any)]);
       setIsWordPlaying(true);
       playWord(
-        AIChatTopic[selectedTopic].conversation.timeline[
-          indexCommunication.current
-        ].dialogue,
+        conversation?.conversation.timeline[indexCommunication.current]
+          .dialogue || "",
         "extra_mtb_ev.db"
       )
         .then(() => {
@@ -237,11 +243,11 @@ const AIChat = () => {
             {
               role: "user",
               content:
-                AIChatTopic[selectedTopic].conversation.timeline[
+                conversation?.conversation.timeline[
                   indexCommunication.current + 1
                 ].dialogue,
               translate:
-                AIChatTopic[selectedTopic].conversation.timeline[
+                conversation?.conversation.timeline[
                   indexCommunication.current + 1
                 ]?.translate,
             },
@@ -252,7 +258,7 @@ const AIChat = () => {
           indexCommunication.current += 2;
         });
     }
-  }, [selectedTopic]);
+  }, [conversation]);
 
   React.useEffect(() => {
     if (data.length === 0) {
@@ -287,6 +293,16 @@ const AIChat = () => {
   }, []);
 
   React.useEffect(() => {
+    !!socialInfo &&
+      fetchConversation(joinCategories(socialInfo), 6).then((r) => {
+        const { data } = r;
+        if (data) {
+          setConversations(data);
+        }
+      });
+  }, [socialInfo]);
+
+  React.useEffect(() => {
     flatListRef.current?.scrollToEnd();
   }, [data]);
 
@@ -318,18 +334,18 @@ const AIChat = () => {
         <ChatItem item={item} index={index} disableAudio={isWordPlaying} />
         {index === 1 && (
           <View style={styles.topicListContainer}>
-            {AIChatTopic.map((v, i) => (
+            {conversations.map((v, i) => (
               <TouchableOpacity
                 style={[
                   styles.topicContentContainer,
                   {
                     backgroundColor: colors.primaryDark,
                     opacity:
-                      selectedTopic !== -1 && selectedTopic != i ? 0.7 : 1,
+                      !!conversation && conversation?.id !== v.id ? 0.7 : 1,
                   },
                 ]}
                 key={v.topic}
-                disabled={selectedTopic !== -1}
+                disabled={!!conversation}
                 onPress={() => {
                   if (!selectingTopic.current) {
                     selectingTopic.current = true;
@@ -339,7 +355,7 @@ const AIChat = () => {
                       "extra_mtb_ev.db"
                     )
                       .then(() => {
-                        setSelectedTopic(i);
+                        setConversation(v);
                       })
                       .finally(() => {
                         setIsWordPlaying(false);
@@ -357,6 +373,7 @@ const AIChat = () => {
                     {
                       color: "white",
                       textAlign: "center",
+                      fontSize: s(10),
                     },
                   ]}
                 >
@@ -364,6 +381,7 @@ const AIChat = () => {
                 </Text>
               </TouchableOpacity>
             ))}
+            <GameButtons fontSize={s(15)} hideSkipButton />
           </View>
         )}
       </View>
@@ -371,40 +389,42 @@ const AIChat = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView style={styles.container}>
-        <CommonHeader title="Wordlet AI" />
-        <FlatList
-          ref={flatListRef}
-          keyExtractor={(item, index) => `CHAT_${index}`}
-          data={data}
-          renderItem={renderItem}
-        />
-        <View style={{ marginHorizontal: s(16), paddingVertical: s(8) }}>
-          <GameButtons
-            onSkipPress={next}
-            onPrimaryPress={() => {
-              if (!isListening) {
-                setSpokenText("");
-                startListening(
-                  data[data.length - 1].content.replaceAll("-", " ")
-                );
-              } else {
-                stopListening();
-              }
-            }}
-            skipButtonDisabled={
-              selectedTopic === -1 || isLoading || isWordPlaying || isListening
-            }
-            primaryButtonText={
-              isListening ? t("games.stopButton") : t("games.startButton")
-            }
-            skipButtonText={t("common.continue")}
-            primaryButtonDisabled={selectedTopic === -1 || isWordPlaying}
+    <AppLoading isLoading={false}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={styles.container}>
+          <CommonHeader title="Wordlet AI" />
+          <FlatList
+            ref={flatListRef}
+            keyExtractor={(item, index) => `CHAT_${index}`}
+            data={data}
+            renderItem={renderItem}
           />
-        </View>
-      </SafeAreaView>
-    </View>
+          <View style={{ marginHorizontal: s(16), paddingVertical: s(8) }}>
+            <GameButtons
+              onSkipPress={next}
+              onPrimaryPress={() => {
+                if (!isListening) {
+                  setSpokenText("");
+                  startListening(
+                    data[data.length - 1].content.replaceAll("-", " ")
+                  );
+                } else {
+                  stopListening();
+                }
+              }}
+              skipButtonDisabled={
+                !conversation || isLoading || isWordPlaying || isListening
+              }
+              primaryButtonText={
+                isListening ? t("games.stopButton") : t("games.startButton")
+              }
+              skipButtonText={t("common.continue")}
+              primaryButtonDisabled={!conversation || isWordPlaying}
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </AppLoading>
   );
 };
 

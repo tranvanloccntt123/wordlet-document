@@ -36,3 +36,8 @@ export const SUPABASE_SOCIAL_TABLE = {
   USER_INFO: "user_info",
   POST: "post",
 };
+
+export const SUPABASE_WORD_TABLE = {
+  CONVERSATION: "conversation",
+  WORD: "fts_words",
+};

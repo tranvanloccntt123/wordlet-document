@@ -1,5 +1,6 @@
 import { SEARCH_LIMIT } from "@/constants";
-import { wordSupabase } from "./supabase"; // Import wordSupabase
+import { SUPABASE_WORD_TABLE } from "@/constants/Supabase";
+import { wordSupabase } from "."; // Import wordSupabase
 
 export const fetchSearchResults = async (
   keyword: string,
@@ -14,7 +15,7 @@ export const fetchSearchResults = async (
     const offset = page * SEARCH_LIMIT;
 
     let allQuery = wordSupabase
-      .from("fts_words")
+      .from(SUPABASE_WORD_TABLE.WORD)
       .select("*")
       .like("word", `%${keyword.toLowerCase()}%`)
       .neq("word", keyword.toLowerCase())
@@ -30,7 +31,7 @@ export const fetchSearchResults = async (
 
     if (offset === 0 && !!allData?.length) {
       let absoluteQuery = wordSupabase
-        .from("fts_words")
+        .from(SUPABASE_WORD_TABLE.WORD)
         .select("*")
         .eq("word", keyword.toLowerCase());
       let absoluteWord = await absoluteQuery.single();

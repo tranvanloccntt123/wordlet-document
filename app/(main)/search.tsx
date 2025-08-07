@@ -4,7 +4,7 @@ import SearchResultItem from "@/components/SearchResultItem"; // Import the new 
 import { SEARCH_LIMIT } from "@/constants";
 import useDebounce from "@/hooks/useDebounce";
 import { setQueryData } from "@/hooks/useQuery";
-import { fetchSearchResults } from "@/services/searchDb";
+import { fetchSearchResults } from "@/services/supabase/searchDb";
 import useThemeStore from "@/store/themeStore";
 import { commonStyles } from "@/styles/commonStyles"; // Import common styles
 import {

@@ -1,4 +1,5 @@
 export * from "./client";
+export * from "./conversation";
 export * from "./energy";
 export * from "./group";
 export * from "./leaderBoard";

@@ -172,3 +172,21 @@ type Post = {
   params: Record<string, any>;
   user_info?: SocialUser;
 };
+
+type ConversationTimeline = {
+  speaker: string;
+  dialogue: string;
+  translate: string;
+};
+
+type Conversation = {
+  id: number;
+  created_at: string;
+  categories: string;
+  topic: string;
+  emoji: string;
+  conversation: {
+    setting: string;
+    timeline: ConversationTimeline[];
+  };
+};
