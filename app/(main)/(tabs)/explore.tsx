@@ -109,7 +109,7 @@ const SettingsScreen = () => {
         </View>
         <TouchableOpacity
           style={{ marginTop: vs(8) }}
-          onPress={() => router.navigate("/dev/ai-chat")}
+          onPress={() => router.navigate("/conversation")}
         >
           <View
             style={[

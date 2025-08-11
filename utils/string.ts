@@ -162,3 +162,6 @@ export const getPostKey = (postId: number): string => `POST_${postId}`;
 export const getPostListKey = (): string => `POST_LIST`;
 
 export const getStreakKey = (): string => `STREAK`;
+
+export const getConversationKey = (conversationId: number): string =>
+  `CONVERSATION_${conversationId}`;

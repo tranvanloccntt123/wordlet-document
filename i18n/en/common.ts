@@ -36,6 +36,7 @@ const common = {
   retry: "retry",
   letCharge: "Let Charge",
   continue: "Continue",
+  more: "More",
 };
 
 export default common;

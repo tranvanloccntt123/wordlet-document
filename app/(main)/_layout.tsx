@@ -26,7 +26,6 @@ const MainLayout = () => {
           <Stack.Screen name="games" />
           <Stack.Screen name="groups" />
           <Stack.Screen name="spell" />
-          <Stack.Screen name="word" />
           <Stack.Screen name="search" />
           <Stack.Screen name="settings" />
           <Stack.Screen

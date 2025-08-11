@@ -29,3 +29,9 @@ const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
 export function isValidUrl(string: string) {
   return urlRegex.test(string);
 }
+
+export const joinCategories = (user: SocialUser) => {
+  let goals = user.goals.split(",");
+  let interest = user.interests.split(",");
+  return [...goals, ...interest];
+};

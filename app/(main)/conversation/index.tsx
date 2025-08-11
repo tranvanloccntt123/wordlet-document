@@ -10,6 +10,7 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
+import { joinCategories } from "@/utils";
 import { playWord } from "@/utils/voice";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -21,11 +22,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
 import { RiveRef } from "rive-react-native";
 
-const joinCategories = (user: SocialUser) => {
-  let goals = user.goals.split(",");
-  let interest = user.interests.split(",");
-  return [...goals, ...interest];
-};
 
 const ChatItem: React.FC<{
   item: {
@@ -292,6 +288,8 @@ const AIChat = () => {
     }
   }, []);
 
+  console.log(JSON.stringify(conversation));
+
   React.useEffect(() => {
     !!socialInfo &&
       fetchConversation(joinCategories(socialInfo), 6).then((r) => {
@@ -381,7 +379,17 @@ const AIChat = () => {
                 </Text>
               </TouchableOpacity>
             ))}
-            <GameButtons fontSize={s(15)} hideSkipButton />
+            <GameButtons
+              fontSize={s(15)}
+              hideSkipButton
+              hidePrimaryButton={!!conversation}
+              primaryButtonText={t("common.more")}
+              onPrimaryPress={() => {
+                if (!selectingTopic.current) {
+                  router.navigate("/conversation/list");
+                }
+              }}
+            />
           </View>
         )}
       </View>
@@ -419,7 +427,11 @@ const AIChat = () => {
                 isListening ? t("games.stopButton") : t("games.startButton")
               }
               skipButtonText={t("common.continue")}
-              primaryButtonDisabled={!conversation || isWordPlaying}
+              primaryButtonDisabled={
+                !conversation ||
+                isWordPlaying ||
+                data[data.length - 1].role !== "user"
+              }
             />
           </View>
         </SafeAreaView>

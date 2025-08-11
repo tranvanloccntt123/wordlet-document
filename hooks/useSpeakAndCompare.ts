@@ -217,6 +217,13 @@ const useSpeakAndCompare = () => {
 
   const startAnimation = useSharedValue(0);
 
+  React.useEffect(() => {
+    if (feedback.length && percent !== null) {
+      percent < 60 && playerLoss.play();
+      percent >= 60 && playerCorrect.play();
+    }
+  }, [percent, feedback]);
+
   useSpeechRecognitionEvent("start", () => {
     startAnimation.value = withTiming(1, { duration: 100 });
     transcripts.current = [];
@@ -260,7 +267,10 @@ const useSpeakAndCompare = () => {
       );
 
       Object.values(simCalculate).forEach((v) => {
-        v.percent === sim && setFeedback(v.feedback) && setPercent(v.percent);
+        if (v.percent === sim) {
+          setFeedback(v.feedback);
+          setPercent(v.percent);
+        }
       });
 
       ExpoSpeechRecognitionModule.stop();

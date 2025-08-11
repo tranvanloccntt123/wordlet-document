@@ -36,6 +36,7 @@ const common = {
   retry: "Thử lại",
   letCharge: "Sạc",
   continue: "Tiếp tục",
+  more: "Nhiều hơn",
 };
 
 export default common;
