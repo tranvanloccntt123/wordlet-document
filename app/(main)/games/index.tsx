@@ -1,4 +1,3 @@
-import WordletBanner from "@/components/Banner";
 import CommonHeader from "@/components/CommonHeader"; // Import CommonHeader
 import IntroLoading from "@/components/IntroLoading";
 import { SEARCH_LIMIT } from "@/constants";
@@ -212,10 +211,7 @@ export default function Games() {
 
   const renderItem = React.useCallback(
     ({ item, index }: { item: number; index: number }) => (
-      <>
-        <GroupListItem id={item} />
-        {index === 1 && <WordletBanner />}
-      </>
+      <GroupListItem id={item} />
     ),
     [colors, t] // Added colors and t to dependencies
   );

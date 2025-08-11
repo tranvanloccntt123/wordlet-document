@@ -38,7 +38,7 @@ const groups = {
   limitWordMessage: "Bạn chỉ có thể thêm tối đa {{limit}} từ cho mỗi nhóm.",
   publishDescription: "Xuất bản để chia sẻ nhóm này đến với mọi người.",
   publishDescription2:
-    "🍿 Top 100 nhóm có nhiều người dùng hoàn thành, sẽ được nhận thưởng từ hệ thống.",
+    "🍿 Nhóm có nhiều người dùng hoàn thành, sẽ được nhận thưởng từ hệ thống.",
   publishLimit: "Bạn cần ít nhất 10 từ để xuất bản một nhóm.",
   reportSuccess: "Báo cáo vi phạm đã được gửi.",
   reportBtnTxt: "Báo cáo nhóm",

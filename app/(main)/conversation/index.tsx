@@ -1,8 +1,9 @@
 import AppLoading from "@/components/AppLoading";
-import CommonHeader from "@/components/CommonHeader";
+import DoubleCheckBackScreen from "@/components/DoubleCheckBackScreen";
 import GameButtons from "@/components/GameButtons";
 import useSpeakAndCompare from "@/hooks/useSpeakAndCompare";
 import { fetchConversation } from "@/services/supabase";
+import useConversationStore from "@/store/conversationStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
@@ -11,17 +12,23 @@ import {
   getAppFontStyle,
 } from "@/styles/fontStyles";
 import { joinCategories } from "@/utils";
-import { playWord } from "@/utils/voice";
+import { playWord, stopWord } from "@/utils/voice";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { s, ScaledSheet } from "react-native-size-matters";
 import { RiveRef } from "rive-react-native";
-
 
 const ChatItem: React.FC<{
   item: {
@@ -33,6 +40,9 @@ const ChatItem: React.FC<{
   index: number;
   disableAudio?: boolean;
 }> = ({ item, index, disableAudio }) => {
+  const setIsWordPlaying = useConversationStore(
+    (state) => state.setIsWordPlaying
+  );
   const colors = useThemeStore((state) => state.colors);
   const [isTranslation, setIsTranslation] = React.useState<boolean>(false);
   return (
@@ -78,14 +88,20 @@ const ChatItem: React.FC<{
             onPress={() => {
               setIsTranslation(!isTranslation);
             }}
+            style={{ padding: s(8) }}
           >
             <Entypo name="language" size={s(15)} color={colors.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              playWord(item.content, "extra_mtb_ev.db");
+              if (disableAudio) return;
+              setIsWordPlaying(true);
+              playWord(item.content, "extra_mtb_ev.db").finally(() => {
+                setIsWordPlaying(false);
+              });
             }}
             disabled={disableAudio}
+            style={{ padding: s(8) }}
           >
             <FontAwesome
               name="volume-up"
@@ -112,20 +128,136 @@ const ChatItem: React.FC<{
   );
 };
 
+const SIZE = s(10);
+
+const HEIGHT_SIZE = [s(10), s(40)];
+
+const WordPlayingAnimComponent = () => {
+  const anim = useSharedValue(0);
+  const colors = useThemeStore((state) => state.colors);
+
+  React.useEffect(() => {
+    anim.value = withRepeat(
+      withSequence(
+        withTiming(3, { duration: 500 }),
+        withTiming(0, { duration: 500 })
+      ),
+      -1
+    );
+    return () => {
+      anim.value = 0;
+    };
+  }, []);
+  const animation1Style = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        anim.value,
+        [0, 1, 2, 3],
+        [HEIGHT_SIZE[1], HEIGHT_SIZE[0], HEIGHT_SIZE[0], HEIGHT_SIZE[0]]
+      ),
+    };
+  });
+  const animation2Style = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        anim.value,
+        [0, 1, 2, 3],
+        [HEIGHT_SIZE[0], HEIGHT_SIZE[1], HEIGHT_SIZE[0], HEIGHT_SIZE[0]]
+      ),
+    };
+  });
+  const animation3Style = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        anim.value,
+        [0, 1, 2, 3],
+        [HEIGHT_SIZE[0], HEIGHT_SIZE[0], HEIGHT_SIZE[1], HEIGHT_SIZE[0]]
+      ),
+    };
+  });
+  const animation4Style = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        anim.value,
+        [0, 1, 2, 3],
+        [HEIGHT_SIZE[0], HEIGHT_SIZE[0], HEIGHT_SIZE[0], HEIGHT_SIZE[1]]
+      ),
+    };
+  });
+  return (
+    <View
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        gap: s(8),
+        height: s(44),
+      }}
+    >
+      <Animated.View
+        style={[
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE,
+            backgroundColor: colors.textPrimary,
+          },
+          animation1Style,
+        ]}
+      />
+      <Animated.View
+        style={[
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE,
+            backgroundColor: colors.textPrimary,
+          },
+          animation2Style,
+        ]}
+      />
+      <Animated.View
+        style={[
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE,
+            backgroundColor: colors.textPrimary,
+          },
+          animation3Style,
+        ]}
+      />
+      <Animated.View
+        style={[
+          {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: SIZE,
+            backgroundColor: colors.textPrimary,
+          },
+          animation4Style,
+        ]}
+      />
+    </View>
+  );
+};
+
 const AIChat = () => {
   const colors = useThemeStore((state) => state.colors);
-  const [isWordPlaying, setIsWordPlaying] = React.useState<boolean>(false);
-  const [data, setData] = React.useState<
-    {
-      role: "user" | "model";
-      content: string;
-      feedback?: { char: string; status: string }[];
-    }[]
-  >([]);
+  const {
+    timeline: data,
+    setTimeline: setData,
+    conversation,
+    setConversation,
+    isWordPlaying,
+    setIsWordPlaying,
+    selectingTopic,
+    setSelectingTopic,
+  } = useConversationStore();
+
+  const router = useRouter();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-
-  const [conversation, setConversation] = React.useState<Conversation>();
 
   const socialInfo = useInfoStore((state) => state.socialInfo);
 
@@ -134,8 +266,6 @@ const AIChat = () => {
   const flatListRef = React.useRef<FlatList>(null);
 
   const [isLoading, _setIsLoading] = React.useState<boolean>(false);
-
-  const selectingTopic = React.useRef<boolean>(false);
 
   const { t } = useTranslation();
 
@@ -166,7 +296,7 @@ const AIChat = () => {
       (conversation?.conversation?.timeline.length || 0)
     ) {
       //break;
-      router.back();
+      router.replace("/conversation/game-over");
       return;
     }
     setSpokenText("");
@@ -213,7 +343,7 @@ const AIChat = () => {
   };
 
   React.useEffect(() => {
-    if (!!conversation) {
+    if (!!conversation && !isWordPlaying && indexCommunication.current === 0) {
       const _data = [
         ...data,
         {
@@ -254,7 +384,7 @@ const AIChat = () => {
           indexCommunication.current += 2;
         });
     }
-  }, [conversation]);
+  }, [conversation, isWordPlaying]);
 
   React.useEffect(() => {
     if (data.length === 0) {
@@ -265,30 +395,29 @@ const AIChat = () => {
         },
       ]);
       setIsWordPlaying(true);
-      playWord("Hi! Welcome to Wordlet AI", "extra_mtb_ev.db")
-        .then(() => {
-          playWord(
-            "Please select one of the following role plays",
-            "extra_mtb_ev.db"
-          );
-          setData([
-            {
-              role: "model",
-              content: "Hi! Welcome to Wordlet AI.",
-            },
-            {
-              role: "model",
-              content: "Please select one of the following role plays",
-            },
-          ]);
-        })
-        .finally(() => {
+      playWord("Hi! Welcome to Wordlet AI", "extra_mtb_ev.db").then(() => {
+        playWord(
+          "Please select one of the following role plays",
+          "extra_mtb_ev.db"
+        ).finally(() => {
           setIsWordPlaying(false);
         });
+        setData([
+          {
+            role: "model",
+            content: "Hi! Welcome to Wordlet AI.",
+          },
+          {
+            role: "model",
+            content: "Please select one of the following role plays",
+          },
+        ]);
+      });
     }
+    return () => {
+      stopWord();
+    };
   }, []);
-
-  console.log(JSON.stringify(conversation));
 
   React.useEffect(() => {
     !!socialInfo &&
@@ -330,7 +459,7 @@ const AIChat = () => {
         ]}
       >
         <ChatItem item={item} index={index} disableAudio={isWordPlaying} />
-        {index === 1 && (
+        {index === 1 && !conversation && (
           <View style={styles.topicListContainer}>
             {conversations.map((v, i) => (
               <TouchableOpacity
@@ -338,15 +467,19 @@ const AIChat = () => {
                   styles.topicContentContainer,
                   {
                     backgroundColor: colors.primaryDark,
-                    opacity:
-                      !!conversation && conversation?.id !== v.id ? 0.7 : 1,
+                    opacity: !!conversation || selectingTopic ? 0.7 : 1,
                   },
                 ]}
                 key={v.topic}
-                disabled={!!conversation}
+                disabled={
+                  !!conversation ||
+                  selectingTopic ||
+                  isWordPlaying ||
+                  isWordPlaying
+                }
                 onPress={() => {
-                  if (!selectingTopic.current) {
-                    selectingTopic.current = true;
+                  if (!selectingTopic && !conversation && !isWordPlaying) {
+                    setSelectingTopic(true);
                     setIsWordPlaying(true);
                     playWord(
                       `You have selected topic ${v.topic}, now let's start the conversation.`,
@@ -382,14 +515,51 @@ const AIChat = () => {
             <GameButtons
               fontSize={s(15)}
               hideSkipButton
-              hidePrimaryButton={!!conversation}
+              hidePrimaryButton={!!conversation || selectingTopic}
               primaryButtonText={t("common.more")}
+              primaryButtonDisabled={selectingTopic}
               onPrimaryPress={() => {
-                if (!selectingTopic.current) {
+                if (!selectingTopic) {
                   router.navigate("/conversation/list");
                 }
               }}
             />
+          </View>
+        )}
+        {index === 1 && !!conversation && (
+          <View style={[styles.conversationSelectedContainer]}>
+            <View
+              style={[
+                styles.conversationSelectedContentContainer,
+                { backgroundColor: colors.border },
+              ]}
+            >
+              <Text style={{ fontSize: s(25) }}>{conversation.emoji}</Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    getAppFontStyle({
+                      fontFamily: FontFamilies.NunitoBold,
+                      fontSizeKey: FontSizeKeys.body,
+                    }),
+                    { width: "85%", color: colors.textPrimary },
+                  ]}
+                >
+                  {conversation.topic}
+                </Text>
+                <Text
+                  style={[
+                    getAppFontStyle({
+                      fontFamily: FontFamilies.NunitoRegular,
+                      fontSizeKey: FontSizeKeys.caption,
+                    }),
+                    { width: "85%", color: colors.textSecondary },
+                  ]}
+                >
+                  {conversation.conversation.setting}
+                </Text>
+              </View>
+            </View>
           </View>
         )}
       </View>
@@ -397,17 +567,19 @@ const AIChat = () => {
   };
 
   return (
-    <AppLoading isLoading={false}>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <SafeAreaView style={styles.container}>
-          <CommonHeader title="Wordlet AI" />
-          <FlatList
-            ref={flatListRef}
-            keyExtractor={(item, index) => `CHAT_${index}`}
-            data={data}
-            renderItem={renderItem}
-          />
-          <View style={{ marginHorizontal: s(16), paddingVertical: s(8) }}>
+    <DoubleCheckBackScreen title="Wordlet AI">
+      <AppLoading isLoading={false}>
+        <FlatList
+          ref={flatListRef}
+          keyExtractor={(item, index) => `CHAT_${index}`}
+          data={data}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+        />
+        <View style={{ marginHorizontal: s(16), paddingVertical: s(8) }}>
+          {isWordPlaying ? (
+            <WordPlayingAnimComponent />
+          ) : !!conversation ? (
             <GameButtons
               onSkipPress={next}
               onPrimaryPress={() => {
@@ -426,6 +598,7 @@ const AIChat = () => {
               primaryButtonText={
                 isListening ? t("games.stopButton") : t("games.startButton")
               }
+              hidePrimaryButton={data[data.length - 1].role !== "user"}
               skipButtonText={t("common.continue")}
               primaryButtonDisabled={
                 !conversation ||
@@ -433,10 +606,12 @@ const AIChat = () => {
                 data[data.length - 1].role !== "user"
               }
             />
-          </View>
-        </SafeAreaView>
-      </View>
-    </AppLoading>
+          ) : (
+            <></>
+          )}
+        </View>
+      </AppLoading>
+    </DoubleCheckBackScreen>
   );
 };
 
@@ -486,5 +661,18 @@ const styles = ScaledSheet.create({
     marginHorizontal: "16@s",
     paddingHorizontal: "8@s",
     paddingVertical: "4@s",
+  },
+  conversationSelectedContainer: {
+    paddingHorizontal: "16@s",
+    marginBottom: "25@s",
+    borderRadius: "16@s",
+    width: "100%",
+  },
+  conversationSelectedContentContainer: {
+    flexDirection: "row",
+    padding: "16@s",
+    flex: 1,
+    borderRadius: "16@s",
+    gap: "16@s",
   },
 });

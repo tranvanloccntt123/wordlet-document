@@ -38,7 +38,7 @@ const groups = {
   limitWordMessage: "You can only add up to {{limit}} words per group.",
   publishDescription: "Publish to share this group with everyone.",
   publishDescription2:
-    "🍿 Top 100 groups with the most completed users will receive rewards from the system.",
+    "🍿 Groups with the most completed users will receive rewards from the system.",
   publishLimit: "You need at least 10 words to publish a group.",
   reportSuccess: "Report of violation has been sent.",
   reportBtnTxt: "Report Group",

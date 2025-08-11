@@ -1,5 +1,6 @@
 import WordletImage from "@/assets/images";
 import CalendarStreak from "@/components/CalendarStreak";
+import useConversationStore from "@/store/conversationStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
@@ -21,6 +22,8 @@ const SettingsScreen = () => {
   const { colors } = useThemeStore();
   const { t } = useTranslation();
   const info = useInfoStore((state) => state.info);
+
+  const initConversation = useConversationStore((state) => state.init);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -109,7 +112,10 @@ const SettingsScreen = () => {
         </View>
         <TouchableOpacity
           style={{ marginTop: vs(8) }}
-          onPress={() => router.navigate("/conversation")}
+          onPress={() => {
+            initConversation();
+            router.navigate("/conversation");
+          }}
         >
           <View
             style={[
