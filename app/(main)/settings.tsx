@@ -2,9 +2,9 @@ import AppAudio from "@/assets/audio";
 import useLanguageStore from "@/store/languageStore"; // Import the language store
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayer } from "expo-audio";
@@ -17,13 +17,13 @@ import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import {
-    Keyboard,
-    Linking,
-    ScrollView, // Import Platform
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Keyboard,
+  Linking,
+  ScrollView, // Import Platform
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters";
@@ -168,27 +168,6 @@ const SettingsScreen = () => {
                 />
               )}
             </View>
-
-            {/* Group Manager Setting */}
-            <TouchableOpacity
-              style={[styles.settingItem, { backgroundColor: colors.card }]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.navigate("/series");
-              }}
-            >
-              <MaterialIcons
-                name="folder"
-                size={s(22)}
-                color={colors.primary}
-                style={styles.icon}
-              />
-              <Text style={[styles.settingText, { color: colors.textPrimary }]}>
-                {t("common.series")}
-              </Text>
-              <View style={styles.placeholder} />
-            </TouchableOpacity>
-
             {/* Swap Theme Setting */}
             <TouchableOpacity
               style={[styles.settingItem, { backgroundColor: colors.card }]}

@@ -11,10 +11,11 @@ import {
 // import * as Sharing from "expo-sharing"; // Import Sharing
 import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet, vs } from "react-native-size-matters";
 
@@ -30,110 +31,150 @@ const SettingsScreen = () => {
       <SafeAreaView
         style={{ flex: 1, paddingVertical: s(16), paddingHorizontal: s(16) }}
       >
-        <View
-          style={[
-            styles.avatarContainer,
-            {
-              borderColor: colors.textDisabled,
-            },
-          ]}
-        >
-          <Image source={{ uri: info?.avatar }} style={styles.avatar} />
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <View
             style={[
-              styles.profileBadge,
+              styles.avatarContainer,
               {
-                backgroundColor: info?.is_premium
-                  ? colors.premium || "#FFD700"
-                  : colors.border,
+                borderColor: colors.textDisabled,
               },
             ]}
           >
-            <Text
+            <Image source={{ uri: info?.avatar }} style={styles.avatar} />
+            <View
               style={[
-                styles.profileBadgeText,
-                { color: info?.is_premium ? "black" : colors.textPrimary },
+                styles.profileBadge,
+                {
+                  backgroundColor: info?.is_premium
+                    ? colors.premium || "#FFD700"
+                    : colors.border,
+                },
               ]}
             >
-              {info?.is_premium ? "Pre" : "Free"}
-            </Text>
+              <Text
+                style={[
+                  styles.profileBadgeText,
+                  { color: info?.is_premium ? "black" : colors.textPrimary },
+                ]}
+              >
+                {info?.is_premium ? "Pre" : "Free"}
+              </Text>
+            </View>
           </View>
-        </View>
-        <Text style={[styles.name, { color: colors.textPrimary }]}>
-          {info?.name}
-        </Text>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>
+            {info?.name}
+          </Text>
 
-        <TouchableOpacity
-          style={{ marginTop: vs(30) }}
-          onPress={() => router.navigate("/settings")}
-        >
-          <View
-            style={[
-              styles.settingButtonContainer,
-              { backgroundColor: colors.card },
-            ]}
+          <TouchableOpacity
+            style={{ marginTop: vs(30) }}
+            onPress={() => router.navigate("/settings")}
           >
-            <Ionicons
-              name="settings-outline"
-              size={vs(18)}
-              color={colors.textPrimary}
-            />
-            <Text
-              style={[styles.settingButtonText, { color: colors.textPrimary }]}
+            <View
+              style={[
+                styles.settingButtonContainer,
+                { backgroundColor: colors.card },
+              ]}
             >
-              {t("home.setting")}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ marginTop: vs(8) }}
-          onPress={() => router.navigate("/history")}
-        >
-          <View
-            style={[
-              styles.settingButtonContainer,
-              { backgroundColor: colors.card },
-            ]}
+              <Ionicons
+                name="settings-outline"
+                size={vs(18)}
+                color={colors.textPrimary}
+              />
+              <Text
+                style={[
+                  styles.settingButtonText,
+                  { color: colors.textPrimary },
+                ]}
+              >
+                {t("home.setting")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginTop: vs(8) }}
+            onPress={() => router.navigate("/history")}
           >
-            <MaterialIcons
-              name="timeline"
-              size={vs(18)}
-              color={colors.textPrimary}
-            />
-            <Text
-              style={[styles.settingButtonText, { color: colors.textPrimary }]}
+            <View
+              style={[
+                styles.settingButtonContainer,
+                { backgroundColor: colors.card },
+              ]}
             >
-              {t("home.activities")}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <View style={{ marginTop: vs(30) }}>
-          <CalendarStreak hideRankButton={true} />
-        </View>
-        <TouchableOpacity
-          style={{ marginTop: vs(8) }}
-          onPress={() => {
-            initConversation();
-            router.navigate("/conversation");
-          }}
-        >
-          <View
-            style={[
-              styles.settingButtonContainer,
-              { backgroundColor: colors.card },
-            ]}
+              <MaterialIcons
+                name="timeline"
+                size={vs(18)}
+                color={colors.textPrimary}
+              />
+              <Text
+                style={[
+                  styles.settingButtonText,
+                  { color: colors.textPrimary },
+                ]}
+              >
+                {t("home.activities")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {/* Group Manager Setting */}
+          <TouchableOpacity
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.navigate("/series");
+            }}
+            style={{ marginTop: vs(8) }}
           >
-            <Image
-              source={WordletImage.AI_TECHNOLOGY}
-              style={{ width: s(18), height: s(18) }}
-            />
-            <Text
-              style={[styles.settingButtonText, { color: colors.textPrimary }]}
+            <View
+              style={[
+                styles.settingButtonContainer,
+                { backgroundColor: colors.card },
+              ]}
             >
-              Wordlet AI
-            </Text>
+              <MaterialIcons
+                name="folder"
+                size={vs(18)}
+                color={colors.textPrimary}
+              />
+              <Text
+                style={[
+                  styles.settingButtonText,
+                  { color: colors.textPrimary },
+                ]}
+              >
+                {t("common.series")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <View style={{ marginTop: vs(30) }}>
+            <CalendarStreak hideRankButton={true} />
           </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginTop: vs(8) }}
+            onPress={() => {
+              initConversation();
+              router.navigate("/conversation");
+            }}
+          >
+            <View
+              style={[
+                styles.settingButtonContainer,
+                { backgroundColor: colors.card },
+              ]}
+            >
+              <Image
+                source={WordletImage.AI_TECHNOLOGY}
+                style={{ width: s(18), height: s(18) }}
+              />
+              <Text
+                style={[
+                  styles.settingButtonText,
+                  { color: colors.textPrimary },
+                ]}
+              >
+                Wordlet AI
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

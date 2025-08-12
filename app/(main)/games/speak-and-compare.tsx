@@ -95,7 +95,7 @@ const SpeakAndCompareScreen = () => {
             ]}
           >
             {feedback.length && spokenText !== "" ? (
-              <View style={{ flexDirection: "row" }}>
+              <Text style={{ flexDirection: "row" }}>
                 {spokenText !== "" &&
                   feedback.map((item, index) => (
                     <Text
@@ -112,7 +112,7 @@ const SpeakAndCompareScreen = () => {
                       {item.char}
                     </Text>
                   ))}
-              </View>
+              </Text>
             ) : (
               <Text
                 style={[styles.suggestedText, { color: colors.textPrimary }]}

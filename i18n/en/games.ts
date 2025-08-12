@@ -27,7 +27,7 @@ const games = {
   preparingQuestion: "Preparing question...",
   progressText: "Question {{current}} of {{total}}",
   // For Games index screen
-  gameRoadmapTitle: "Game Roadmap",
+  gameRoadmapTitle: "Published Games",
   noGroupsForGamesTitle: "No Groups Available for Games!",
   noGroupsForGamesSubtitle:
     'Create some groups with words first in the "Manage Groups" tab to start playing games.',

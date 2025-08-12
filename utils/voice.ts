@@ -26,7 +26,7 @@ export const playWord = async (
   });
 };
 
-//REFACTOR 
+//REFACTOR
 interface Position {
   col: number;
   row: number;
@@ -157,7 +157,10 @@ export const getPercent = (
         100;
 };
 
-export const checkStatusOfResponse = (spokenText: string, currentWord: string) => {
+export const checkStatusOfResponse = (
+  spokenText: string,
+  currentWord: string
+) => {
   const result: Array<{
     char: string;
     status: "correct" | "incorrect" | "missing" | "nocheck";
@@ -172,33 +175,58 @@ export const checkStatusOfResponse = (spokenText: string, currentWord: string) =
   const spokenArray = spokenText.toLowerCase().split("");
   const targetArray = currentWord.toLowerCase().split("");
 
-  let spokenIndex = 0;
-
-  // Compare characters based on target word
-  targetArray.forEach((char, index) => {
-    if (ignoreChar.includes(spokenArray[spokenIndex])) {
-      spokenIndex += 1;
-    }
-    if (char === spokenArray[spokenIndex]) {
-      result.push({ char: currentWord[index], status: "correct" });
-      spokenIndex += 1;
+  targetArray.forEach((word, i) => {
+    if (ignoreChar.includes(word)) {
+      result.push({
+        char: word,
+        status: "nocheck",
+      });
     } else {
-      if (ignoreChar.includes(char)) {
-        result.push({ char: currentWord[index], status: "nocheck" });
-      } else {
-        result.push({
-          char: currentWord[index],
-          status: "incorrect",
-        });
-        spokenIndex += 1;
-      }
+      result.push({
+        char: word,
+        status: "incorrect",
+      });
     }
   });
+
+  const roadTable: {
+    char: string;
+    status: "correct" | "incorrect" | "missing" | "nocheck";
+  }[][] = Array.from({ length: spokenArray.length }, (_, i) =>
+    Array.from({ length: targetArray.length }, (_, j) => ({
+      char: currentWord[j],
+      status: ignoreChar.includes(currentWord[j]) ? "nocheck" : "incorrect",
+    }))
+  );
+  let tmpList: Position[] = [];
+  for (let i = 0; i < roadTable.length; i++) {
+    for (let j = 0; j < roadTable[i].length; j++) {
+      if (
+        !ignoreChar.includes(spokenArray[i]) &&
+        roadTable[i][j].status !== "nocheck" &&
+        spokenArray[i] === targetArray[j]
+      ) {
+        roadTable[i][j] = {
+          char: roadTable[i][j].char,
+          status: "correct",
+        };
+        tmpList.push({ col: j, row: i });
+      }
+    }
+  }
+
+  const finalList = getLongestSortedList(tmpList);
+
+  if (finalList.length) {
+    finalList.forEach((i) => {
+      result[i.col] = roadTable[i.row][i.col];
+    });
+  }
 
   const percent = getPercent(result);
 
   return {
     feedback: result,
-    percent,
+    percent: (percent || 0) > 25 ? percent : 0,
   };
 };

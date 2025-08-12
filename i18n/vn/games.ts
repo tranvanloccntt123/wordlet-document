@@ -26,7 +26,7 @@ const games = {
   preparingQuestion: "Đang chuẩn bị câu hỏi...",
   progressText: "Câu {{current}} trên {{total}}",
   // For Games index screen
-  gameRoadmapTitle: "Lộ Trình Trò Chơi",
+  gameRoadmapTitle: "Trò chơi đã xuất bản",
   noGroupsForGamesTitle: "Chưa Có Nhóm Nào Để Chơi!",
   noGroupsForGamesSubtitle:
     'Hãy tạo nhóm và thêm từ trong mục "Quản Lý Nhóm" để bắt đầu chơi.',
