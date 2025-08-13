@@ -1,7 +1,7 @@
 import { HapticTab } from "@/components/HapticTab";
 import useLanguageStore from "@/store/languageStore"; // Import the new language store
 import useThemeStore from "@/store/themeStore";
-import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
+import { Feather, MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Tabs } from "expo-router";
 import React, { useEffect } from "react"; // Import useEffect
@@ -54,6 +54,19 @@ export default function TabLayout() {
           ),
         }}
       />`` */}
+      <Tabs.Screen
+        name="remember"
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => (
+            <Feather
+              name="bookmark"
+              size={Math.min(s(18), vs(18))}
+              color={color}
+            />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="explore"
         options={{

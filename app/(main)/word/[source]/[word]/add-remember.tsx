@@ -1,16 +1,18 @@
 import AppLoading from "@/components/AppLoading";
 import CommonHeader from "@/components/CommonHeader";
+import { addWordLearning } from "@/services/supabase/remember";
 import useThemeStore from "@/store/themeStore";
-import { useLocalSearchParams } from "expo-router";
+import useWordLearningStore from "@/store/wordLearningStore";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, ms, s, vs } from "react-native-size-matters";
@@ -19,7 +21,7 @@ const AddRememberScreen = () => {
   const { t } = useTranslation();
   // WordStore interface should be defined or imported if not already available globally
   const { colors } = useThemeStore();
-
+  const pushData = useWordLearningStore((state) => state.pushData);
   const params = useLocalSearchParams();
   const wordToAdd = React.useMemo(() => {
     if (typeof params.wordDetails === "string") {
@@ -142,7 +144,27 @@ const AddRememberScreen = () => {
                       styles.buttonDisabled,
                   ]}
                   onPress={() => {
-                    console.log("OK");
+                    if (!wordToAdd) return;
+                    let newContent = "";
+                    if (phoneticLine) {
+                      newContent += phoneticLine + "\n";
+                    }
+                    newContent += selectedDefinitionText;
+                    const modifiedWord: WordStore = {
+                      ...wordToAdd,
+                      content: newContent,
+                    };
+                    setIsSubmitting(true);
+                    addWordLearning(modifiedWord)
+                      .then((r) => {
+                        if (r.data?.[0]) {
+                          pushData(r.data[0]);
+                          router.back();
+                        }
+                      })
+                      .finally(() => {
+                        setIsSubmitting(false);
+                      });
                   }}
                   disabled={
                     isSubmitting ||
