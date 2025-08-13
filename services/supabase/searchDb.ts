@@ -29,7 +29,7 @@ export const fetchSearchResults = async (
     }
     const { data: allData } = await allQuery;
 
-    if (offset === 0 && !!allData?.length) {
+    if (offset === 0) {
       let absoluteQuery = wordSupabase
         .from(SUPABASE_WORD_TABLE.WORD)
         .select("*")

@@ -140,6 +140,18 @@ const SearchScreen = () => {
               value={searchTerm}
               onChangeText={setSearchTerm}
             />
+            {!!searchTerm && (
+              <TouchableOpacity
+                onPress={() => setSearchTerm("")}
+                style={{ paddingHorizontal: s(10) }}
+              >
+                <MaterialIcons
+                  name="close"
+                  color={colors.textPrimary}
+                  size={s(20)}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
         <FlatList
