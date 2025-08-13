@@ -20,7 +20,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
 import { ScaledSheet, ms, s, vs } from "react-native-size-matters";
@@ -257,7 +257,7 @@ const AddGroupScreen = () => {
       <View style={styles.safeArea}>
         {/* Use a top-level View for background color */}
         <SafeAreaView style={styles.safeAreaContent}>
-          <CommonHeader title={"Add To A Group"} />
+          <CommonHeader title={t("groups.addToGroup")} />
           {/* Wrap the ScrollView with KeyboardAvoidingView */}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"} // Use 'padding' for iOS, 'height' or 'null' for Android
@@ -272,7 +272,7 @@ const AddGroupScreen = () => {
               {wordToAdd && selectableDefinitions.length > 0 && (
                 <View style={styles.definitionsContainer}>
                   <Text style={styles.definitionsTitle}>
-                    Select a meaning for "{wordToAdd.word}":
+                    {t("groups.selectAMeaning", { word: wordToAdd.word })}:
                   </Text>
                   {selectableDefinitions.map((def) => (
                     <TouchableOpacity
@@ -393,9 +393,7 @@ const AddGroupScreen = () => {
                     }
                   >
                     <Text style={styles.buttonText}>
-                      {isSubmitting
-                        ? "Processing..."
-                        : "Create Group & Add Word"}
+                      {t("groups.createAndAddToGroup")}
                     </Text>
                   </TouchableOpacity>
                   {(groups?.length || 0) > 0 && (

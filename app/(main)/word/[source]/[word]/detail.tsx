@@ -15,6 +15,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScaledSheet, s } from "react-native-size-matters"; // Import s for scaling
 import Toast from "react-native-toast-message";
 
+import Feather from "@expo/vector-icons/Feather";
+
 interface WordDetailCardProps {
   wordData: WordStore;
 }
@@ -117,6 +119,26 @@ const WordDetailScreen = () => {
     }
   }, [wordDetails]);
 
+  const handleOpenMarkModal = useCallback(() => {
+    if (wordDetails) {
+      router.push({
+        pathname: `/word/${wordSource || ""}/${
+          wordToSearch || ""
+        }/add-remember` as any,
+        params: {
+          wordDetails: JSON.stringify(wordDetails),
+          groupId: params.groupId,
+        },
+      });
+    } else {
+      Toast.show({
+        type: "error",
+        text1: t("groups.noWord"),
+        text2: t("groups.cannotAddWord"),
+      });
+    }
+  }, [wordDetails]);
+
   return (
     <AppLoading isLoading={isLoading}>
       <View style={[{ flex: 1, backgroundColor: colors.background }]}>
@@ -127,16 +149,28 @@ const WordDetailScreen = () => {
             rightActionElement={
               !isLoading &&
               wordDetails && (
-                <TouchableOpacity
-                  onPress={handleOpenModal}
-                  style={screenStyles.headerIconTouchable}
-                >
-                  <MaterialIcons
-                    name="playlist-add"
-                    size={s(30)}
-                    color={colors.textPrimary}
-                  />
-                </TouchableOpacity>
+                <View style={{ flexDirection: "row", gap: s(3) }}>
+                  <TouchableOpacity
+                    onPress={handleOpenMarkModal}
+                    style={screenStyles.headerIconTouchable}
+                  >
+                    <Feather
+                      name="bookmark"
+                      size={s(22)}
+                      color={colors.textPrimary}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleOpenModal}
+                    style={screenStyles.headerIconTouchable}
+                  >
+                    <MaterialIcons
+                      name="playlist-add"
+                      size={s(22)}
+                      color={colors.textPrimary}
+                    />
+                  </TouchableOpacity>
+                </View>
               )
             }
           />

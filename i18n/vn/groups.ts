@@ -54,6 +54,9 @@ const groups = {
     "Một nhóm có tên {{trimmedGroupName}} đã tồn tại. Vui lòng chọn một tên khác.",
   noGroup:
     "Bạn chưa tạo nhóm từ vựng nào, hãy bắt đầu với nhóm của mình trước nhé.",
+  addToGroup: "Thêm vào nhóm",
+  selectAMeaning: "Chọn nghĩa cho {{word}}",
+  createAndAddToGroup: "Tạo nhóm & thêm từ",
 };
 
 export default groups;

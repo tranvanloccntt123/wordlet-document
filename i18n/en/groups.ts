@@ -54,6 +54,9 @@ const groups = {
     "A group with the name {{trimmedGroupName}} already exists. Please choose a different name.",
   noGroup:
     "You haven't created any vocabulary groups yet, let's start with your own group first.",
+  addToGroup: "Add To A Group",
+  selectAMeaning: "Select a meaning for {{word}}",
+  createAndAddToGroup: "Create Group & Add Word",
 };
 
 export default groups;

@@ -20,6 +20,7 @@ export const SUPABASE_TABLE = {
   REPORT: "report",
   USER_STREAKS: "user_streaks",
   STREAK_DAYS: "streak_days",
+  WORD_LEARNING: "word_learning",
 };
 
 export const SUPABASE_FUNCTION = {

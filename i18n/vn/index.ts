@@ -8,6 +8,7 @@ import home from "./home";
 import leaderboard from "./leaderboard";
 import login from "./login";
 import post from "./post";
+import remember from "./remember";
 import search from "./search";
 import series from "./series";
 import settings from "./settings";
@@ -27,5 +28,6 @@ export default {
     series,
     post,
     categories,
+    remember,
   },
 };

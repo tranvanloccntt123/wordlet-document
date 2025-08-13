@@ -196,3 +196,10 @@ type Chat = {
   content: string;
   feedback?: { char: string; status: string }[];
 };
+
+type WordRemember = {
+  id: number;
+  word: Omit<WordStore, "id">;
+  user_id: string;
+  created_at: string;
+};
