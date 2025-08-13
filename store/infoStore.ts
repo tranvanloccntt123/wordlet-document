@@ -17,6 +17,7 @@ export interface GameSpecificData {
 interface InfoState {
   info: UserInfo | null;
   socialInfo: SocialUser | null;
+  setSocialUserInfo: (user: SocialUser | null) => void;
   history: GameHistory[];
   isLoading: boolean;
   addGameResult: (result: GameHistory) => void;
@@ -60,6 +61,11 @@ const infoStore = create<InfoState>()(
           state.isLoading = false;
         });
       }
+    },
+    setSocialUserInfo(user) {
+      set((state) => {
+        state.socialInfo = user;
+      });
     },
     clearData() {
       set((state) => {

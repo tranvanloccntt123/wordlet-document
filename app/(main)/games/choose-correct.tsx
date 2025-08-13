@@ -77,7 +77,7 @@ const ChooseCorrect = () => {
   };
 
   const progress = t("games.progressText", {
-    current: currentIndex + 1,
+    current: Math.min(currentIndex + 1, shuffledWords.length),
     total: shuffledWords.length,
   });
 

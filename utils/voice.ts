@@ -1,6 +1,12 @@
 import { PRO_DIC_EV } from "@/constants";
 import * as Speech from "expo-speech";
 
+let defaultVoice: string = "";
+
+export const setDefaultVoice = (voice: string) => {
+  defaultVoice = voice;
+};
+
 export const stopWord = () => {
   Speech.stop();
 };
@@ -8,10 +14,9 @@ export const stopWord = () => {
 export const playWord = async (
   word: string,
   source: string,
-  rate: number = 1.0
+  rate: number = 1.0,
+  voice?: string
 ) => {
-  await Speech.stop();
-
   return new Promise((resolve, reject) => {
     Speech.speak(word, {
       language: PRO_DIC_EV.find((v) => v.source === source) ? "en-US" : "vi-VN",
@@ -22,6 +27,7 @@ export const playWord = async (
       onError(e) {
         reject(e);
       },
+      voice: voice || (defaultVoice !== "" ? defaultVoice : undefined),
     });
   });
 };
@@ -227,6 +233,6 @@ export const checkStatusOfResponse = (
 
   return {
     feedback: result,
-    percent: (percent || 0) > 25 ? percent : 0,
+    percent: (percent || 0) > 40 ? percent : 0,
   };
 };

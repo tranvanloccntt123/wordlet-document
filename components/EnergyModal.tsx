@@ -2,6 +2,7 @@ import useAdMobStore from "@/store/admobStore";
 import useEnergyStore from "@/store/energyStore";
 import useThemeStore from "@/store/themeStore";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import * as Haptics from "expo-haptics";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Text, View } from "react-native";
@@ -20,11 +21,11 @@ const duration = 700;
 const AnimatedEnergyIcon = () => {
   const { colors } = useThemeStore();
 
-  const scaleAnim = useSharedValue(0.5);
+  const scaleAnim = useSharedValue(0.8);
 
   React.useEffect(() => {
     scaleAnim.value = withRepeat(
-      withSequence(withTiming(1, { duration }), withTiming(0.5, { duration })),
+      withSequence(withTiming(1, { duration }), withTiming(0.8, { duration })),
       -1
     );
   }, []);
@@ -76,13 +77,15 @@ const EnergyModal: React.FC = () => {
             fontSize={s(15)}
             primaryButtonText={t("common.letCharge")}
             skipButtonText={t("common.goBack")}
-            skipButtonTextColor="black"
+            skipButtonTextColor={colors.textPrimary}
             onPrimaryPress={() => {
               if (!isLoaded) return;
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               reward?.show();
               setIsVisible(false);
             }}
             onSkipPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setIsVisible(false);
             }}
           />

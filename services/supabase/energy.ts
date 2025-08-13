@@ -47,16 +47,18 @@ export const decreaseEnergy = async ({
   score,
   message,
   groupId,
+  conversationId,
 }: {
   historyId?: number | null;
   score: number;
   message: string;
   groupId?: number;
+  conversationId?: number;
 }) => {
   const response = await supabase!.functions.invoke(
     SUPABASE_FUNCTION.DECREASE_ENERGYV2,
     {
-      body: { historyId, score, message, groupId },
+      body: { historyId, score, message, groupId, conversationId },
     }
   );
   return response;

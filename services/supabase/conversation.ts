@@ -14,7 +14,7 @@ export const fetchConversation = async (
       .limit(limit);
     if (listCategories.length) {
       const orConditions = listCategories
-        .map((term) => `categories.ilike.%${term}%`)
+        .map((term) => `categories.like.%${term}%`)
         .join(",");
       query = query.or(orConditions);
     }

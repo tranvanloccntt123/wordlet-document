@@ -190,3 +190,9 @@ type Conversation = {
     timeline: ConversationTimeline[];
   };
 };
+
+type Chat = {
+  role: "user" | "model";
+  content: string;
+  feedback?: { char: string; status: string }[];
+};

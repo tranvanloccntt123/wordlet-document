@@ -1,9 +1,10 @@
 import useThemeStore from "@/store/themeStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
+import * as Haptics from "expo-haptics";
 import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -81,10 +82,12 @@ const DoubleCheckBackScreen: React.FC<{
               skipButtonTextColor="black"
               fontSize={s(15)}
               onPrimaryPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 router.back(); // Proceed with back action
                 setChallengeVisible(false);
               }}
               onSkipPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setChallengeVisible(false);
               }}
             />

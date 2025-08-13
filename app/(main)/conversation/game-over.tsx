@@ -1,7 +1,10 @@
+import AppLoading from "@/components/AppLoading";
 import CircularProgressBarSvg from "@/components/CircularProgressBarSvg";
 import GameButtons from "@/components/GameButtons";
 import gameOver from "@/i18n/en/gameOver";
+import { decreaseEnergy } from "@/services/supabase";
 import useConversationStore from "@/store/conversationStore";
+import useEnergyStore from "@/store/energyStore";
 import useThemeStore from "@/store/themeStore";
 import {
   FontFamilies,
@@ -20,78 +23,61 @@ import { s, ScaledSheet } from "react-native-size-matters";
 const ConversationGameOver = () => {
   const colors = useThemeStore((state) => state.colors);
   const timeline = useConversationStore((state) => state.timeline);
+  const conversation = useConversationStore((state) => state.conversation);
+  const { setEnergy } = useEnergyStore();
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+
   const { t } = useTranslation();
   const percent = React.useMemo(() => {
     const userTimeline = timeline.filter((v) => v.role === "user");
     let total = 0;
-    userTimeline.forEach(item => {
+    userTimeline.forEach((item) => {
       total += getPercent((item as any)?.feedback || []) || 0;
-    })
+    });
     return total / (userTimeline.length || 1);
   }, []);
+
+  React.useEffect(() => {
+    setIsLoading(true);
+    decreaseEnergy({
+      score: 0,
+      groupId: undefined,
+      message:
+        percent < 10
+          ? gameOver.oneMoreShot
+          : percent < 20
+          ? gameOver.nextTimeChamp
+          : percent < 30
+          ? gameOver.awesomeJob
+          : percent < 50
+          ? gameOver.dontGiveUp
+          : percent < 60
+          ? gameOver.betterLuckNextTime
+          : percent < 70
+          ? gameOver.superstar
+          : percent < 80
+          ? gameOver.victory
+          : gameOver.awesomeJob,
+      conversationId: conversation?.id,
+    })
+      .then((r) => {
+        if (r.data?.data?.[0]) {
+          setEnergy(r.data.data[0].energy);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [percent, conversation]);
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={{ flex: 1 }}>
-          <Text
-            style={[
-              styles.resultText,
-              {
-                color:
-                  percent < 30
-                    ? colors.error
-                    : percent < 60
-                    ? colors.warning
-                    : colors.primary,
-              },
-            ]}
-          >
-            {percent < 10
-              ? gameOver.oneMoreShot
-              : percent < 20
-              ? gameOver.nextTimeChamp
-              : percent < 30
-              ? gameOver.awesomeJob
-              : percent < 50
-              ? gameOver.dontGiveUp
-              : percent < 60
-              ? gameOver.betterLuckNextTime
-              : percent < 70
-              ? gameOver.superstar
-              : percent < 80
-              ? gameOver.victory
-              : gameOver.awesomeJob}
-          </Text>
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: s(50),
-              marginBottom: s(75),
-            }}
-          >
-            <CircularProgressBarSvg
-              progress={percent}
-              size={s(155)}
-              strokeWidth={s(15)}
-              backgroundColor={
-                (percent < 30
-                  ? colors.error
-                  : percent < 60
-                  ? colors.warning
-                  : colors.primary) + "30"
-              }
-              color={
-                percent < 30
-                  ? colors.error
-                  : percent < 60
-                  ? colors.warning
-                  : colors.primary
-              }
-            />
+    <AppLoading isLoading={isLoading}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={styles.container}>
+          <ScrollView style={{ flex: 1 }}>
             <Text
               style={[
-                styles.progressText,
+                styles.resultText,
                 {
                   color:
                     percent < 30
@@ -102,57 +88,117 @@ const ConversationGameOver = () => {
                 },
               ]}
             >
-              {percent.toFixed(0)}%
+              {percent < 10
+                ? gameOver.oneMoreShot
+                : percent < 20
+                ? gameOver.nextTimeChamp
+                : percent < 30
+                ? gameOver.awesomeJob
+                : percent < 50
+                ? gameOver.dontGiveUp
+                : percent < 60
+                ? gameOver.betterLuckNextTime
+                : percent < 70
+                ? gameOver.superstar
+                : percent < 80
+                ? gameOver.victory
+                : gameOver.awesomeJob}
             </Text>
-          </View>
-          {timeline
-            .filter((v) => v.role === "user")
-            .map((item, i) => (
-              <View
-                key={`${i}`}
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: s(50),
+                marginBottom: s(75),
+              }}
+            >
+              <CircularProgressBarSvg
+                progress={percent}
+                size={s(155)}
+                strokeWidth={s(15)}
+                backgroundColor={
+                  (percent < 30
+                    ? colors.error
+                    : percent < 60
+                    ? colors.warning
+                    : colors.primary) + "30"
+                }
+                color={
+                  percent < 30
+                    ? colors.error
+                    : percent < 60
+                    ? colors.warning
+                    : colors.primary
+                }
+              />
+              <Text
                 style={[
-                  styles.timelineItemContainer,
-                  { backgroundColor: colors.card },
+                  styles.progressText,
+                  {
+                    color:
+                      percent < 30
+                        ? colors.error
+                        : percent < 60
+                        ? colors.warning
+                        : colors.primary,
+                  },
                 ]}
               >
-                {!item.feedback?.length && (
-                  <Text
-                    style={[styles.commentText, { color: colors.textPrimary }]}
-                  >
-                    {item.content.replaceAll("-", " ")}
-                  </Text>
-                )}
-                <Text style={styles.commentText}>
-                  {item.feedback?.map((item, index) => (
+                {percent.toFixed(0)}%
+              </Text>
+            </View>
+            {timeline
+              .filter((v) => v.role === "user")
+              .map((item, i) => (
+                <View
+                  key={`${i}`}
+                  style={[
+                    styles.timelineItemContainer,
+                    { backgroundColor: colors.card },
+                  ]}
+                >
+                  {!item.feedback?.length && (
                     <Text
-                      key={index}
                       style={[
                         styles.commentText,
-                        item.status === "correct"
-                          ? { color: colors.success }
-                          : item.status === "incorrect"
-                          ? { color: colors.error }
-                          : { color: colors.textPrimary },
+                        { color: colors.textPrimary },
                       ]}
                     >
-                      {item.char}
+                      {item.content.replaceAll("-", " ")}
                     </Text>
-                  ))}
-                </Text>
-              </View>
-            ))}
-        </ScrollView>
-        <View style={{ paddingHorizontal: s(16), paddingVertical: s(4) }}>
-          <GameButtons
-            hideSkipButton
-            primaryButtonText={t("common.goBack")}
-            onPrimaryPress={() => {
-              router.back();
-            }}
-          />
-        </View>
-      </SafeAreaView>
-    </View>
+                  )}
+                  <Text style={styles.commentText}>
+                    {item.feedback?.map((item, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          styles.commentText,
+                          item.status === "correct"
+                            ? { color: colors.success }
+                            : item.status === "incorrect"
+                            ? { color: colors.error }
+                            : { color: colors.textPrimary },
+                        ]}
+                      >
+                        {item.char}
+                      </Text>
+                    ))}
+                  </Text>
+                </View>
+              ))}
+          </ScrollView>
+          <View style={{ paddingHorizontal: s(16), paddingVertical: s(4) }}>
+            <GameButtons
+              hideSkipButton
+              primaryButtonText={t("common.goBack")}
+              onPrimaryPress={() => {
+                router.back();
+              }}
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </AppLoading>
   );
 };
 

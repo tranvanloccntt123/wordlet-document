@@ -180,7 +180,7 @@ const WelcomeScreen = () => {
   const setHasSeenOnboarding = useOnboardingStore(
     (state) => state.setHasSeenOnboarding
   );
-  const { info } = useInfoStore();
+  const { info, setSocialUserInfo } = useInfoStore();
 
   const scrollRef = React.useRef<ScrollView>(null);
 
@@ -198,17 +198,6 @@ const WelcomeScreen = () => {
 
   // Handle hardware back button (Android)
   const onBackPress = () => {
-    // getStartAnim.value = withTiming(
-    //   1,
-    //   {
-    //     duration: 500,
-    //   },
-    //   (finished) => {
-    //     if (finished) {
-    //       runOnJS(router.back)();
-    //     }
-    //   }
-    // );
     return true; // Prevent default back action
   };
 
@@ -306,6 +295,10 @@ const WelcomeScreen = () => {
                 wordlet_user_id: info?.user_id,
                 goals: Array.from(goalMapSet.current).join(", "),
                 interests: Array.from(interestMapSet.current).join(", "),
+              }).then((r) => {
+                if (r.data?.[0]) {
+                  setSocialUserInfo(r.data[0]);
+                }
               });
               router.back();
             }}

@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-type Chat = {
-  role: "user" | "model";
-  content: string;
-  feedback?: { char: string; status: string }[];
-};
-
 interface ConversationState {
   conversation: Conversation | null;
   timeline: Chat[];

@@ -31,7 +31,7 @@ export function isValidUrl(string: string) {
 }
 
 export const joinCategories = (user: SocialUser) => {
-  let goals = user.goals.split(",");
-  let interest = user.interests.split(",");
+  let goals = (user?.goals || "").split(",");
+  let interest = (user?.interests || "").split(",");
   return [...goals, ...interest];
 };

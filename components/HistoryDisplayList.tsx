@@ -1,5 +1,4 @@
 import { fetchUserGameHistory } from "@/services/supabase";
-import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
   FontFamilies,
@@ -170,7 +169,6 @@ const HistoryDisplayItem: React.FC<{ item: GameHistory }> = ({ item }) => {
 const HistoryDisplayList: React.FC<{
   ListHeaderComponent?: React.ReactElement;
 }> = ({ ListHeaderComponent }) => {
-  const { history } = useInfoStore();
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const [supabaseData, setSupabaseData] = React.useState<GameHistory[]>([]);
@@ -225,7 +223,7 @@ const HistoryDisplayList: React.FC<{
 
   const historyList = React.useMemo(() => {
     // Simple de-duplication based on ID, assuming IDs from store and Supabase are consistent
-    const combined = [...history, ...supabaseData];
+    const combined = [...supabaseData];
     const uniqueItems = Array.from(
       new Map(combined.map((item) => [item.id, item])).values()
     );
@@ -233,7 +231,7 @@ const HistoryDisplayList: React.FC<{
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [supabaseData, history]);
+  }, [supabaseData]);
 
   const loadMore = () => {
     if (!isLoadingHistory && canLoadMore.current && supabaseData.length > 0)

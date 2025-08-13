@@ -8,7 +8,7 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
-// import * as Sharing from "expo-sharing"; // Import Sharing
+import { energyCheck } from "@/utils/energy";
 import { MaterialIcons } from "@expo/vector-icons"; // Import MaterialIcons
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
@@ -67,7 +67,10 @@ const SettingsScreen = () => {
 
           <TouchableOpacity
             style={{ marginTop: vs(30) }}
-            onPress={() => router.navigate("/settings")}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.navigate("/settings");
+            }}
           >
             <View
               style={[
@@ -92,7 +95,10 @@ const SettingsScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={{ marginTop: vs(8) }}
-            onPress={() => router.navigate("/history")}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.navigate("/history");
+            }}
           >
             <View
               style={[
@@ -150,8 +156,11 @@ const SettingsScreen = () => {
           <TouchableOpacity
             style={{ marginTop: vs(8) }}
             onPress={() => {
-              initConversation();
-              router.navigate("/conversation");
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              energyCheck(() => {
+                initConversation();
+                router.navigate("/conversation");
+              });
             }}
           >
             <View
