@@ -1,6 +1,4 @@
-import { getQueryData } from "@/hooks/useQuery";
-import { scheduleNotification } from "@/services/notification";
-import { getGroupKey } from "@/utils/string";
+import { scheduleNotificationWordLearning } from "@/services/notification";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { create } from "zustand";
@@ -16,9 +14,6 @@ export const notificationStore = create<
       maxNotificationsPerDay: 2,
       setMaxNotificationsPerDay: (limit: number) => {
         if (limit < 0) {
-          console.warn(
-            `Invalid maxNotificationsPerDay limit: ${limit}. Setting to 0.`
-          );
           set((state) => {
             state.maxNotificationsPerDay = 0;
           });
@@ -35,28 +30,11 @@ export const notificationStore = create<
           state.dailyNotifications = {};
         }); // Set to an empty object
       },
-      setupScheduledNotifications: async (groups) => {
+      setupScheduledNotifications: async (words) => {
         const { status } = await Notifications.getPermissionsAsync();
         if (status === "granted") {
           const maxDailyNotification = get().maxNotificationsPerDay;
-          const _groups = groups.filter((g) => {
-            const data = getQueryData<Group>(getGroupKey(g));
-            return (data?.words?.length || 0) > 0;
-          });
-          if (_groups && _groups.length > 0) {
-            const randomGroupIndex = Math.floor(Math.random() * _groups.length);
-            const groupId = _groups[randomGroupIndex];
-
-            const selectedGroup = getQueryData<Group>(getGroupKey(groupId));
-
-            if (
-              selectedGroup &&
-              selectedGroup.words &&
-              selectedGroup.words.length > 0
-            ) {
-              scheduleNotification(selectedGroup, maxDailyNotification);
-            }
-          }
+          scheduleNotificationWordLearning(words, maxDailyNotification);
         }
       },
     })),

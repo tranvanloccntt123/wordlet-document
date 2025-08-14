@@ -5,16 +5,19 @@ import TrackingTransparencyWrapper from "@/components/TrackingTransparencyWrappe
 import { syncOwnerGroup } from "@/services/groupServices";
 import useGameStore from "@/store/gameStore";
 import useInfoStore from "@/store/infoStore";
+import useWordLearningStore from "@/store/wordLearningStore";
 import { Stack } from "expo-router";
 import React from "react";
 
 const MainLayout = () => {
   const fetchUser = useGameStore((state) => state.fetchUser);
   const { fetchCurrentInfo } = useInfoStore();
+  const fetchWordLearning = useWordLearningStore((state) => state.fetchData);
   React.useEffect(() => {
     fetchCurrentInfo();
     syncOwnerGroup();
     fetchUser();
+    fetchWordLearning();
   }, []);
 
   return (

@@ -1,8 +1,4 @@
-import useQuery, { setQueryData } from "@/hooks/useQuery";
 import { registerForPushNotificationsAsync } from "@/services/notification";
-import { getOwnerGroup } from "@/services/supabase";
-import useNotificationStore from "@/store/notificationStore";
-import { getGroupKey, getOwnerGroupKey } from "@/utils/string";
 import analytics from "@react-native-firebase/analytics"; // Recommended for FIAM
 import inAppMessaging from "@react-native-firebase/in-app-messaging"; // FIAM module
 import messaging from "@react-native-firebase/messaging";
@@ -32,33 +28,20 @@ async function setupFIAM() {
 }
 
 const NotificationSetup: React.FC = () => {
-  const { data: groups } = useQuery<number[]>({
-    key: getOwnerGroupKey(),
-    async queryFn() {
-      const { error, data } = await getOwnerGroup();
-      if (!error && !!data) {
-        data.map((group) => setQueryData(getGroupKey(group.id), group));
-        return data.map((v) => v.id);
-      }
-      return [];
-    },
-  });
-
   const timeOutToSetup = React.useRef<any>(null);
   const isFinished = React.useRef<boolean>(false);
+  // const data = useWordLearningStore(state => state.data);
 
-  const { setupScheduledNotifications } = useNotificationStore();
-
-  React.useEffect(() => {
-    if (groups?.length && !isFinished.current) {
-      clearTimeout(timeOutToSetup.current);
-      timeOutToSetup.current = setTimeout(() => {
-        isFinished.current = true;
-        setupScheduledNotifications(groups);
-        //To confirm migration successfully
-      }, 2000);
-    }
-  }, [groups]);
+  // React.useEffect(() => {
+  //   if (data?.length && !isFinished.current) {
+  //     clearTimeout(timeOutToSetup.current);
+  //     timeOutToSetup.current = setTimeout(() => {
+  //       isFinished.current = true;
+  //       // setupScheduledNotifications(data);
+  //       //To confirm migration successfully
+  //     }, 2000);
+  //   }
+  // }, [data]);
   return <></>;
 };
 

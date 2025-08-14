@@ -62,7 +62,7 @@ interface NotificationStoreState<T = ScheduledNotificationItem> {
   // Actions
   setMaxNotificationsPerDay: (limit: number) => void;
   clearAllNotifications: () => Promise<void>;
-  setupScheduledNotifications: (groups: number[]) => Promise<void>;
+  setupScheduledNotifications: (groups: WordRemember[]) => Promise<void>;
 }
 
 type GameHistory = {

@@ -193,3 +193,92 @@ export const scheduleNotification = async (group: Group, limit: number) => {
     }
   }
 };
+
+export const scheduleNotificationWordLearning = async (
+  words: WordRemember[],
+  limit: number
+) => {
+  for (const word of words) {
+    const wordObj = word.word;
+    const now = new Date();
+    // Define the notification window: 8:00:00 AM to 19:59:59 PM
+    const windowStartHour = 8;
+    const windowEndHour = 20; // Exclusive end for random generation up to 19:59:59
+    // Create Date objects for the start and end of the window for today
+    const todayWindowStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      windowStartHour,
+      0,
+      0,
+      0
+    );
+    const todayWindowEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      windowEndHour,
+      0,
+      0,
+      0
+    );
+    // Calculate a random millisecond offset within the window duration
+    const windowDurationMs =
+      todayWindowEnd.getTime() - todayWindowStart.getTime();
+    const randomOffsetMs = Math.random() * windowDurationMs;
+    // Determine the target timestamp for today
+    const targetTimestampToday = todayWindowStart.getTime() + randomOffsetMs;
+    let targetNotificationDate = new Date(targetTimestampToday);
+
+    targetNotificationDate.setDate(
+      targetNotificationDate.getDate() + Math.floor(Math.random() * 30)
+    );
+
+    // Calculate the delay in seconds from now until the target notification time
+    let triggerInSeconds = Math.floor(
+      (targetNotificationDate.getTime() - now.getTime()) / 1000
+    );
+
+    // Ensure the trigger is at least 0 seconds (e.g., if target is fractionally in the past due to timing)
+    // or a small positive number if immediate triggers are problematic.
+    triggerInSeconds = Math.max(0, triggerInSeconds);
+
+    // Log the target date and time before scheduling
+
+    const notificationsPerDay = await countNotificationsPerDay(
+      formatDate(targetNotificationDate)
+    );
+
+    if (
+      !notificationsPerDay?.length ||
+      notificationsPerDay[0].notification_count < limit
+    ) {
+      //notification is available
+      const payload = {
+        title: `${wordObj.word}`,
+        body: `${wordObj.content.replace("1#", " ").replace("5#", "")}`,
+        data: {
+          word: wordObj.word,
+          screen: `/word/${encodeURIComponent(
+            wordObj.source
+          )}/${encodeURIComponent(wordObj.word)}/detail`,
+        }, // Optional: useful for handling notification tap
+      };
+      await insertNotification(
+        formatDate(targetNotificationDate),
+        payload.body,
+        payload.title,
+        wordObj.source
+      );
+      await Notifications.scheduleNotificationAsync({
+        content: payload,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: triggerInSeconds,
+          repeats: false, // Show once per word for this scheduling session
+        },
+      });
+    }
+  }
+};

@@ -45,15 +45,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* ``<Tabs.Screen 
-        name="new-feed"
-        options={{
-          title: "",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="newspaper-variant-multiple"  size={28} color={color} />
-          ),
-        }}
-      />`` */}
       <Tabs.Screen
         name="remember"
         options={{

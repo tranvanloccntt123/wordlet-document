@@ -2,6 +2,7 @@ import { fetchWordLearning } from "@/services/supabase/remember";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { notificationStore } from "./notificationStore";
 
 type WordLearningStore = {
   data: WordRemember[];
@@ -13,7 +14,9 @@ type WordLearningStore = {
 const useWordLearningStore = create<WordLearningStore, any>(
   immer((set, get) => ({
     data: [],
+    animData: [],
     fetchData: async () => {
+      "worklet";
       try {
         const res: PostgrestSingleResponse<WordRemember[]> =
           await fetchWordLearning();
@@ -21,12 +24,13 @@ const useWordLearningStore = create<WordLearningStore, any>(
           set((state) => {
             state.data = res.data;
           });
+          notificationStore.getState().setupScheduledNotifications(res.data);
         }
       } catch (e) {
         console.log("Error fetching word learning data", e);
       }
     },
-    pushData: async (word: WordRemember) => {
+    pushData: (word: WordRemember) => {
       try {
         set((state) => {
           state.data.push(word);

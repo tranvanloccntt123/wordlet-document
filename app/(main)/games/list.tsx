@@ -162,7 +162,6 @@ export default function SelectGameScreen() {
     } else {
       // Default or placeholder for other game types not explicitly handled
       // This currently routes to type-correct-from-voice, adjust if needed
-      console.warn(`Unhandled game type selected: ${gameTypeId}`);
       // Optionally navigate to a default game or show a message
       router.push({
         pathname: "/games/type-correct-from-voice",
