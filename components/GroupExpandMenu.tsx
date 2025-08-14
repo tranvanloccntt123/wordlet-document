@@ -14,7 +14,8 @@ import {
   getAppFontStyle,
 } from "@/styles/fontStyles";
 import { getGroupKey, getReportOnGroupKey } from "@/utils/string";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -39,7 +40,7 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
   const { t } = useTranslation(); // Initialize useTranslation
 
   return (
-    <View>
+    <View style={{ gap: s(16) }}>
       {info?.user_id === group?.user_id && (
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -144,6 +145,24 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
           </Text>
         </TouchableOpacity>
       )}
+      <TouchableOpacity
+        style={styles.modalItem}
+        disabled={!!reportData || isLoading}
+        onPress={() => {
+          router.navigate({
+            pathname: "/replace-remember",
+            params: {
+              groupId: group.id,
+            },
+          });
+          onClose();
+        }}
+      >
+        <Feather name="bookmark" size={s(22)} color={colors.textPrimary} />
+        <Text style={[styles.modalItemText, { color: colors.textPrimary }]}>
+          {t("remember.remember")}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

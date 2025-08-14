@@ -3,6 +3,7 @@ export * from "./conversation";
 export * from "./energy";
 export * from "./group";
 export * from "./leaderBoard";
+export * from "./remember";
 export * from "./report";
 export * from "./series";
 export * from "./signOut";

@@ -60,6 +60,13 @@ const MainLayout = () => {
               animation: "none",
             }}
           />
+          <Stack.Screen
+            name="replace-remember"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+            }}
+          />
         </Stack>
         <EnergyModal />
       </NotificationWrapper>

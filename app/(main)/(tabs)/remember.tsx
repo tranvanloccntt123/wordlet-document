@@ -148,7 +148,12 @@ const RememberItem: React.FC<{
           </Text>
         </View>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: s(16),
+          }}
         >
           <Text
             style={[
@@ -156,7 +161,11 @@ const RememberItem: React.FC<{
                 fontFamily: FontFamilies.NunitoBlack,
                 fontSizeKey: FontSizeKeys.largeTitle,
               }),
-              { color: colors.textPrimary, textAlign: "center" },
+              {
+                color: colors.textPrimary,
+                textAlign: "center",
+                fontSize: word.word.word.length > 20 ? s(18) : s(25),
+              },
             ]}
           >
             {word.word.word}
@@ -316,7 +325,6 @@ const styles = ScaledSheet.create({
   },
   itemContainer: {
     borderRadius: "16@s",
-    borderWidth: "1@s",
     position: "absolute",
     width: "300@s",
     height: "500@vs",

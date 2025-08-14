@@ -7,14 +7,14 @@ import { notificationStore } from "./notificationStore";
 type WordLearningStore = {
   data: WordRemember[];
   fetchData: () => Promise<void>;
-  pushData: (_: WordRemember) => void;
+  pushData: (_: WordRemember | WordRemember[]) => void;
   deleteData: (id: number) => void;
+  clear: () => void;
 };
 
 const useWordLearningStore = create<WordLearningStore, any>(
   immer((set, get) => ({
     data: [],
-    animData: [],
     fetchData: async () => {
       "worklet";
       try {
@@ -30,10 +30,14 @@ const useWordLearningStore = create<WordLearningStore, any>(
         console.log("Error fetching word learning data", e);
       }
     },
-    pushData: (word: WordRemember) => {
+    pushData: (word: WordRemember | WordRemember[]) => {
       try {
         set((state) => {
-          state.data.push(word);
+          if (Array.isArray(word)) {
+            state.data.push(...word);
+          } else {
+            state.data.push(word);
+          }
         });
       } catch (e) {
         console.log("Error adding word learning data", e);
@@ -42,6 +46,11 @@ const useWordLearningStore = create<WordLearningStore, any>(
     deleteData: (id: number) => {
       set((state) => {
         state.data = state.data.filter((word) => word.id !== id);
+      });
+    },
+    clear: () => {
+      set((state) => {
+        state.data = [];
       });
     },
   }))
