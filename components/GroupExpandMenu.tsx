@@ -1,6 +1,10 @@
 import { TIME_LIMIT_MS } from "@/constants";
 import useQuery, { setQueryData } from "@/hooks/useQuery";
-import { publishGroup, publishRevertGroup } from "@/services/supabase";
+import {
+  addListWordLearning,
+  publishGroup,
+  publishRevertGroup,
+} from "@/services/supabase";
 import {
   getOwnerReportOnGroup,
   inserReportOnGroup,
@@ -8,6 +12,7 @@ import {
 import useGroupPublishStore from "@/store/groupPublishStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
+import useWordLearningStore from "@/store/wordLearningStore";
 import {
   FontFamilies,
   FontSizeKeys,
@@ -33,6 +38,9 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
       return response.data;
     },
   });
+  const [isMarkRememberLoading, setIsMarkRememebrLoading] =
+    React.useState<boolean>(false);
+  const { data, pushData } = useWordLearningStore();
   const info = useInfoStore((state) => state.info);
   const colors = useThemeStore((state) => state.colors);
   const { setVisibleCountDownModal, lastUpdate, setLastUpdate } =
@@ -147,14 +155,25 @@ const GroupExpandMenu: React.FC<{ group: Group; onClose: () => void }> = ({
       )}
       <TouchableOpacity
         style={styles.modalItem}
-        disabled={!!reportData || isLoading}
+        disabled={!!reportData || isMarkRememberLoading}
         onPress={() => {
-          router.navigate({
-            pathname: "/replace-remember",
-            params: {
-              groupId: group.id,
-            },
-          });
+          if (data.length <= 25) {
+            setIsMarkRememebrLoading(true);
+            addListWordLearning(group.words)
+              .then((r) => {
+                pushData(r.data || []);
+              })
+              .finally(() => {
+                setIsMarkRememebrLoading(false);
+              });
+          } else {
+            router.navigate({
+              pathname: "/replace-remember",
+              params: {
+                groupId: group.id,
+              },
+            });
+          }
           onClose();
         }}
       >

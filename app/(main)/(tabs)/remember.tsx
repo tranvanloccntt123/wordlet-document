@@ -7,11 +7,18 @@ import {
   FontSizeKeys,
   getAppFontStyle,
 } from "@/styles/fontStyles";
+import { playWord } from "@/utils/voice";
+import { MaterialIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useFocusEffect } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, useWindowDimensions, View } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   clamp,
@@ -20,7 +27,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSequence,
-  withTiming,
+  withTiming
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
@@ -51,11 +58,11 @@ const RememberItem: React.FC<{
       prevTranslationX.value = translationX.value;
     })
     .onUpdate((event) => {
-      const maxTranslateX = width / 2 - 50;
+      const maxTranslateX = width - 50;
 
       translationX.value = clamp(
         prevTranslationX.value + event.translationX,
-        -maxTranslateX,
+        length === 1 ? 0 : -maxTranslateX,
         maxTranslateX
       );
     })
@@ -91,6 +98,7 @@ const RememberItem: React.FC<{
       [-width, 0, width],
       [-45, 0, 45]
     );
+
     return {
       zIndex: zIndex,
       transform: [
@@ -116,37 +124,46 @@ const RememberItem: React.FC<{
         style={[
           styles.itemContainer,
           {
-            borderColor: colors.shadow,
+            borderTopColor: colors.accent,
+            borderLeftColor: colors.accent,
+            borderBottomColor: colors.primary,
+            borderRightColor: colors.primary,
             backgroundColor: colors.card,
           },
           animatedStyles,
         ]}
       >
-        <View
-          style={[
-            {
-              alignSelf: "flex-start",
-              backgroundColor: colors.accent,
-            },
-            styles.itemMarkContainer,
-            styles.itemMarkLeft,
-          ]}
-        >
-          <AntDesign name="arrowleft" size={s(18)} color={colors.textPrimary} />
-          <Text
+        {length > 1 && (
+          <View
             style={[
-              getAppFontStyle({
-                fontSizeKey: FontSizeKeys.caption,
-                fontFamily: FontFamilies.NunitoRegular,
-              }),
               {
-                color: colors.textPrimary,
+                alignSelf: "flex-start",
+                backgroundColor: colors.accent,
               },
+              styles.itemMarkContainer,
+              styles.itemMarkLeft,
             ]}
           >
-            {t("remember.dragLeft")}
-          </Text>
-        </View>
+            <AntDesign
+              name="arrowleft"
+              size={s(18)}
+              color={colors.textPrimary}
+            />
+            <Text
+              style={[
+                getAppFontStyle({
+                  fontSizeKey: FontSizeKeys.caption,
+                  fontFamily: FontFamilies.NunitoRegular,
+                }),
+                {
+                  color: colors.textPrimary,
+                },
+              ]}
+            >
+              {t("remember.dragLeft")}
+            </Text>
+          </View>
+        )}
         <View
           style={{
             flex: 1,
@@ -170,7 +187,20 @@ const RememberItem: React.FC<{
           >
             {word.word.word}
           </Text>
-          <ParseContent content={word.word.content} />
+          <ParseContent
+            content={word.word.content}
+            style={{ textAlign: "center" }}
+          />
+          <TouchableOpacity
+            style={{}}
+            onPress={() => playWord(word.word.word, word.word.source)}
+          >
+            <MaterialIcons
+              name="volume-up"
+              size={s(30)}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
         <View
           style={[
@@ -234,7 +264,7 @@ const RememberScreen = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.border }]}>
       <SafeAreaView style={styles.container}>
         <View
           style={[
@@ -330,6 +360,7 @@ const styles = ScaledSheet.create({
     height: "500@vs",
     overflow: "hidden",
     paddingVertical: "16@s",
+    borderWidth: "3@s",
   },
   itemMarkContainer: {
     height: "45@s",

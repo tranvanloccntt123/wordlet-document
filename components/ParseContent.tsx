@@ -1,7 +1,7 @@
 import useThemeStore from "@/store/themeStore";
 import { router } from "expo-router";
 import React from "react"; // Added useCallback
-import { Text, View } from "react-native"; // Added Alert
+import { StyleProp, Text, TextStyle, View } from "react-native"; // Added Alert
 import { ScaledSheet } from "react-native-size-matters"; // Import s for scaling
 
 type ContentComponents = "0#" | "1#" | "3#" | "5#" | "6#" | "7#" | "8#" | "9#";
@@ -9,11 +9,13 @@ type ContentComponents = "0#" | "1#" | "3#" | "5#" | "6#" | "7#" | "8#" | "9#";
 interface ParseContentProps {
   content: string;
   hideComponents?: ContentComponents[];
+  style?: StyleProp<TextStyle>;
 }
 
 const ParseContent: React.FC<ParseContentProps> = ({
   content,
   hideComponents,
+  style,
 }) => {
   const { colors } = useThemeStore();
 
@@ -42,7 +44,11 @@ const ParseContent: React.FC<ParseContentProps> = ({
           elements.push(
             <Text
               key={`1-${index}`}
-              style={[cardStyles.phoneticText, { color: colors.primary }]}
+              style={[
+                cardStyles.phoneticText,
+                style,
+                { color: colors.primary },
+              ]}
             >
               {trimmedLine.substring(2).trim()}
             </Text>
@@ -59,6 +65,7 @@ const ParseContent: React.FC<ParseContentProps> = ({
                 key={`3-${index}`}
                 style={[
                   cardStyles.partOfSpeechText,
+                  style,
                   { color: colors.textPrimary, fontWeight: "400" },
                 ]}
               >
@@ -86,6 +93,7 @@ const ParseContent: React.FC<ParseContentProps> = ({
                 key={`3-${index}`}
                 style={[
                   cardStyles.partOfSpeechText,
+                  style,
                   { color: colors.primaryDark },
                 ]}
               >
@@ -100,7 +108,11 @@ const ParseContent: React.FC<ParseContentProps> = ({
           elements.push(
             <Text
               key={`5-${index}`}
-              style={[cardStyles.definitionText, { color: colors.textPrimary }]}
+              style={[
+                cardStyles.definitionText,
+                style,
+                { color: colors.textPrimary },
+              ]}
             >
               {trimmedLine.substring(2).trim()}
             </Text>
@@ -112,7 +124,11 @@ const ParseContent: React.FC<ParseContentProps> = ({
           elements.push(
             <Text
               key={`6-${index}`}
-              style={[cardStyles.definitionText, { color: colors.success }]}
+              style={[
+                cardStyles.definitionText,
+                style,
+                { color: colors.success },
+              ]}
             >
               {trimmedLine.substring(2).trim()}
             </Text>
@@ -132,7 +148,11 @@ const ParseContent: React.FC<ParseContentProps> = ({
           elements.push(
             <View key={`78-${index}`} style={cardStyles.examplePairContainer}>
               <Text
-                style={[cardStyles.dotPoint, { color: colors.textDisabled }]}
+                style={[
+                  cardStyles.dotPoint,
+                  style,
+                  { color: colors.textDisabled },
+                ]}
               >
                 •
               </Text>
@@ -148,6 +168,7 @@ const ParseContent: React.FC<ParseContentProps> = ({
                 <Text
                   style={[
                     cardStyles.translationText,
+                    style,
                     { color: colors.textSecondary },
                   ]}
                 >
@@ -163,7 +184,11 @@ const ParseContent: React.FC<ParseContentProps> = ({
           elements.push(
             <Text
               key={`9-${index}`}
-              style={[cardStyles.idiomHeaderText, { color: colors.accentDark }]}
+              style={[
+                cardStyles.idiomHeaderText,
+                style,
+                { color: colors.accentDark },
+              ]}
             >
               {trimmedLine.substring(2).trim()}
             </Text>

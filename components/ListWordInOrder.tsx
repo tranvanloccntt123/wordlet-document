@@ -212,7 +212,7 @@ const ListWordInOrder: React.FC<{ group: Group }> = ({ group }) => {
             </TouchableOpacity>
           )}
         </View>
-        <ParseContent content={item.content} />
+        <ParseContent content={item.content} style={{ textAlign: "center" }} />
         {info?.user_id === group.user_id && (
           <TouchableOpacity
             style={styles.removeWordButton}

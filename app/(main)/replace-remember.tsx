@@ -1,16 +1,17 @@
+import AppLoading from "@/components/AppLoading";
 import GameButtons from "@/components/GameButtons";
 import useQuery from "@/hooks/useQuery";
 import {
-    addListWordLearning,
-    deleteWordLearningByUserId,
-    fetchGroupDetail
+  addListWordLearning,
+  deleteWordLearningByUserId,
+  fetchGroupDetail,
 } from "@/services/supabase";
 import useThemeStore from "@/store/themeStore";
 import useWordLearningStore from "@/store/wordLearningStore";
 import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
+  FontFamilies,
+  FontSizeKeys,
+  getAppFontStyle,
 } from "@/styles/fontStyles";
 import { getGroupKey } from "@/utils/string";
 import { router, useLocalSearchParams } from "expo-router";
@@ -23,8 +24,9 @@ const ReplaceRememberScreen = () => {
   const colors = useThemeStore((state) => state.colors);
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ groupId: string }>();
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const { clear, pushData } = useWordLearningStore();
-  const { isLoading, data: group } = useQuery({
+  const { data: group } = useQuery({
     key: getGroupKey(Number(params.groupId || "0")),
     async queryFn() {
       try {
@@ -39,38 +41,52 @@ const ReplaceRememberScreen = () => {
     },
   });
   return (
-    <View style={styles.container}>
-      <View
-        style={[
-          styles.contentContainer,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <Text style={[styles.alertTitle, { color: colors.textPrimary }]}>
-          {t("common.confirm")}
-        </Text>
-        <Text style={[styles.alertDescription, { color: colors.textPrimary }]}>
-          {t("remember.replaceRememberWord")}
-        </Text>
-        <GameButtons
-          primaryButtonText={t("common.confirm")}
-          skipButtonText={t("common.goBack")}
-          onPrimaryPress={() => {
-            deleteWordLearningByUserId().then((r) => {
-              addListWordLearning(group.words).then((r) => {
-                clear();
-                pushData(r.data || []);
-              });
-            });
-            router.back();
-          }}
-          onSkipPress={() => {
-            router.back();
-          }}
-          fontSize={s(15)}
-        />
+    <AppLoading isLoading={isLoading}>
+      <View style={styles.container}>
+        <View
+          style={[
+            styles.contentContainer,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <Text style={[styles.alertTitle, { color: colors.textPrimary }]}>
+            {t("common.confirm")}
+          </Text>
+          <Text
+            style={[styles.alertDescription, { color: colors.textPrimary }]}
+          >
+            {t("remember.replaceRememberWord")}
+          </Text>
+          <GameButtons
+            primaryButtonText={t("common.confirm")}
+            skipButtonText={t("common.goBack")}
+            onPrimaryPress={() => {
+              setIsLoading(true);
+              deleteWordLearningByUserId()
+                .then((r) => {
+                  addListWordLearning(group.words)
+                    .then((r) => {
+                      clear();
+                      pushData(r.data || []);
+                    })
+                    .finally(() => {
+                      setIsLoading(false);
+                      router.back();
+                    });
+                })
+                .catch(() => {
+                  setIsLoading(false);
+                  router.back();
+                });
+            }}
+            onSkipPress={() => {
+              router.back();
+            }}
+            fontSize={s(15)}
+          />
+        </View>
       </View>
-    </View>
+    </AppLoading>
   );
 };
 

@@ -97,3 +97,20 @@ export const addListWordLearning = async (words: Omit<WordStore, "id">[]) => {
     throw e;
   }
 };
+
+export const updateWordLearning = async (
+  id: number,
+  word: Omit<WordStore, "id">
+) => {
+  try {
+    let query = supabase!
+      .from(SUPABASE_TABLE.WORD_LEARNING)
+      .update({ word })
+      .eq("id", id)
+      .select();
+
+    return query;
+  } catch (e) {
+    throw e;
+  }
+};
