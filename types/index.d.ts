@@ -120,6 +120,7 @@ type UserInfo = {
   name: string;
   avatar: string;
   is_premium: boolean;
+  point: number;
   created_at: string;
 };
 
