@@ -1,13 +1,12 @@
 import CommonHeader from "@/components/CommonHeader";
 import ConversationItem from "@/components/ConversationItem";
-import { fetchConversation } from "@/services/supabase";
+import { fetchConversation, fetchUnlockedConversation } from "@/services/supabase";
 import useConversationStore from "@/store/conversationStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import { joinCategories } from "@/utils";
 import { router } from "expo-router";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   FlatList,
@@ -24,14 +23,8 @@ const ConversationList = () => {
   const canLoadMore = React.useRef<boolean>(true);
   const currentOffset = React.useRef("");
   const colors = useThemeStore((state) => state.colors); // Get theme colors
-  const { t } = useTranslation(); // Specify namespaces
   const socialInfo = useInfoStore((state) => state.socialInfo);
-  const {
-    setConversation,
-    setIsWordPlaying,
-    setSelectingTopic,
-    selectingTopic,
-  } = useConversationStore();
+  const pushUnlocked = useConversationStore((state) => state.pushUnlocked);
 
   const fetchData = async (pageNum: number, isRefresh: boolean = false) => {
     if (
@@ -64,6 +57,9 @@ const ConversationList = () => {
       } else {
         setSupabaseData((prevData) =>
           isRefresh ? newItems : [...prevData, ...newItems]
+        );
+        fetchUnlockedConversation(newItems.map((v) => v.id)).then((r) =>
+          pushUnlocked(r.data || [])
         );
         currentOffset.current = newItems[newItems.length - 1].created_at;
         if (newItems.length < pageNum) {
