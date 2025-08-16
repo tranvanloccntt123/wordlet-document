@@ -1,25 +1,18 @@
 import CommonHeader from "@/components/CommonHeader";
+import ConversationItem from "@/components/ConversationItem";
 import { fetchConversation } from "@/services/supabase";
 import useConversationStore from "@/store/conversationStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
-import {
-    FontFamilies,
-    FontSizeKeys,
-    getAppFontStyle,
-} from "@/styles/fontStyles";
 import { joinCategories } from "@/utils";
-import { playWord } from "@/utils/voice";
 import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { s, ScaledSheet } from "react-native-size-matters";
@@ -118,48 +111,14 @@ const ConversationList = () => {
           }
           keyExtractor={(item, index) => `conversation-${index}`}
           renderItem={({ item, index }) => (
-            <TouchableOpacity
-              style={[
-                styles.topicContentContainer,
-                {
-                  backgroundColor: colors.primaryDark,
-                },
-              ]}
-              onPress={() => {
-                if (!selectingTopic) {
-                  setSelectingTopic(true);
-                  setIsWordPlaying(true);
-                  playWord(
-                    `You have selected topic ${item.topic}, now let's start the conversation.`,
-                    "extra_mtb_ev.db"
-                  )
-                    .then(() => {
-                      setConversation(item);
-                    })
-                    .finally(() => {
-                      setIsWordPlaying(false);
-                    });
+            <View style={styles.topicContentContainer}>
+              <ConversationItem
+                item={item}
+                onPress={() => {
                   router.back();
-                }
-              }}
-            >
-              <Text style={{ fontSize: s(18) }}>{item.emoji}</Text>
-              <Text
-                style={[
-                  getAppFontStyle({
-                    fontSizeKey: FontSizeKeys.caption,
-                    fontFamily: FontFamilies.NunitoRegular,
-                  }),
-                  {
-                    color: "white",
-                    textAlign: "center",
-                    fontSize: s(10),
-                  },
-                ]}
-              >
-                {item.topic}
-              </Text>
-            </TouchableOpacity>
+                }}
+              />
+            </View>
           )}
         />
       </SafeAreaView>

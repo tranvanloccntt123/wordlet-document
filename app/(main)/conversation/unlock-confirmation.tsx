@@ -1,19 +1,14 @@
 import AppLoading from "@/components/AppLoading";
 import GameButtons from "@/components/GameButtons";
-import useQuery from "@/hooks/useQuery";
-import {
-  addListWordLearning,
-  deleteWordLearningByUserId,
-  fetchGroupDetail,
-} from "@/services/supabase";
+import { unlockConversation } from "@/services/supabase";
+import useConversationStore from "@/store/conversationStore";
+import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
-import useWordLearningStore from "@/store/wordLearningStore";
 import {
-  FontFamilies,
-  FontSizeKeys,
-  getAppFontStyle,
+    FontFamilies,
+    FontSizeKeys,
+    getAppFontStyle,
 } from "@/styles/fontStyles";
-import { getGroupKey } from "@/utils/string";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -23,23 +18,14 @@ import { s, ScaledSheet } from "react-native-size-matters";
 const ReplaceRememberScreen = () => {
   const colors = useThemeStore((state) => state.colors);
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ groupId: string }>();
+  const params = useLocalSearchParams<{ conversationId: string }>();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const { clear, pushData } = useWordLearningStore();
-  const { data: group } = useQuery({
-    key: getGroupKey(Number(params.groupId || "0")),
-    async queryFn() {
-      try {
-        const res = await fetchGroupDetail(Number(params.groupId || ""));
-        if (res.error) {
-          throw "Failed to fetch group";
-        }
-        return res.data;
-      } catch (e) {
-        throw e;
-      }
-    },
-  });
+  const pushUnlocked = useConversationStore((state) => state.pushUnlocked);
+  const info = useInfoStore((state) => state.info);
+  const minusPoint = useInfoStore((state) => state.minusPoint);
+  const [error, setError] = React.useState<string>(
+    (info?.point || 0) < 250 ? t("remember.doNotEnoughPoint") : ""
+  );
   return (
     <AppLoading isLoading={isLoading}>
       <View style={styles.container}>
@@ -55,28 +41,25 @@ const ReplaceRememberScreen = () => {
           <Text
             style={[styles.alertDescription, { color: colors.textPrimary }]}
           >
-            {t("remember.replaceRememberWord")}
+            {error || t("remember.unlockConversation")}
           </Text>
           <GameButtons
             primaryButtonText={t("common.confirm")}
             skipButtonText={t("common.goBack")}
+            hidePrimaryButton={!!error}
             onPrimaryPress={() => {
-              setIsLoading(true);
-              deleteWordLearningByUserId()
+              unlockConversation(Number(params.conversationId))
                 .then((r) => {
-                  addListWordLearning(group.words)
-                    .then((r) => {
-                      clear();
-                      pushData(r.data || []);
-                    })
-                    .finally(() => {
-                      setIsLoading(false);
-                      router.back();
-                    });
+                  if (r.data?.length) {
+                    pushUnlocked(r.data || []);
+                    minusPoint();
+                    router.back();
+                  } else {
+                    setError(t("remember.doNotEnoughPoint"));
+                  }
                 })
-                .catch(() => {
-                  setIsLoading(false);
-                  router.back();
+                .catch((e) => {
+                  console.log(e);
                 });
             }}
             onSkipPress={() => {

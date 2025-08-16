@@ -72,6 +72,8 @@ const GameOverScreen: React.FC<object> = () => {
 
   const percent = (totalAnswerCorrect / totalQuestions) * 100;
 
+  const plusPoint = useInfoStore((state) => state.plusPoint);
+
   const { playGame } = useStreakStore();
 
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -105,11 +107,18 @@ const GameOverScreen: React.FC<object> = () => {
       .then((r) => {
         setIsLoading(false);
         setFinalScore(r.data.score || 0);
+        
         if (r.data?.data?.[0]) {
           setEnergy(r.data.data[0].energy);
         }
         if (r.error) {
           mixpanel.track("Game Error", { error: r.error });
+        } else {
+          if (params.groupId) {
+            plusPoint(5);
+          } else {
+            plusPoint(2);
+          }
         }
       })
       .catch((e) => {

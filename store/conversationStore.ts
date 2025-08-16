@@ -5,12 +5,14 @@ interface ConversationState {
   conversation: Conversation | null;
   timeline: Chat[];
   isWordPlaying: boolean;
+  unlocked: Record<number, string>;
+  selectingTopic: boolean;
   setConversation: (_: Conversation) => void;
   setTimeline: (_: Chat[]) => void;
   init: () => void;
   setIsWordPlaying: (_: boolean) => void;
-  selectingTopic: boolean;
   setSelectingTopic: (_: boolean) => void;
+  pushUnlocked: (_: { conversation_id: number; created_at: string }[]) => void;
 }
 
 const useConversationStore = create<ConversationState>()(
@@ -45,6 +47,18 @@ const useConversationStore = create<ConversationState>()(
     setSelectingTopic(selectingTopic) {
       set((state) => {
         state.selectingTopic = selectingTopic;
+      });
+    },
+    unlocked: {},
+    pushUnlocked(unlocked) {
+      set((state) => {
+        state.unlocked = {
+          ...state.unlocked,
+          ...unlocked.reduce((acc: any, item) => {
+            acc[item.conversation_id] = item.created_at;
+            return acc;
+          }, {}),
+        };
       });
     },
   }))

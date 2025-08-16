@@ -5,6 +5,7 @@ import gameOver from "@/i18n/en/gameOver";
 import { decreaseEnergy } from "@/services/supabase";
 import useConversationStore from "@/store/conversationStore";
 import useEnergyStore from "@/store/energyStore";
+import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
 import {
   FontFamilies,
@@ -25,6 +26,7 @@ const ConversationGameOver = () => {
   const timeline = useConversationStore((state) => state.timeline);
   const conversation = useConversationStore((state) => state.conversation);
   const { setEnergy } = useEnergyStore();
+  const plusPoint = useInfoStore((state) => state.plusPoint);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const { t } = useTranslation();
@@ -63,6 +65,7 @@ const ConversationGameOver = () => {
       .then((r) => {
         if (r.data?.data?.[0]) {
           setEnergy(r.data.data[0].energy);
+          plusPoint(10);
         }
       })
       .finally(() => {

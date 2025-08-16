@@ -23,6 +23,8 @@ interface InfoState {
   addGameResult: (result: GameHistory) => void;
   fetchCurrentInfo: () => Promise<void>;
   clearData: () => void;
+  minusPoint: () => void;
+  plusPoint: (point: number) => void;
 }
 
 const infoStore = create<InfoState>()(
@@ -72,6 +74,25 @@ const infoStore = create<InfoState>()(
         state.info = null;
         state.history = [];
         state.socialInfo = null;
+      });
+    },
+    minusPoint() {
+      set((state) => {
+        if (state.info)
+          state.info = {
+            ...state.info,
+            point: state.info.point - 250,
+          };
+      });
+    },
+    plusPoint(point) {
+      set((state) => {
+        if (state.info) {
+          state.info = {
+            ...state.info,
+            point: state.info.point + point,
+          };
+        }
       });
     },
   }))

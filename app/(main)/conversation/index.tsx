@@ -1,10 +1,14 @@
 import AppLoading from "@/components/AppLoading";
 import ChatItem from "@/components/ChatItem";
+import ConversationItem from "@/components/ConversationItem";
 import DoubleCheckBackScreen from "@/components/DoubleCheckBackScreen";
 import GameButtons from "@/components/GameButtons";
 import useConversationFlow from "@/hooks/useConversationFlow";
 import useSpeakAndCompare from "@/hooks/useSpeakAndCompare";
-import { fetchConversation } from "@/services/supabase";
+import {
+  fetchConversation,
+  fetchUnlockedConversation,
+} from "@/services/supabase";
 import useConversationStore from "@/store/conversationStore";
 import useInfoStore from "@/store/infoStore";
 import useThemeStore from "@/store/themeStore";
@@ -14,11 +18,10 @@ import {
   getAppFontStyle,
 } from "@/styles/fontStyles";
 import { joinCategories } from "@/utils";
-import { playWord } from "@/utils/voice";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -149,11 +152,10 @@ const AIChat = () => {
     timeline: data,
     setTimeline: setData,
     conversation,
-    setConversation,
     isWordPlaying,
     setIsWordPlaying,
     selectingTopic,
-    setSelectingTopic,
+    pushUnlocked,
   } = useConversationStore();
 
   const router = useRouter();
@@ -202,6 +204,9 @@ const AIChat = () => {
         const { data } = r;
         if (data) {
           setConversations(data);
+          fetchUnlockedConversation(data.map((v) => v.id)).then((r) =>
+            pushUnlocked(r.data || [])
+          );
         }
       });
   }, [socialInfo]);
@@ -235,56 +240,8 @@ const AIChat = () => {
           )}
           {index === 1 && !conversation && !isWordPlaying && (
             <View style={styles.topicListContainer}>
-              {conversations.map((v, i) => (
-                <TouchableOpacity
-                  style={[
-                    styles.topicContentContainer,
-                    {
-                      backgroundColor: colors.primaryDark,
-                      opacity: !!conversation || selectingTopic ? 0.7 : 1,
-                    },
-                  ]}
-                  key={v.topic}
-                  disabled={
-                    !!conversation ||
-                    selectingTopic ||
-                    isWordPlaying ||
-                    isWordPlaying
-                  }
-                  onPress={() => {
-                    if (!selectingTopic && !conversation && !isWordPlaying) {
-                      setSelectingTopic(true);
-                      setIsWordPlaying(true);
-                      playWord(
-                        `You have selected topic ${v.topic}, now let's start the conversation.`,
-                        "extra_mtb_ev.db"
-                      )
-                        .then(() => {
-                          setConversation(v);
-                        })
-                        .finally(() => {
-                          setIsWordPlaying(false);
-                        });
-                    }
-                  }}
-                >
-                  <Text style={{ fontSize: s(18) }}>{v.emoji}</Text>
-                  <Text
-                    style={[
-                      getAppFontStyle({
-                        fontSizeKey: FontSizeKeys.caption,
-                        fontFamily: FontFamilies.NunitoRegular,
-                      }),
-                      {
-                        color: "white",
-                        textAlign: "center",
-                        fontSize: s(10),
-                      },
-                    ]}
-                  >
-                    {v.topic}
-                  </Text>
-                </TouchableOpacity>
+              {conversations.map((v) => (
+                <ConversationItem item={v} key={`${v.id}`} />
               ))}
               <GameButtons
                 fontSize={s(15)}

@@ -1,5 +1,9 @@
-import { SUPABASE_WORD_TABLE } from "@/constants/Supabase";
-import { wordSupabase } from "./client";
+import {
+  SUPABASE_SCHEMA,
+  SUPABASE_TABLE,
+  SUPABASE_WORD_TABLE,
+} from "@/constants/Supabase";
+import { getUsers, supabase, wordSupabase } from "./client";
 
 export const fetchConversation = async (
   listCategories: string[],
@@ -22,6 +26,42 @@ export const fetchConversation = async (
       query = query.lt("created_at", lastCreatedAt); // Fetch records older than the lastCreatedAt
     }
     return query;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const fetchUnlockedConversation = async (list: number[]) => {
+  try {
+    const user = await getUsers();
+    if (!user) {
+      console.log("Throw user", user);
+      throw "User not found";
+    }
+    let query = supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.UNLOCKED_CONVERSATION)
+      .select("*")
+      .eq("user_id", user.id)
+      .in("conversation_id", list);
+    return query;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const unlockConversation = async (id: number) => {
+  try {
+    const user = await getUsers();
+    if (!user) {
+      console.log("Throw user", user);
+      throw "User not found";
+    }
+    return supabase!
+      .schema(SUPABASE_SCHEMA)
+      .from(SUPABASE_TABLE.UNLOCKED_CONVERSATION)
+      .insert({ conversation_id: id, user_id: user.id })
+      .select();
   } catch (e) {
     throw e;
   }

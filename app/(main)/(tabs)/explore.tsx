@@ -34,36 +34,58 @@ const SettingsScreen = () => {
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <View
             style={[
-              styles.avatarContainer,
+              styles.profileContainer,
               {
-                borderColor: colors.textDisabled,
+                backgroundColor: colors.card,
               },
             ]}
           >
-            <Image source={{ uri: info?.avatar }} style={styles.avatar} />
             <View
               style={[
-                styles.profileBadge,
+                styles.avatarContainer,
                 {
-                  backgroundColor: info?.is_premium
-                    ? colors.premium || "#FFD700"
-                    : colors.border,
+                  borderColor: colors.textDisabled,
                 },
               ]}
             >
-              <Text
+              <Image source={{ uri: info?.avatar }} style={styles.avatar} />
+              <View
                 style={[
-                  styles.profileBadgeText,
-                  { color: info?.is_premium ? "black" : colors.textPrimary },
+                  styles.profileBadge,
+                  {
+                    backgroundColor: info?.is_premium
+                      ? colors.premium || "#FFD700"
+                      : colors.border,
+                  },
                 ]}
               >
-                {info?.is_premium ? "Pre" : "Free"}
+                <Text
+                  style={[
+                    styles.profileBadgeText,
+                    { color: info?.is_premium ? "black" : colors.textPrimary },
+                  ]}
+                >
+                  {info?.is_premium ? "Pre" : "Free"}
+                </Text>
+              </View>
+            </View>
+            <View>
+              <Text style={[styles.name, { color: colors.textPrimary }]}>
+                {info?.name}
+              </Text>
+              <Text
+                style={[
+                  getAppFontStyle({
+                    fontFamily: FontFamilies.NunitoBlack,
+                    fontSizeKey: FontSizeKeys.caption,
+                  }),
+                  { color: colors.warning },
+                ]}
+              >
+                {info?.point} WP
               </Text>
             </View>
           </View>
-          <Text style={[styles.name, { color: colors.textPrimary }]}>
-            {info?.name}
-          </Text>
 
           <TouchableOpacity
             style={{ marginTop: vs(30) }}
@@ -203,9 +225,6 @@ const styles = ScaledSheet.create({
   },
   avatar: { flex: 1, resizeMode: "contain", borderRadius: "50@s" },
   name: {
-    alignSelf: "center",
-    marginTop: "8@s",
-    textAlign: "center",
     ...getAppFontStyle({
       fontSizeKey: FontSizeKeys.subheading,
       fontFamily: FontFamilies.NunitoBold,
@@ -239,6 +258,12 @@ const styles = ScaledSheet.create({
       fontFamily: FontFamilies.NunitoRegular,
     }),
     fontSize: "8@s",
+  },
+  profileContainer: {
+    flexDirection: "row",
+    gap: "16@s",
+    padding: "16@s",
+    borderRadius: "16@s",
   },
 });
 
